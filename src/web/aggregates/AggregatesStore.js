@@ -39,7 +39,9 @@ const AggregatesStore = Reflux.createStore({
 				field: newRule.field,
 				numberOfMatches: newRule.numberOfMatches,
 				matchMoreOrEqual: newRule.matchMoreOrEqual,
-				interval: newRule.interval
+				interval: newRule.interval,
+				alertReceivers: newRule.alertReceivers,
+				enabled: true
 			}	
 	};
 
@@ -66,7 +68,9 @@ const AggregatesStore = Reflux.createStore({
 					field: updatedRule.field,
 					numberOfMatches: updatedRule.numberOfMatches,
 					matchMoreOrEqual: updatedRule.matchMoreOrEqual,
-					interval: updatedRule.interval
+					interval: updatedRule.interval,
+					alertReceivers: updatedRule.alertReceivers,
+					enabled: updatedRule.enabled
 				}	
 		};
 

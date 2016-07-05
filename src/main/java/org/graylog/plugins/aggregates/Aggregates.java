@@ -11,6 +11,7 @@ import java.util.stream.Collectors;
 import javax.inject.Inject;
 import org.apache.commons.mail.EmailException;
 import org.graylog.plugins.aggregates.rule.Rule;
+import org.graylog.plugins.aggregates.rule.RuleService;
 import org.graylog.plugins.aggregates.rule.alert.RuleAlertSender;
 import org.graylog2.alarmcallbacks.EmailAlarmCallback;
 import org.graylog2.indexer.results.ResultMessage;
@@ -52,61 +53,47 @@ public class Aggregates extends Periodical {
 	private final ClusterConfigService clusterConfigService;
 	private final Searches searches;
 	private final IndexerSetupService indexerSetupService;
+	private final RuleService ruleService;
 	private final RuleAlertSender alertSender;
 	private static final Logger LOG = LoggerFactory.getLogger(Aggregates.class);
 	private String rulesListFilename = "/tmp/test.yml";
-	private List<Rule> list = new ArrayList();
+	private List<Rule> list;
 
 	@Inject
 	public Aggregates(RuleAlertSender alertSender, Searches searches, ClusterConfigService clusterConfigService,
-			IndexerSetupService indexerSetupService) {
+			IndexerSetupService indexerSetupService, RuleService ruleService) {
 		LOG.info("constructor");
 		this.searches = searches;
 		this.clusterConfigService = clusterConfigService;
 		this.alertSender = alertSender;
 		this.indexerSetupService = indexerSetupService;
-		init();
+		this.ruleService = ruleService;
 	}
 
-	private void init() {
-		LOG.info("init");
-		File rules = new File(rulesListFilename);
-		
-		final ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
-		/*
-		try {
-			list = mapper.readValue(rules, RulesList.class);
-		} catch (JsonParseException e) {
-			LOG.error("Could not parse file " + rulesListFilename);
-
-		} catch (JsonMappingException e) {
-			LOG.error("Could not map values, " + e.getMessage());
-		} catch (IOException e) {
-			LOG.error("Could not read file " + rulesListFilename + ", " + e.getMessage());
-		}
-
-		for (Rule rule : list.getRules()) {
-			if (rule.getInterval() > maxInterval) {
-				maxInterval = rule.getInterval();
-			}
-		}
-		LOG.info("maxInterval: " + maxInterval);
-		LOG.info(list.toString());
-		*/
-	}
 
 	@Override
 	public void doRun() {
 		if (!indexerSetupService.isRunning()) {
 			LOG.warn("Indexer is not running, not checking any rules this run.");
 		} else {
+			list = ruleService.all();
+			
 			if (sequence == maxInterval) {
 				sequence = 0;
 			}
 			
 			sequence++;
 			
-			for (Rule rule : list) {				
+			for (Rule rule : list) {
+				if (!rule.isEnabled()){
+					LOG.debug("Rule '" + rule.getName() + "' is disabled, skipping.");
+					continue;
+				}
+				
+				if (rule.getInterval() > maxInterval) {
+					maxInterval = rule.getInterval();
+				}
+				
 				if (sequence % rule.getInterval() == 0) {
 
 					String field = rule.getField();
@@ -148,7 +135,7 @@ public class Aggregates extends Periodical {
 						
 						if (!matchedTerms.isEmpty()){
 							try {
-								alertSender.sendEmails("tienhoven.c@tkppensioen.nl", rule, matchedTerms);
+								alertSender.sendEmails(rule, matchedTerms);
 							} catch (EmailException e) {
 								LOG.error("failed to send email: " + e.getMessage());
 							} catch (TransportConfigurationException e) {

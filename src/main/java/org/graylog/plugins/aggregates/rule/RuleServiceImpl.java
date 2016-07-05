@@ -92,7 +92,8 @@ public class RuleServiceImpl implements RuleService {
 				request.getRule().isMatchMoreOrEqual(),
 				request.getRule().getInterval(), 
 				request.getRule().getName(),
-				request.getRule().getAlertReceivers());
+				request.getRule().getAlertReceivers(),
+				request.getRule().isEnabled());
 	}
 
 	@Override
@@ -104,7 +105,8 @@ public class RuleServiceImpl implements RuleService {
 				request.getRule().isMatchMoreOrEqual(),
 				request.getRule().getInterval(), 
 				request.getRule().getName(),
-				request.getRule().getAlertReceivers());
+				request.getRule().getAlertReceivers(),
+				request.getRule().isEnabled());
 	}
 	
 	@Override

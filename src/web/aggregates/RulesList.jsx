@@ -58,7 +58,22 @@ const RulesList = React.createClass({
     }
 
     return formattedHeaderCell;
-  },  
+  },
+  _alertReceiversFormatter(rule){
+    const emailReceivers = rule.alertReceivers.map((receiver) => {
+      return (        
+          <li key={receiver}>
+            <i className="fa fa-envelope"/>{receiver}
+            
+        </li>);
+    
+     });
+   return (
+     <ul className="alert-receivers">
+       {emailReceivers}
+     </ul>
+    );
+  },     
   _ruleInfoFormatter(rule) {
  	const match = (
  		rule.matchMoreOrEqual === true ? rule.numberOfMatches + ' or more' : 'less than ' + rule.numberOfMatches 	
@@ -88,16 +103,15 @@ const RulesList = React.createClass({
       <tr key={rule.name}>
         <td className="limited">{rule.name}</td>
         <td className="limited">{rule.query}</td>
-        <td className="limited">{rule.field}</td>
-        <td className="limited">{match}</td>
-		<td className="limited">{rule.interval} minutes</td>		
+        <td className="limited">The same value of field '{rule.field}' occurs {match} times in a {rule.interval} minute interval</td>
+		<td className="limited">{this._alertReceiversFormatter(rule)}</td>
         <td>{actions}</td>
       </tr>
     );
   },
   render() {
     const filterKeys = ['name', 'query', 'field'];
-    const headers = ['Name', 'Query', 'Field', '# Matches', 'Interval'];
+    const headers = ['Rule name', 'Query', 'Alert condition', 'Alert receivers'];
     
     if (this.state.rules) {
       return (
@@ -106,7 +120,7 @@ const RulesList = React.createClass({
                      className="table-hover"
                      headers={headers}
                      headerCellFormatter={this._headerCellFormatter}
-                     sortByKey={"field"}
+                     sortByKey={"name"}
                      rows={this.state.rules}
                      filterBy="field"                     
                      dataRowFormatter={this._ruleInfoFormatter}

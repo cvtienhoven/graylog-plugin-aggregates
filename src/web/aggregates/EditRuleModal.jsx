@@ -34,15 +34,39 @@ const EditRuleModal = React.createClass({
       originalName: ObjectUtils.clone(this.props.rule).name,
       rule: ObjectUtils.clone(this.props.rule),
       create: ObjectUtils.clone(this.props.create),
-      rules: [],
+      rules: [],      
     };
   },
+  _alertReceiversToString(alertReceivers){
+  	if (!alertReceivers || alertReceivers.length === 0) {
+      return '';
+    }
+    
+    var alertReceiversString = '';
+    
+    for (var i=0; i < alertReceivers.length; i++) {
+    	if (alertReceivers[i]){
+          alertReceiversString += alertReceivers[i].trim();
+        
+          if (i < alertReceivers.length-1) {
+            alertReceiversString += ',';
+          }
+        }
+    } 
+    console.log('receivers: ' + alertReceiversString);
+    return alertReceiversString;
+  },
+  
   componentDidMount() {
     console.log("mount");    
   },
   openModal() {    
     this.refs.modal.open();
     this.setState(this.getInitialState());
+    
+    const alertReceivers = this._alertReceiversToString(this.state.rule.alertReceivers);
+    this.setState({alertReceivers: alertReceivers});
+        
     AggregatesActions.list().then(newRules => {
   	  this.setState({rules : newRules});      
     });    
@@ -67,8 +91,6 @@ const EditRuleModal = React.createClass({
     if (!rule.alertReceivers){
       rule.alertReceivers = [];
     }
-     
-    rule.alertReceivers = rule.alertReceivers.concat(this.state.emailReceiver);
 
 	if (this.state.originalName != ''){
       this.props.createRule(this.state.originalName, rule, this._saved);
@@ -78,46 +100,58 @@ const EditRuleModal = React.createClass({
 
   },
   _onValueChanged(event) {
+    const rule = this.state.rule;
     
     const parameter = event.target.name;
     const value = event.target.value;
     
     console.log("onValueChanged: " + parameter + "=" + value);
-    console.log("rules: " + this.state.rules);
+    
     if (parameter == "name"){
-    	const nameField = this.refs.name.getInputDOMNode();
-    	const nameExists = this.state.rules.some(rule => rule.name === event.target.value);
-    	ValidationsUtils.setFieldValidity(nameField, nameExists, 'Rule name is already taken');
-    }        
-    const rule = this.state.rule;
-    rule[parameter] = value;
-    
-    this.setState(rule);
-    
-  },
-  _onChangeEmail(evt) {
-    this.setState({emailReceiver: evt.target.value});
-  },  
-  _formatReceiverList() {
-    if (!this.state.rule.alertReceivers || this.state.rule.alertReceivers.length === 0) {
-      return <Alert bsStyle="info">No configured alert receivers.</Alert>;
+    	if (!this.props.create && name != this.state.originalName){
+    		const nameField = this.refs.name.getInputDOMNode();    	
+    		const nameExists = this.state.rules.some(rule => rule.name === event.target.value);
+    		ValidationsUtils.setFieldValidity(nameField, nameExists, 'Rule name is already taken');
+    	}
     }
     
-    const emailReceivers = this.state.rule.alertReceivers.map((receiver) => {
-      return (        
-          <li>
-            <i className="fa fa-envelope"/>{receiver}
-          <a href="" onClick={this._onDelete}>
-            <i className="fa fa-remove"/>
-          </a>
-        </li>);
-    });
-    return (
-      <ul className="alert-receivers">
-        {emailReceivers}
-      </ul>
-    );
-  },
+    if (parameter == "interval"){
+    	const intervalField = this.refs.interval.getInputDOMNode();    	
+    	const intervalValue = value < 1;
+    	ValidationsUtils.setFieldValidity(intervalField, intervalValue, 'Interval should be at least 1');    	
+    }
+    
+    if (parameter == "numberOfMatches"){
+    	const numberOfMatchesField = this.refs.numberOfMatches.getInputDOMNode();    	
+    	const numberOfMatchesValue = value < 1;
+    	ValidationsUtils.setFieldValidity(numberOfMatchesField, numberOfMatchesValue, 'Number of matches should be at least 1');    	
+    }
+    
+    if (parameter == "email"){
+      const emailField = this.refs.email.getInputDOMNode();      
+      var emailArray = [];      
+      
+      
+      value.split(',').forEach(function(obj) {
+    	if (emailArray.indexOf(obj) === -1) emailArray.push(obj);
+	  });
+      
+      for (var i=0; i< emailArray.length; i++){
+        if (emailArray[i]){  
+          emailArray[i] = emailArray[i].trim();
+        }
+        const invalidEmail = !/^.+@.+\..+$/.test(emailArray[i]);
+        ValidationsUtils.setFieldValidity(emailField, invalidEmail, 'Email address ' + emailArray[i] + ' is invalid');     	    	
+      }      
+      rule.alertReceivers = emailArray;
+    } else {
+      rule[parameter] = value;
+    }
+    
+
+    this.setState(rule);
+    
+  },  
   render() {
     return (
       <span>
@@ -132,7 +166,7 @@ const EditRuleModal = React.createClass({
                             submitButtonText="Save">
           <fieldset>
             
-              <Input ref="name" name="name" id="name" type="text" maxLength={100}
+              <Input ref="name" name="name" id="name" type="text" maxLength={100} defaultValue={this.state.originalName}
               		labelClassName="col-sm-2" wrapperClassName="col-sm-10"
                		label="Name" help="Enter a unique rule name." required
                		onChange={this._onValueChanged} autoFocus  />
@@ -167,15 +201,11 @@ const EditRuleModal = React.createClass({
                		label="Interval (minutes)" help="...minute interval." required
                		onChange={this._onValueChanged} />
                		
-			  <Row id="add-alert-receivers" className="row-sm">          
-            	<Col md={6}>
-				  <ul className="alert-receivers">
-	         		{this._formatReceiverList()}
-          		  </ul>
-				</Col>
-          	  </Row>              
+			  <Input ref="email" name="email" id="email" type="text" maxLength={500} defaultValue={this.state.alertReceivers}
+               		labelClassName="col-sm-2" wrapperClassName="col-sm-10"
+               		label="Email Receivers" help="Comma separated list of email addresses. Send a message to the addresses above when the alert condition was met."
+               		onChange={this._onValueChanged} />
               
-			  <Input ref="email" label="Email address:" type="text" value={this.state.emailReceiver} onChange={this._onChangeEmail}/>				  			  
 			  
           </fieldset>
 

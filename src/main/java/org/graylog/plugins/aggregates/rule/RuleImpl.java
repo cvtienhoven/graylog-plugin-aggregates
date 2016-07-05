@@ -2,6 +2,9 @@ package org.graylog.plugins.aggregates.rule;
 
 import java.util.List;
 
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotNull;
+
 import org.graylog2.database.CollectionName;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
@@ -16,14 +19,17 @@ public abstract class RuleImpl implements Rule{
 
     @JsonProperty("query")
     @Override
+    @NotNull
     public abstract String getQuery();
 
     @JsonProperty("field")
     @Override
+    @NotNull
     public abstract String getField();
 
     @JsonProperty("numberOfMatches")
     @Override
+    @Min(1)
     public abstract int getNumberOfMatches();
     
     @JsonProperty("matchMoreOrEqual")
@@ -32,16 +38,21 @@ public abstract class RuleImpl implements Rule{
 	
     @JsonProperty("interval")
     @Override
+    @Min(1)
     public abstract int getInterval();
 		
     @JsonProperty("name")    
     @Override
+    @NotNull
     public abstract String getName();
     	
     @JsonProperty("alertReceivers") 
     @Override
     public abstract List<String> getAlertReceivers();
     
+    @JsonProperty("enabled")
+    @Override
+    public abstract boolean isEnabled();
     
 	@JsonCreator
     public static RuleImpl create(@JsonProperty("_id") String objectId,
@@ -51,8 +62,9 @@ public abstract class RuleImpl implements Rule{
                                        @JsonProperty("matchMoreOrEqual") boolean matchMoreOrEqual,
                                        @JsonProperty("interval") int interval,
                                        @JsonProperty("name") String name,
-                                       @JsonProperty("alertReceivers") List<String> alertReceivers) {
-        return new AutoValue_RuleImpl(query, field, numberOfMatches, matchMoreOrEqual, interval, name, alertReceivers);
+                                       @JsonProperty("alertReceivers") List<String> alertReceivers,
+                                       @JsonProperty("enabled") boolean enabled) {
+        return new AutoValue_RuleImpl(query, field, numberOfMatches, matchMoreOrEqual, interval, name, alertReceivers, enabled);
     }
 	
 	public static RuleImpl create(
@@ -62,8 +74,9 @@ public abstract class RuleImpl implements Rule{
             boolean matchMoreOrEqual,
             int interval,
             String name,
-            List<String> alertReceivers) {
-		return new AutoValue_RuleImpl(query, field, numberOfMatches, matchMoreOrEqual, interval, name, alertReceivers);
+            List<String> alertReceivers,
+            boolean enabled) {
+		return new AutoValue_RuleImpl(query, field, numberOfMatches, matchMoreOrEqual, interval, name, alertReceivers, enabled);
 	
 	}
 }
