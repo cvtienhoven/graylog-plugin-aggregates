@@ -27,9 +27,9 @@
     </developers>
 
     <scm>
-        <connection>scm:git:git@github.com:cvtienhoven/graylog-plugin-correlation-rules.git</connection>
-        <developerConnection>scm:git:git@github.com:cvtienhoven/graylog-plugin-correlation-rules.git</developerConnection>
-        <url>https://github.com/cvtienhoven/graylog-plugin-correlation-rules</url>
+        <connection>scm:git:git@github.com:cvtienhoven/graylog-plugin-aggregates.git</connection>
+        <developerConnection>scm:git:git@github.com:cvtienhoven/graylog-plugin-aggregates.git</developerConnection>
+        <url>https://github.com/cvtienhoven/graylog-plugin-aggregates</url>
         <tag>HEAD</tag>
     </scm>
 

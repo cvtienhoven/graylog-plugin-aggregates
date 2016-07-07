@@ -1,4 +1,4 @@
-# CorrelationRules Plugin for Graylog
+# Aggregates Plugin for Graylog
 
 [![Build Status](https://travis-ci.org/cvtienhoven/graylog-plugin-correlation-rules.svg?branch=master)](https://travis-ci.org/cvtienhoven/graylog-plugin-correlation-rules)
 
