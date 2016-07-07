@@ -46,7 +46,11 @@
             <groupId>org.graylog2</groupId>
             <artifactId>graylog2-server</artifactId>
             <version>${graylog.version}</version>
-            <scope>provided</scope>
+          </dependency>
+          <dependency>
+            <groupId>org.graylog.plugins</groupId>
+            <artifactId>usage-statistics</artifactId>
+            <version>${graylog.version}</version>
           </dependency>
           <dependency>
             <groupId>com.fasterxml.jackson.dataformat</groupId>
