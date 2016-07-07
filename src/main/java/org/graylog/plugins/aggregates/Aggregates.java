@@ -89,7 +89,7 @@ public class Aggregates extends Periodical {
 					LOG.debug("Rule '" + rule.getName() + "' is disabled, skipping.");
 					continue;
 				}
-				
+							
 				if (rule.getInterval() > maxInterval) {
 					maxInterval = rule.getInterval();
 				}
