@@ -39,6 +39,7 @@
         <maven.compiler.target>1.8</maven.compiler.target>
         <graylog.version>2.0.2</graylog.version>
         <graylog.plugin-dir>/usr/share/graylog-server/plugin</graylog.plugin-dir>
+        <module.dependencies.path>../</module.dependencies.path>
     </properties>
 
     <dependencies>
