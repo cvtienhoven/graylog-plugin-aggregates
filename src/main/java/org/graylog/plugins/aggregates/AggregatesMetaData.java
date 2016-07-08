@@ -24,25 +24,22 @@ public class AggregatesMetaData implements PluginMetaData {
 
     @Override
     public String getAuthor() {
-        // TODO Insert author name
         return "Christiaan van Tienhoven";
     }
 
     @Override
     public URI getURL() {
-        // TODO Insert correct plugin website
-        return URI.create("https://www.graylog.org/");
+        return URI.create("https://github.com/cvtienhoven/graylog-plugin-aggregates");
     }
 
     @Override
     public Version getVersion() {
-        return new Version(1, 0, 0);
+        return new Version(0, 0, 8);
     }
 
     @Override
     public String getDescription() {
-        // TODO Insert correct plugin description
-        return "Description of Aggregates plugin";
+        return "Graylog Aggregates plugin";
     }
 
     @Override
