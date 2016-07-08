@@ -2,29 +2,31 @@ sudo: required
 dist: trusty
 language: java
 jdk:
-  - oraclejdk8
+- oraclejdk8
 addons:
   apt:
     packages:
-      - rpm
+    - rpm
 before_install:
-    - sed -i.bak -e 's|https://nexus.codehaus.org/snapshots/|https://oss.sonatype.org/content/repositories/codehaus-snapshots/|g' ~/.m2/settings.xml
-    - pwd
-    - git clone --depth=50 --branch=2.0 https://github.com/Graylog2/graylog2-server.git /home/travis/build/cvtienhoven/graylog2-server
+- sed -i.bak -e 's|https://nexus.codehaus.org/snapshots/|https://oss.sonatype.org/content/repositories/codehaus-snapshots/|g'
+  ~/.m2/settings.xml
+- pwd
+- git clone --depth=50 --branch=2.0 https://github.com/Graylog2/graylog2-server.git
+  /home/travis/build/cvtienhoven/graylog2-server
 before_deploy:
-  - mvn jdeb:jdeb && export RELEASE_DEB_FILE=$(ls target/*.deb)
-  - mvn rpm:rpm && export RELEASE_RPM_FILE=$(find target/ -name '*.rpm' | tail -1)
-  - rm -f target/original-*.jar
-  - export RELEASE_PKG_FILE=$(ls target/*.jar)
-  - echo "Deploying release to GitHub releases"
+- mvn jdeb:jdeb && export RELEASE_DEB_FILE=$(ls target/*.deb)
+- mvn rpm:rpm && export RELEASE_RPM_FILE=$(find target/ -name '*.rpm' | tail -1)
+- rm -f target/original-*.jar
+- export RELEASE_PKG_FILE=$(ls target/*.jar)
+- echo "Deploying release to GitHub releases"
 deploy:
   provider: releases
   api_key:
-    secure: ZzYgfw7vuRay0Vjpj2XQ7KFzfu4othwWgufm44E5JsVyufK2L+UEwtj9cNgou4yNlAiGmk/1ymkGOp1zH5GU7+XHTxIbEnvYeW531eGxcm3X7xA5xpfAV+7ETcuYySI3DPetmU3FlA38e3G071EYdNErTvbEXhLMfHhtkzimmtzEM3YBe4WIW68OKmZ7EPzbbNL3Pc+C/xln9kF5peADILcAGHzou/Gz66by9jZ6DOveW/iUvARkeXK4n0UySqCcM0vSF+nnPfZYToD8wyLQgjg8B/zLFO8+lAD4ZoxP1810zPxT3gCLDgn+ab/rk2cMZSTmlvu8vrE0YrakaWyhC9bofO+noz0lqkb1+3mADqaPhnz4/AULWB7wQ6BcPPyBajZessZuiHyOk7gLlyvlDKOw9YtiUyW4jlDmjz28i6XGlW78pOum39dCTtQrOHxugtdvLDOVCpcdLrRLmgZaEXRW2CboXxGsT47GLfOmNMFgYqaoao5aNijU5qstYm15ep852pu3e/+ISKcanrpT6ZHxoqzfwj6MAHaN4GB2S4o7S4xQ3c/rurZOrH2rnL9mt16/OLLptoM1JFwv5nmI+2H6hLcp7zDlqNAkyTU/v7e18dRS3d4706gnjdE8iB4I21Z3xDHV+fXRh5VcZm/cE8LMZMH/FsmeK8S6ckAIg1Y=
+    secure: ajDXd4ThQ5KEQ7Bj/GcHp/MElBO3/2uWN3x3iYGybB8DgZ1qvVFXisCPGV+7yTChn6is/mopjTiOaRF2rVPHrDzFsXggAFl6opWkvthxWF2LN29OsdIT7bcSLXvnmwCoxCow93hz+Y1ovtNAapHiukvWttH/UUx3h8KKCG6sLMx0n359o2uohGn2nm3Mi59hiUWURj9/LDgLf9edEJPv7ccv70v1DgGXGkk7qLA770vMR4+Dm67kwWLCJaJ5txb3b3CAspjMx09ZvoVl5J/owSkV7QWb4tfqtVF4xBR/zc2DtpWhGVVdJZsorDsIdfY5O81UOmtNiJWwxotF5zFpfax79Z08sf9pksVr4xDJEEeG9ww2GtHE/8MrdZ3Wy0/RHjublBz6vTH9Lur2AWCABfn/5oCMiPnyNxz1OC/vxpg4x668kEzVvdnb4HNDmIe9DT6RGmBrmrSNyJcwnxTzr2C+EAj1S4vKTZcl5bteWhm29Bg8hiQ1+9CXj+ZW2Hz/AjcxqWmLuwB/5LE08LHJwmygFiXyfz8ImYuBBPe0rI2RzunZ5kh21OIksKbYc46jlnWN5/qxx0s4qbvDj49OFBMkyjlC2Tz0mjthlRoGsuW2etoDgT5h44RTseeGr/72HEIIbWmRlfhZ/hmWHc6cZFGgIdRj5s/K0UPVjx5G2RQ=
   file:
-    - "${RELEASE_PKG_FILE}"
-    - "${RELEASE_DEB_FILE}"
-    - "${RELEASE_RPM_FILE}"
+  - "${RELEASE_PKG_FILE}"
+  - "${RELEASE_DEB_FILE}"
+  - "${RELEASE_RPM_FILE}"
   skip_cleanup: true
   on:
     tags: true
