@@ -9,12 +9,14 @@ import ValidationsUtils from 'util/ValidationsUtils';
 import AggregatesStore from './AggregatesStore';
 import AggregatesActions from './AggregatesActions';
 
+import StoreProvider from 'injection/StoreProvider';
+const StreamsStore = StoreProvider.getStore('Streams');
 
 const EditRuleModal = React.createClass({
   propTypes: {
     rule: React.PropTypes.object,
     create: React.PropTypes.bool,
-    createRule: React.PropTypes.func.isRequired,    
+    createRule: React.PropTypes.func.isRequired,
   },
 
   getDefaultProps() {
@@ -24,7 +26,8 @@ const EditRuleModal = React.createClass({
       	field: '',
       	matchMoreOrEqual: true,
       	numberOfMatches: 1, 
-      	interval: 1,      
+      	interval: 1,
+      	streamId: '',
       },
     };
   },
@@ -34,7 +37,8 @@ const EditRuleModal = React.createClass({
       originalName: ObjectUtils.clone(this.props.rule).name,
       rule: ObjectUtils.clone(this.props.rule),
       create: ObjectUtils.clone(this.props.create),
-      rules: [],      
+      rules: [],
+      streams: [],
     };
   },
   _alertReceiversToString(alertReceivers){
@@ -58,18 +62,21 @@ const EditRuleModal = React.createClass({
   },
   
   componentDidMount() {
-    console.log("mount");    
+       
   },
   openModal() {    
     this.refs.modal.open();
     this.setState(this.getInitialState());
+    StreamsStore.listStreams().then(list => {
+      this.setState({streams: list});
+    });
     
     const alertReceivers = this._alertReceiversToString(this.state.rule.alertReceivers);
     this.setState({alertReceivers: alertReceivers});
         
     AggregatesActions.list().then(newRules => {
-  	  this.setState({rules : newRules});      
-    });    
+  	  this.setState({rules : newRules});
+    });
   },
 
   _closeModal() {
@@ -99,6 +106,14 @@ const EditRuleModal = React.createClass({
     }
 
   },
+  _createStreamSelectItems() {
+     let items = [];
+     items.push(<option key={-1} value=''>No Stream</option>);
+     for (let i = 0; i < this.state.streams.length; i++) {
+        items.push(<option key={i} value={this.state.streams[i].id}>{this.state.streams[i].title}</option>);
+     }
+     return items;
+  }, 
   _onValueChanged(event) {
     const rule = this.state.rule;
     
@@ -170,6 +185,13 @@ const EditRuleModal = React.createClass({
               		labelClassName="col-sm-2" wrapperClassName="col-sm-10"
                		label="Name" help="Enter a unique rule name." required
                		onChange={this._onValueChanged} autoFocus  />
+            
+              <Input ref="streamId" name="streamId" id="streamId" type="select" value={this.state.rule.streamId}
+                    labelClassName="col-sm-2" wrapperClassName="col-sm-10"
+               	    label="Stream" help="Select a stream"
+               	    onChange={this._onValueChanged} >
+               	    	{this._createStreamSelectItems()}
+			  </Input>
             
         	  <Input ref="query" name="query" id="query" type="text" maxLength={400} defaultValue={this.state.rule.query}
                		labelClassName="col-sm-2" wrapperClassName="col-sm-10"

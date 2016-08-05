@@ -19,4 +19,6 @@ public interface Rule {
 	public List<String> getAlertReceivers();
 	
 	public boolean isEnabled();
+	
+	public String getStreamId();
 }

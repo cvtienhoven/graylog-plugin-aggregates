@@ -29,6 +29,7 @@ const AggregatesStore = Reflux.createStore({
     AggregatesActions.list.promise(promise);
   },
   create(newRule) {
+	console.log(JSON.stringify(newRule));
 	const url = URLUtils.qualifyUrl(this.sourceUrl);
 	const method = 'PUT';
 	
@@ -41,7 +42,8 @@ const AggregatesStore = Reflux.createStore({
 				matchMoreOrEqual: newRule.matchMoreOrEqual,
 				interval: newRule.interval,
 				alertReceivers: newRule.alertReceivers,
-				enabled: true
+				enabled: true,
+				streamId: newRule.streamId
 			}	
 	};
 
@@ -70,7 +72,8 @@ const AggregatesStore = Reflux.createStore({
 					matchMoreOrEqual: updatedRule.matchMoreOrEqual,
 					interval: updatedRule.interval,
 					alertReceivers: updatedRule.alertReceivers,
-					enabled: updatedRule.enabled
+					enabled: updatedRule.enabled,
+					streamId: updatedRule.streamId
 				}	
 		};
 
@@ -102,6 +105,7 @@ const AggregatesStore = Reflux.createStore({
 	
     AggregatesActions.deleteByName.promise(promise);
   },
+  
 });
 
 export default AggregatesStore;

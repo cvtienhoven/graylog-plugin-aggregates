@@ -10,6 +10,8 @@ import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 import org.apache.commons.mail.EmailException;
+import org.elasticsearch.script.Script;
+import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.graylog.plugins.aggregates.rule.Rule;
 import org.graylog.plugins.aggregates.rule.RuleService;
 import org.graylog.plugins.aggregates.rule.alert.RuleAlertSender;
@@ -56,7 +58,6 @@ public class Aggregates extends Periodical {
 	private final RuleService ruleService;
 	private final RuleAlertSender alertSender;
 	private static final Logger LOG = LoggerFactory.getLogger(Aggregates.class);
-	private String rulesListFilename = "/tmp/test.yml";
 	private List<Rule> list;
 
 	@Inject
@@ -109,18 +110,23 @@ public class Aggregates extends Periodical {
 					int limit = 100;
 					
 					String query = rule.getQuery();
-
-					String filter = "*";
+					if (rule.getStreamId() != null && rule.getStreamId() != ""){
+						query = query + " AND streams:" + rule.getStreamId();
+					}
 
 					final TimeRange timeRange = buildRelativeTimeRange(60 * interval_minutes);
 					if (null != timeRange) {
-						TermsResult result = searches.terms(field, limit, query, filter, timeRange);
+						TermsResult result = searches.terms(field, limit, query, /*filter,*/ timeRange);						
+						
 						
 						LOG.info("built query: " + result.getBuiltQuery());
+						
+						LOG.info("query took " + result.took().format());
 						
 						Map<String, Long> matchedTerms = new HashMap<String, Long>();
 						
 						for (Map.Entry<String, Long> term : result.getTerms().entrySet()){
+							
 							String matchedFieldValue = term.getKey();
 							Long count = term.getValue();
 							
@@ -135,7 +141,7 @@ public class Aggregates extends Periodical {
 						
 						if (!matchedTerms.isEmpty()){
 							try {
-								alertSender.sendEmails(rule, matchedTerms);
+								alertSender.sendEmails(rule, matchedTerms, timeRange);
 							} catch (EmailException e) {
 								LOG.error("failed to send email: " + e.getMessage());
 							} catch (TransportConfigurationException e) {

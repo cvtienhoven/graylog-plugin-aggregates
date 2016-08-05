@@ -6,6 +6,8 @@ import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 
 import org.graylog2.database.CollectionName;
+import org.graylog2.plugin.streams.Stream;
+import org.graylog2.streams.StreamImpl;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonCreator;
@@ -54,6 +56,11 @@ public abstract class RuleImpl implements Rule{
     @Override
     public abstract boolean isEnabled();
     
+    @JsonProperty("streamId")
+    @Override
+    public abstract String getStreamId();
+       
+    
 	@JsonCreator
     public static RuleImpl create(@JsonProperty("_id") String objectId,
                                        @JsonProperty("query") String query,
@@ -63,8 +70,9 @@ public abstract class RuleImpl implements Rule{
                                        @JsonProperty("interval") int interval,
                                        @JsonProperty("name") String name,
                                        @JsonProperty("alertReceivers") List<String> alertReceivers,
-                                       @JsonProperty("enabled") boolean enabled) {
-        return new AutoValue_RuleImpl(query, field, numberOfMatches, matchMoreOrEqual, interval, name, alertReceivers, enabled);
+                                       @JsonProperty("enabled") boolean enabled,
+                                       @JsonProperty("streamId") String streamId) {		
+        return new AutoValue_RuleImpl(query, field, numberOfMatches, matchMoreOrEqual, interval, name, alertReceivers, enabled, streamId);
     }
 	
 	public static RuleImpl create(
@@ -75,8 +83,9 @@ public abstract class RuleImpl implements Rule{
             int interval,
             String name,
             List<String> alertReceivers,
-            boolean enabled) {
-		return new AutoValue_RuleImpl(query, field, numberOfMatches, matchMoreOrEqual, interval, name, alertReceivers, enabled);
+            boolean enabled,
+            String streamId) {
+		return new AutoValue_RuleImpl(query, field, numberOfMatches, matchMoreOrEqual, interval, name, alertReceivers, enabled, streamId);
 	
 	}
 }

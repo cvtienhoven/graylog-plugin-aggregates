@@ -1,6 +1,8 @@
 package org.graylog.plugins.aggregates.rule.alert;
 
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.Map;
 
 import javax.inject.Inject;
@@ -9,7 +11,7 @@ import org.apache.commons.mail.DefaultAuthenticator;
 import org.apache.commons.mail.Email;
 import org.apache.commons.mail.EmailConstants;
 import org.apache.commons.mail.EmailException;
-import org.apache.commons.mail.SimpleEmail;
+import org.apache.commons.mail.HtmlEmail;
 import org.graylog.plugins.aggregates.rule.Rule;
 
 import org.graylog2.alerts.StaticEmailAlertSender;
@@ -18,15 +20,16 @@ import org.graylog2.plugin.Tools;
 
 import org.graylog2.plugin.alarms.transports.TransportConfigurationException;
 import org.graylog2.plugin.configuration.Configuration;
-import org.graylog2.plugin.system.NodeId;
-import org.graylog2.shared.users.UserService;
-
+import org.graylog2.plugin.indexer.searches.timeranges.TimeRange;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Strings;
 
 public class RuleAlertSender {
+	private final static String TABLE_STYLE = "style=\"font-family: 'sans-serif';font-size: 12px\"";
+	private final static String TD_TR_STYLE = "style=\"padding: 3px;text-align:left;\"";
+	
     protected final EmailConfiguration configuration;
     
     private Configuration pluginConfig;
@@ -44,12 +47,12 @@ public class RuleAlertSender {
 	}
 	
 	
-	public void sendEmails(Rule rule, Map<String, Long> matchedTerms) throws EmailException, TransportConfigurationException{
+	public void sendEmails(Rule rule, Map<String, Long> matchedTerms, TimeRange timeRange) throws EmailException, TransportConfigurationException{
         if(!configuration.isEnabled()) {
             throw new TransportConfigurationException("Email transport is not enabled in server configuration file!");
         }
 
-        final Email email = new SimpleEmail();
+        final Email email = new HtmlEmail();
         email.setCharset(EmailConstants.UTF_8);
         
 
@@ -79,8 +82,8 @@ public class RuleAlertSender {
         }
         
         
-        email.setSubject("Rule [" + rule.getName() + "] triggered and alert");
-        email.setMsg(buildBody(rule, matchedTerms));
+        email.setSubject("Aggregate Rule [ " + rule.getName() + " ] triggered an alert");
+        email.setMsg(buildBody(rule, matchedTerms, timeRange));
         
         for (String receiver : rule.getAlertReceivers()){
         	email.addTo(receiver);
@@ -89,40 +92,58 @@ public class RuleAlertSender {
         email.send();
 	}
 
-	private String buildBody(Rule rule, Map<String, Long> matchedTerms) {
+	private String buildBody(Rule rule, Map<String, Long> matchedTerms, TimeRange timeRange) {
         StringBuilder sb = new StringBuilder();
-        String matchDescriptor = " at least ";
+        String matchDescriptor = rule.getNumberOfMatches() + " or more";
         if (!rule.isMatchMoreOrEqual()){
-        	matchDescriptor = " less than";
+        	matchDescriptor = "less than " + rule.getNumberOfMatches();
         }
         
 
-        sb.append("\n\n");
-        sb.append("##########\n");
-        sb.append("Date: ").append(Tools.nowUTC().toString()).append("\n");
-        sb.append("Query: ").append(rule.getQuery()).append("\n");        
-        sb.append("Condition: ").append(rule.getField() + " matched " + matchDescriptor).append(rule.getNumberOfMatches() + " times in the last " + rule.getInterval() + " minutes").append("\n");                
-        sb.append("##########\n\n");
+        sb.append("<html>");
+        sb.append("<body style=\"font-family: 'sans-serif';font-size: 12px\">");
         
-        sb.append(buildSummary(rule, matchedTerms));
+        sb.append("<h1 style=\"font-size: 20px;\">" + rule.getName() + "</h1>");
         
-
+        sb.append("<table " + TABLE_STYLE + ">");        
+        sb.append("<tr " + TD_TR_STYLE + "><td " + TD_TR_STYLE + ">").append("<b>Date</b>: ").append("</td><td " + TD_TR_STYLE + ">").append(Tools.nowUTC().toString()).append("</td></tr>");
+        sb.append("<tr " + TD_TR_STYLE + "><td " + TD_TR_STYLE + ">").append("<b>Query</b>: ").append("</td><td " + TD_TR_STYLE + ">").append(rule.getQuery()).append("</td></tr>");                
+        sb.append("<tr " + TD_TR_STYLE + "><td " + TD_TR_STYLE + ">").append("<b>Alert condition</b>: ").append("</td><td " + TD_TR_STYLE + ">").append("The same value of field '" + rule.getField() + "' occurs " + matchDescriptor + " times in a " + rule.getInterval() + " minute interval").append("</td></tr>");                
+        sb.append("</table>");
+        
+        sb.append(buildSummary(rule, matchedTerms, timeRange));
+        
+        sb.append("</body>");
+        sb.append("</html>");
         return sb.toString();
     }
 	
-	protected String buildSummary(Rule rule, Map<String, Long> matchedTerms) {
+	protected String buildSummary(Rule rule, Map<String, Long> matchedTerms, TimeRange timeRange) {
         
 
         final StringBuilder sb = new StringBuilder();
         
-        sb.append("Matched values for [" + rule.getField() + "]\n\n");
         
-        for (Map.Entry<String, Long> entry: matchedTerms.entrySet() ) {        	
-            sb.append(rule.getField()).append('=').append(entry.getKey()).append("\n");
-            sb.append("Occurences=").append(entry.getValue());
-            sb.append("\n\n");
-        }
-
+        
+        sb.append("<h2 style=\"font-size: 15px;\">Matched values for field [ " + rule.getField() + " ]</h2>");
+        
+        sb.append("<table border=\"1\"" + TABLE_STYLE + "><tr " + TD_TR_STYLE + "><th " + TD_TR_STYLE + ">Value</th><th " + TD_TR_STYLE + ">#Occurrences</th><th " + TD_TR_STYLE + "></th></tr>");
+        
+        for (Map.Entry<String, Long> entry: matchedTerms.entrySet() ) {
+        	sb.append("<tr " + TD_TR_STYLE + ">");
+        	sb.append("<td " + TD_TR_STYLE + ">").append(entry.getKey()).append("</td>");
+        	sb.append("<td " + TD_TR_STYLE + ">").append(entry.getValue()).append("</td>");
+        	        	        	
+        	try {
+        		String search_uri="/search?rangetype=absolute&fields=message%2Csource%2C"+rule.getField()+"&from="+timeRange.getFrom()+"&to="+timeRange.getTo()+"&q="+URLEncoder.encode(rule.getQuery()+" AND " + rule.getField()+":\""+entry.getKey()+"\"", "UTF-8");
+				sb.append("<td " + TD_TR_STYLE + ">").append("<a href=\""+configuration.getWebInterfaceUri()+search_uri+"\">Search</a>").append("</td>");
+			} catch (UnsupportedEncodingException e) {
+				sb.append("<td " + TD_TR_STYLE + ">").append("Unable to URL encode search URI").append("</td>");
+			}
+            
+            sb.append("</tr>");
+        }        
+        sb.append("</table>");
         return sb.toString();
     }
 	

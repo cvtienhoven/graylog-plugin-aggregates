@@ -93,7 +93,8 @@ public class RuleServiceImpl implements RuleService {
 				request.getRule().getInterval(), 
 				request.getRule().getName(),
 				request.getRule().getAlertReceivers(),
-				request.getRule().isEnabled());
+				request.getRule().isEnabled(),
+				request.getRule().getStreamId());
 	}
 
 	@Override
@@ -106,7 +107,8 @@ public class RuleServiceImpl implements RuleService {
 				request.getRule().getInterval(), 
 				request.getRule().getName(),
 				request.getRule().getAlertReceivers(),
-				request.getRule().isEnabled());
+				request.getRule().isEnabled(),
+				request.getRule().getStreamId());
 	}
 	
 	@Override

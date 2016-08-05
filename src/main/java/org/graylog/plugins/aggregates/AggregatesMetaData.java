@@ -34,7 +34,7 @@ public class AggregatesMetaData implements PluginMetaData {
 
     @Override
     public Version getVersion() {
-        return new Version(0, 0, 10);
+        return new Version(0, 0, 11);
     }
 
     @Override

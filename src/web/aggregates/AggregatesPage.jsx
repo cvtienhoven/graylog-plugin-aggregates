@@ -23,9 +23,9 @@ const AggregatesPage = React.createClass({
   render() {
     return (
       <span>
-        <PageHeader title="Aggregate Search Rules">
+        <PageHeader title="Aggregate Rules">
           <span>
-            With aggregate search rules, you can define a rule with search criteria and unique value counts for a specified field within a certain time range.  
+            With aggregate rules, you can define a rule with search criteria and unique value counts for a specified field within a certain time range.  
           </span>
 
           <span>

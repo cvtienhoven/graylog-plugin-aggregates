@@ -8,6 +8,9 @@ import AggregatesStore from './AggregatesStore';
 import AggregatesActions from './AggregatesActions';
 import EditRuleModal from './EditRuleModal';
 
+import StoreProvider from 'injection/StoreProvider';
+const StreamsStore = StoreProvider.getStore('Streams');
+
 import DataTable from 'components/common/DataTable';
 import Spinner from 'components/common/Spinner';
 
@@ -17,6 +20,7 @@ const RulesList = React.createClass({
   getInitialState() {
     return {
       rules: undefined,
+      streams: [],
     };
   },
   _editRule(originalName, rule, callback) {
@@ -29,6 +33,9 @@ const RulesList = React.createClass({
     this.list();
   },    
   list() {
+	StreamsStore.listStreams().then(list => {
+      this.setState({streams: list});
+    });  	
     AggregatesActions.list().then(newRules => {
   	  this.setState({rules : newRules});      
     });  
@@ -36,10 +43,22 @@ const RulesList = React.createClass({
   deleteRule(name) {
     AggregatesActions.deleteByName(name);
   },
+  toggleEnabled(rule) {
+    rule.enabled = !rule.enabled;
+    AggregatesActions.update(rule.name, rule);
+  },
   _deleteRuleFunction(name) {
     return () => {
       if (window.confirm('Do you really want to delete rule ' + name + '?')) {
         this.deleteRule(name);
+      }
+    };
+  },
+  _toggleRuleFunction(rule) {
+    return () => {
+      let text = rule.enabled === true ? 'disable' : 'enable'
+      if (window.confirm('Do you really want to ' + text + ' rule ' + rule.name + '?')) {
+        this.toggleEnabled(rule);
       }
     };
   },
@@ -79,24 +98,48 @@ const RulesList = React.createClass({
  		rule.matchMoreOrEqual === true ? rule.numberOfMatches + ' or more' : 'less than ' + rule.numberOfMatches 	
  	);
  	
+ 	
+ 	
     const deleteAction = (
-        <button id="delete-rule" type="button" className="btn btn-xs btn-primary" title="Delete rule"
-                onClick={this._deleteRuleFunction(rule.name)}>
-          Delete
-        </button>
-      );
+      <button id="delete-rule" type="button" className="btn btn-xs btn-primary" title="Delete rule"
+              onClick={this._deleteRuleFunction(rule.name)}>
+        Delete
+      </button>
+    );
 
-      const editAction = (
-        <EditRuleModal create={false} createRule={this._editRule} rule={rule}/>         
-      );
+    const toggleText = (
+ 	  rule.enabled === true ? 'Disable' : 'Enable'
+ 	)
 
-      const actions = (
-        <div>
-          {deleteAction}
-          &nbsp;
-          {editAction}
-        </div>
-      );
+    const toggleAction = (
+      <button id="toggle-rule" type="button" className="btn btn-xs btn-primary" title="{toggleText}"
+              onClick={this._toggleRuleFunction(rule)}>
+        {toggleText}
+      </button>
+    );
+
+    const editAction = (
+      <EditRuleModal create={false} createRule={this._editRule} rule={rule}/>
+    );
+
+	  
+
+    const actions = (
+      <div>
+        {deleteAction}
+        &nbsp;
+        {editAction}
+        &nbsp;
+        {toggleAction}
+      </div>
+    );
+    
+    var streamTitle = "";
+    for (var i=0; i<this.state.streams.length; i++){
+      if (this.state.streams[i].id == rule.streamId) {
+        streamTitle = this.state.streams[i].title;
+      }
+    }
     
     
     return (
@@ -105,13 +148,14 @@ const RulesList = React.createClass({
         <td className="limited">{rule.query}</td>
         <td className="limited">The same value of field '{rule.field}' occurs {match} times in a {rule.interval} minute interval</td>
 		<td className="limited">{this._alertReceiversFormatter(rule)}</td>
+		<td className="limited">{streamTitle}</td>
         <td>{actions}</td>
       </tr>
     );
   },
   render() {
-    const filterKeys = ['name', 'query', 'field'];
-    const headers = ['Rule name', 'Query', 'Alert condition', 'Alert receivers'];
+    const filterKeys = ['name', 'query', 'field', 'stream'];
+    const headers = ['Rule name', 'Query', 'Alert condition', 'Alert receivers', 'Stream'];
     
     if (this.state.rules) {
       return (
