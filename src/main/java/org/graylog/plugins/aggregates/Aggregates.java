@@ -43,6 +43,7 @@ import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
+import com.google.common.annotations.VisibleForTesting;
 
 /**
  * This is the plugin. Your class should implement one of the existing plugin
@@ -63,18 +64,23 @@ public class Aggregates extends Periodical {
 	@Inject
 	public Aggregates(RuleAlertSender alertSender, Searches searches, ClusterConfigService clusterConfigService,
 			IndexerSetupService indexerSetupService, RuleService ruleService) {
-		LOG.info("constructor");
 		this.searches = searches;
 		this.clusterConfigService = clusterConfigService;
 		this.alertSender = alertSender;
 		this.indexerSetupService = indexerSetupService;
 		this.ruleService = ruleService;
 	}
-
+	
+	@VisibleForTesting
+	boolean shouldRun(){
+	  return indexerSetupService.isRunning();
+	  
+	}
+	
 
 	@Override
 	public void doRun() {
-		if (!indexerSetupService.isRunning()) {
+		if (!shouldRun()) {
 			LOG.warn("Indexer is not running, not checking any rules this run.");
 		} else {
 			list = ruleService.all();
@@ -90,28 +96,30 @@ public class Aggregates extends Periodical {
 					LOG.debug("Rule '" + rule.getName() + "' is disabled, skipping.");
 					continue;
 				}
-							
-				if (rule.getInterval() > maxInterval) {
+				int interval_minutes = rule.getInterval();
+						
+				if (interval_minutes > maxInterval) {
 					maxInterval = rule.getInterval();
 				}
 				
-				if (sequence % rule.getInterval() == 0) {
+				if (sequence % interval_minutes == 0) {
 
 					String field = rule.getField();
 
 					List<String> unique_field_list = new ArrayList<String>();
 					unique_field_list.add(field);
 
-					int interval_minutes = rule.getInterval();
-					int numberOfMatches = rule.getNumberOfMatches();
+					long numberOfMatches = rule.getNumberOfMatches();
 					boolean matchMoreOrEqual = rule.isMatchMoreOrEqual();
 
 					//TODO: make limit configurable 
 					int limit = 100;
 					
 					String query = rule.getQuery();
-					if (rule.getStreamId() != null && rule.getStreamId() != ""){
-						query = query + " AND streams:" + rule.getStreamId();
+					String streamId = rule.getStreamId();
+					
+					if (streamId != null && streamId != ""){
+						query = query + " AND streams:" + streamId;
 					}
 
 					final TimeRange timeRange = buildRelativeTimeRange(60 * interval_minutes);
@@ -119,9 +127,9 @@ public class Aggregates extends Periodical {
 						TermsResult result = searches.terms(field, limit, query, /*filter,*/ timeRange);						
 						
 						
-						LOG.info("built query: " + result.getBuiltQuery());
+						LOG.debug("built query: " + result.getBuiltQuery());
 						
-						LOG.info("query took " + result.took().format());
+						LOG.debug("query took " + result.took().format());
 						
 						Map<String, Long> matchedTerms = new HashMap<String, Long>();
 						
@@ -158,7 +166,8 @@ public class Aggregates extends Periodical {
 
 	}
 
-	private TimeRange buildRelativeTimeRange(int range) {
+	@VisibleForTesting
+	TimeRange buildRelativeTimeRange(int range) {
 		try {
 			return restrictTimeRange(RelativeRange.create(range));
 		} catch (InvalidRangeParametersException e) {
@@ -187,7 +196,6 @@ public class Aggregates extends Periodical {
 
 	@Override
 	public int getInitialDelaySeconds() {
-		// TODO Auto-generated method stub
 		return 0;
 	}
 
@@ -214,13 +222,11 @@ public class Aggregates extends Periodical {
 
 	@Override
 	public boolean runsForever() {
-		// TODO Auto-generated method stub
 		return false;
 	}
 
 	@Override
 	public boolean startOnThisNode() {
-		// TODO Auto-generated method stub
 		return true;
 	}
 

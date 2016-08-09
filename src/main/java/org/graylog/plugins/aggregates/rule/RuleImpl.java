@@ -32,7 +32,7 @@ public abstract class RuleImpl implements Rule{
     @JsonProperty("numberOfMatches")
     @Override
     @Min(1)
-    public abstract int getNumberOfMatches();
+    public abstract long getNumberOfMatches();
     
     @JsonProperty("matchMoreOrEqual")
     @Override
@@ -65,7 +65,7 @@ public abstract class RuleImpl implements Rule{
     public static RuleImpl create(@JsonProperty("_id") String objectId,
                                        @JsonProperty("query") String query,
                                        @JsonProperty("field") String field,
-                                       @JsonProperty("numberOfMatches") int numberOfMatches,
+                                       @JsonProperty("numberOfMatches") long numberOfMatches,
                                        @JsonProperty("matchMoreOrEqual") boolean matchMoreOrEqual,
                                        @JsonProperty("interval") int interval,
                                        @JsonProperty("name") String name,
@@ -78,7 +78,7 @@ public abstract class RuleImpl implements Rule{
 	public static RuleImpl create(
             String query,
             String field,
-            int numberOfMatches,
+            long numberOfMatches,
             boolean matchMoreOrEqual,
             int interval,
             String name,

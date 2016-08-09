@@ -11,8 +11,7 @@ import EditRuleModal from './EditRuleModal';
 import StoreProvider from 'injection/StoreProvider';
 const StreamsStore = StoreProvider.getStore('Streams');
 
-import DataTable from 'components/common/DataTable';
-import Spinner from 'components/common/Spinner';
+import { DataTable, Spinner, IfPermitted } from 'components/common';
 
 const RulesList = React.createClass({
   mixins: [Reflux.connect(AggregatesStore)],
@@ -101,10 +100,12 @@ const RulesList = React.createClass({
  	
  	
     const deleteAction = (
-      <button id="delete-rule" type="button" className="btn btn-xs btn-primary" title="Delete rule"
+      <IfPermitted permissions="aggregate_rules:delete">          	           	
+        <button id="delete-rule" type="button" className="btn btn-xs btn-primary" title="Delete rule"
               onClick={this._deleteRuleFunction(rule.name)}>
-        Delete
-      </button>
+          Delete
+        </button>
+      </IfPermitted>
     );
 
     const toggleText = (
@@ -112,14 +113,18 @@ const RulesList = React.createClass({
  	)
 
     const toggleAction = (
-      <button id="toggle-rule" type="button" className="btn btn-xs btn-primary" title="{toggleText}"
+      <IfPermitted permissions="aggregate_rules:update">
+        <button id="toggle-rule" type="button" className="btn btn-xs btn-primary" title="{toggleText}"
               onClick={this._toggleRuleFunction(rule)}>
-        {toggleText}
-      </button>
+          {toggleText}
+        </button>
+      </IfPermitted>
     );
 
     const editAction = (
-      <EditRuleModal create={false} createRule={this._editRule} rule={rule}/>
+      <IfPermitted permissions="aggregate_rules:update">
+        <EditRuleModal create={false} createRule={this._editRule} rule={rule}/>
+      </IfPermitted>
     );
 
 	  
@@ -134,12 +139,14 @@ const RulesList = React.createClass({
       </div>
     );
     
-    var streamTitle = "";
-    for (var i=0; i<this.state.streams.length; i++){
-      if (this.state.streams[i].id == rule.streamId) {
-        streamTitle = this.state.streams[i].title;
+    var streamTitle = "--No Stream (global search)--";
+    if (rule.streamId != '') {
+      for (var i=0; i<this.state.streams.length; i++){
+        if (this.state.streams[i].id == rule.streamId) {
+          streamTitle = this.state.streams[i].title;
+        }
       }
-    }
+     }
     
     
     return (

@@ -59,12 +59,11 @@ public class RuleServiceImpl implements RuleService {
 	}
 	
 	@Override
-	public Rule update(String name, Rule rule) {
-		LOG.info("name: " + name);
+	public Rule update(String name, Rule rule) {		
 		
 		if (rule instanceof RuleImpl) {
 			final RuleImpl ruleImpl = (RuleImpl) rule;
-			LOG.info("rule: " + ruleImpl);
+			LOG.debug("updated rule: " + ruleImpl);
 			final Set<ConstraintViolation<RuleImpl>> violations = validator.validate(ruleImpl);
 			if (violations.isEmpty()) {
 				//return coll.update(DBQuery.is("name", name), ruleImpl, false, false).getSavedObject();

@@ -25,11 +25,13 @@ const AggregatesPage = React.createClass({
       <span>
         <PageHeader title="Aggregate Rules">
           <span>
-            With aggregate rules, you can define a rule with search criteria and unique value counts for a specified field within a certain time range.  
+            With aggregate rules, you can define a rule with criteria for a terms search, so you can generate an alert when the same value for field X occurs Y times in a Z minute time frame.
           </span>
 
           <span>
-          	<EditRuleModal create createRule={this._createRule}/>            
+            <IfPermitted permissions="aggregate_rules:create">
+          	  <EditRuleModal create createRule={this._createRule}/>
+          	</IfPermitted>
           </span>
         </PageHeader>
 

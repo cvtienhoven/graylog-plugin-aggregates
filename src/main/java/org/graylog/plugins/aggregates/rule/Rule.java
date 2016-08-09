@@ -8,7 +8,7 @@ public interface Rule {
 
 	public String getField();
 
-	public int getNumberOfMatches();
+	public long getNumberOfMatches();
 
 	public boolean isMatchMoreOrEqual();
 

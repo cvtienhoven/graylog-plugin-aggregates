@@ -9,6 +9,8 @@ import ValidationsUtils from 'util/ValidationsUtils';
 import AggregatesStore from './AggregatesStore';
 import AggregatesActions from './AggregatesActions';
 
+import { IfPermitted } from 'components/common';
+
 import StoreProvider from 'injection/StoreProvider';
 const StreamsStore = StoreProvider.getStore('Streams');
 
@@ -68,6 +70,16 @@ const EditRuleModal = React.createClass({
     this.refs.modal.open();
     this.setState(this.getInitialState());
     StreamsStore.listStreams().then(list => {
+      list.sort(function (a, b) {
+  	  	if (a.title.toLowerCase() > b.title.toLowerCase()) {
+    		return 1;
+  		}
+  		if (a.title.toLowerCase() < b.title.toLowerCase()) {
+    		return -1;
+  		}
+  		// a must be equal to b
+  		return 0;
+  	  });
       this.setState({streams: list});
     });
     
@@ -108,7 +120,11 @@ const EditRuleModal = React.createClass({
   },
   _createStreamSelectItems() {
      let items = [];
-     items.push(<option key={-1} value=''>No Stream</option>);
+     items.push(
+        <IfPermitted permissions={["searches:absolute","searches:relative","searches:keyword"]}> 
+     		<option key={-1} value=' '>--No Stream (global search)--</option>
+     	</IfPermitted>
+     );
      for (let i = 0; i < this.state.streams.length; i++) {
         items.push(<option key={i} value={this.state.streams[i].id}>{this.state.streams[i].title}</option>);
      }
@@ -118,9 +134,7 @@ const EditRuleModal = React.createClass({
     const rule = this.state.rule;
     
     const parameter = event.target.name;
-    const value = event.target.value;
-    
-    console.log("onValueChanged: " + parameter + "=" + value);
+    const value = event.target.value;    
     
     if (parameter == "name"){
     	if (!this.props.create && name != this.state.originalName){
@@ -160,7 +174,7 @@ const EditRuleModal = React.createClass({
       }      
       rule.alertReceivers = emailArray;
     } else {
-      rule[parameter] = value;
+      rule[parameter] = value.trim();
     }
     
 
@@ -188,7 +202,7 @@ const EditRuleModal = React.createClass({
             
               <Input ref="streamId" name="streamId" id="streamId" type="select" value={this.state.rule.streamId}
                     labelClassName="col-sm-2" wrapperClassName="col-sm-10"
-               	    label="Stream" help="Select a stream"
+               	    label="Stream" help="Select a stream" required
                	    onChange={this._onValueChanged} >
                	    	{this._createStreamSelectItems()}
 			  </Input>
