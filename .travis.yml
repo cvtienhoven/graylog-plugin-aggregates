@@ -13,6 +13,7 @@ before_install:
 - pwd
 - git clone --depth=50 --branch=2.0 https://github.com/Graylog2/graylog2-server.git  /home/travis/build/cvtienhoven/graylog2-server
 - cd /home/travis/build/cvtienhoven/graylog2-server; git checkout tags/2.0.3; mvn install -DskipTests=true -Dmaven.javadoc.skip=true; cd /home/travis/build
+- pwd
 before_deploy:
 - mvn jdeb:jdeb && export RELEASE_DEB_FILE=$(ls target/*.deb)
 - mvn rpm:rpm && export RELEASE_RPM_FILE=$(find target/ -name '*.rpm' | tail -1)
