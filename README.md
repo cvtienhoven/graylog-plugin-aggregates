@@ -69,6 +69,7 @@ Each rule can be configured to be executed on a particular stream, or on "No Str
 * searches:relative
 * searches:keyword
 
+
 Getting started
 ---------------
 
