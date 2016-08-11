@@ -10,15 +10,21 @@ The Aggregates Plugin for Graylog enables users to execute term searches and get
 * Field value
 * Field content
 
-However, these criteria do not satisfy the need of the following scenario:
+However, these conditions will not be sufficient to match the following scenario:
 
-Send an alert when someone fails to login from the same source ip 3 or more times in the past minute.
+**_Send an alert when someone fails to login from the same source ip 3 or more times in the past minute._**
 
-This scenario is actually very useful in a security context, but with the built-in alert conditions, it's not possible to match exactly this condition. The part "from the same source ip" is difficult to match. It would take an aggregate search that groups by value and returns the count per value. That's what the plugin aims to do. You can configure rules as shown in the screenshots below.
+This scenario is actually very useful in a security context, but with the built-in alert conditions, it's not possible to match exactly this condition. The part "**_from the same source ip_**" is difficult to match. It would take an aggregate search that groups by value and returns the count per value. That's what the plugin aims to do. You can configure rules as shown in the screenshots below.
+
+**Create / edit a rule**
+
+![](https://github.com/cvtienhoven/graylog-plugin-aggregates/blob/master/images/edit_rule.png)
+
+
+**Rule overview**
 
 ![](https://github.com/cvtienhoven/graylog-plugin-aggregates/blob/master/images/list.png)
 
-![](https://github.com/cvtienhoven/graylog-plugin-aggregates/blob/master/images/edit_rule.png)
 
 Installation
 ------------
