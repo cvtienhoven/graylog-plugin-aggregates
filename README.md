@@ -56,8 +56,18 @@ dramatically by making use of hot reloading. To do this, do the following:
 Usage
 -----
 
-__Use this paragraph to document the usage of your plugin__
+Use the Aggregates tab in the web interface of Graylog to define rules with alert criteria. For non-admin users, there are the following permissions that should be configured (via the REST API) to be able to fully (or partly) operate the plugin:
 
+* aggregate_rules:read
+* aggregate_rules:create
+* aggregate_rules:update
+* aggregate_rules:delete
+
+Each rule can be configured to be executed on a particular stream, or on "No Stream", e.g. a global search. For the latter option to be present, the user needs to be able to have at least the following permissions:
+
+* searches:absolute
+* searches:relative
+* searches:keyword
 
 Getting started
 ---------------
