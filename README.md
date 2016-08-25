@@ -56,6 +56,7 @@ dramatically by making use of hot reloading. To do this, do the following:
 Usage
 -----
 
+*Permissions*
 Use the Aggregates tab in the web interface of Graylog to define rules with alert criteria. For non-admin users, there are the following permissions that should be configured (via the REST API) to be able to fully (or partly) operate the plugin:
 
 * aggregate_rules:read
@@ -68,6 +69,9 @@ Each rule can be configured to be executed on a particular stream, or on "No Str
 * searches:absolute
 * searches:relative
 * searches:keyword
+
+*Sending alerts*
+The sending of alerts by email relies on the same configuration as the Email Alarm Callback (the `transport_email_*` variables). If you want the search URL in the alert message to be generated correctly, you'll have to configure the `transport_email_web_interface_url`
 
 
 Getting started
