@@ -72,6 +72,7 @@ Each rule can be configured to be executed on a particular stream, or on "No Str
 * searches:keyword
 
 **Sending alerts**
+
 The sending of alerts by email relies on the same configuration as the Email Alarm Callback (the `transport_email_*` variables). If you want the search URL in the alert message to be generated correctly, you'll have to configure the `transport_email_web_interface_url`
 
 
