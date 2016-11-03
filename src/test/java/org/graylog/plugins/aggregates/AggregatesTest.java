@@ -12,11 +12,8 @@ import java.util.Map;
 
 import org.apache.commons.mail.EmailException;
 import org.elasticsearch.common.unit.TimeValue;
-import org.elasticsearch.search.aggregations.bucket.terms.LongTerms;
-import org.elasticsearch.search.aggregations.bucket.terms.LongTermsAggregator;
-import org.elasticsearch.search.aggregations.bucket.terms.StringTerms;
-import org.elasticsearch.search.aggregations.bucket.terms.Terms;
-import org.elasticsearch.search.aggregations.bucket.terms.TermsBuilder;
+
+import org.graylog.plugins.aggregates.history.HistoryItemService;
 import org.graylog.plugins.aggregates.rule.Rule;
 import org.graylog.plugins.aggregates.rule.RuleImpl;
 import org.graylog.plugins.aggregates.rule.RuleService;
@@ -28,10 +25,7 @@ import org.graylog2.plugin.alarms.transports.TransportConfigurationException;
 import org.graylog2.plugin.cluster.ClusterConfigService;
 import org.graylog2.plugin.indexer.searches.timeranges.AbsoluteRange;
 import org.graylog2.plugin.indexer.searches.timeranges.TimeRange;
-import org.graylog2.plugin.streams.Stream;
-import org.graylog2.timeranges.TimeRangeFactory;
 import org.joda.time.DateTime;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -59,6 +53,8 @@ public class AggregatesTest {
 	@Mock
 	RuleService ruleService;
 	
+	@Mock
+	HistoryItemService historyItemService;
 	
 	@InjectMocks
 	@Spy

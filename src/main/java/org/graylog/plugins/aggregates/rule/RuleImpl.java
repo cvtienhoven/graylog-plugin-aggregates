@@ -4,6 +4,7 @@ import java.util.List;
 
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
+import javax.ws.rs.DefaultValue;
 
 import org.graylog2.database.CollectionName;
 import org.graylog2.plugin.streams.Stream;
@@ -60,6 +61,9 @@ public abstract class RuleImpl implements Rule{
     @Override
     public abstract String getStreamId();
        
+    @JsonProperty("inReport")
+    @Override
+    public abstract boolean isInReport();
     
 	@JsonCreator
     public static RuleImpl create(@JsonProperty("_id") String objectId,
@@ -71,8 +75,9 @@ public abstract class RuleImpl implements Rule{
                                        @JsonProperty("name") String name,
                                        @JsonProperty("alertReceivers") List<String> alertReceivers,
                                        @JsonProperty("enabled") boolean enabled,
-                                       @JsonProperty("streamId") String streamId) {		
-        return new AutoValue_RuleImpl(query, field, numberOfMatches, matchMoreOrEqual, interval, name, alertReceivers, enabled, streamId);
+                                       @JsonProperty("streamId") String streamId,
+                                       @JsonProperty("inReport") boolean inReport) {		
+        return new AutoValue_RuleImpl(query, field, numberOfMatches, matchMoreOrEqual, interval, name, alertReceivers, enabled, streamId, inReport);
     }
 	
 	public static RuleImpl create(
@@ -84,8 +89,9 @@ public abstract class RuleImpl implements Rule{
             String name,
             List<String> alertReceivers,
             boolean enabled,
-            String streamId) {
-		return new AutoValue_RuleImpl(query, field, numberOfMatches, matchMoreOrEqual, interval, name, alertReceivers, enabled, streamId);
+            String streamId,
+            boolean inReport) {
+		return new AutoValue_RuleImpl(query, field, numberOfMatches, matchMoreOrEqual, interval, name, alertReceivers, enabled, streamId, inReport);
 	
 	}
 }

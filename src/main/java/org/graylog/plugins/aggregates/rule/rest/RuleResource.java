@@ -67,26 +67,6 @@ public class RuleResource extends RestResource implements PluginRestResource {
         return RulesList.create(rules);
     }
     
-/*
-    @GET
-    @Timed
-    @Path("/{id}")
-    @ApiOperation(value = "Returns at most one collector summary for the specified collector id")
-    @ApiResponses(value = {
-            @ApiResponse(code = 404, message = "No collector with the specified id exists")
-    })
-    @RequiresAuthentication
-    @RequiresPermissions(CollectorRestPermissions.COLLECTORS_READ)
-    public CollectorSummary get(@ApiParam(name = "collectorId", required = true)
-                                @PathParam("collectorId") @NotEmpty String collectorId) {
-        final Collector collector = collectorService.findById(collectorId);
-        if (collector != null) {
-            return collector.toSummary(lostCollectorFunction);
-        } else {
-            throw new NotFoundException("Collector <" + collectorId + "> not found!");
-        }
-    }
-*/
     @PUT
     @Timed    
     @ApiOperation(value = "Create a rule")

@@ -77,6 +77,17 @@
             <version>1.9.5</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+    		<groupId>org.jfree</groupId>
+    		<artifactId>jfreechart</artifactId>
+    		<version>1.0.19</version>
+		</dependency>
+		<dependency>
+    		<groupId>com.itextpdf</groupId>
+    		<artifactId>itextpdf</artifactId>
+    		<version>5.5.10</version>
+		</dependency>
+		
     </dependencies>
 
     <build>

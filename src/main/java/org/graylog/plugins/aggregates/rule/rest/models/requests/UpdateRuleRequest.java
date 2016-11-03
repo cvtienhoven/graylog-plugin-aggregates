@@ -18,12 +18,7 @@ import javax.validation.constraints.Size;
 @JsonAutoDetect
 public abstract class UpdateRuleRequest {
 	
-	/*
-    @JsonProperty("node_id")
-    @NotNull
-    @Size(min = 1)
-    public abstract String nodeId();
-*/
+
     @JsonProperty("rule")
     @NotNull
     public abstract RuleImpl getRule();

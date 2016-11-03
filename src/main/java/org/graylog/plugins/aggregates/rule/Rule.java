@@ -21,4 +21,6 @@ public interface Rule {
 	public boolean isEnabled();
 	
 	public String getStreamId();
+	
+	public boolean isInReport();
 }

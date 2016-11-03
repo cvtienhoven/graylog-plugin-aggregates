@@ -1,6 +1,10 @@
 package org.graylog.plugins.aggregates;
 
+import org.graylog.plugins.aggregates.history.HistoryItemService;
+import org.graylog.plugins.aggregates.history.HistoryItemServiceImpl;
+import org.graylog.plugins.aggregates.maintenance.AggregatesMaintenance;
 import org.graylog.plugins.aggregates.permissions.RuleRestPermissions;
+import org.graylog.plugins.aggregates.report.AggregatesReport;
 import org.graylog.plugins.aggregates.rule.RuleService;
 import org.graylog.plugins.aggregates.rule.RuleServiceImpl;
 import org.graylog.plugins.aggregates.rule.rest.RuleResource;
@@ -27,10 +31,14 @@ public class AggregatesModule extends PluginModule {
     @Override
     protected void configure() {
     	bind(RuleService.class).to(RuleServiceImpl.class);
+    	bind(HistoryItemService.class).to(HistoryItemServiceImpl.class);
     	
         addPeriodical(Aggregates.class);
+        addPeriodical(AggregatesReport.class);
+        addPeriodical(AggregatesMaintenance.class);
         addPermissions(RuleRestPermissions.class);
         addRestResource(RuleResource.class);
+        
         
         //;
         /*

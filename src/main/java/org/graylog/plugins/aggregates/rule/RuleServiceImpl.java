@@ -30,6 +30,7 @@ public class RuleServiceImpl implements RuleService {
 	@Inject
 	public RuleServiceImpl(MongoConnection mongoConnection, MongoJackObjectMapperProvider mapperProvider,
 			Validator validator) {
+		LOG.info("constructor");
 		this.validator = validator;
 		final String collectionName = RuleImpl.class.getAnnotation(CollectionName.class).value();
 		final DBCollection dbCollection = mongoConnection.getDatabase().getCollection(collectionName);
@@ -93,7 +94,8 @@ public class RuleServiceImpl implements RuleService {
 				request.getRule().getName(),
 				request.getRule().getAlertReceivers(),
 				request.getRule().isEnabled(),
-				request.getRule().getStreamId());
+				request.getRule().getStreamId(),
+				request.getRule().isInReport());
 	}
 
 	@Override
@@ -107,7 +109,8 @@ public class RuleServiceImpl implements RuleService {
 				request.getRule().getName(),
 				request.getRule().getAlertReceivers(),
 				request.getRule().isEnabled(),
-				request.getRule().getStreamId());
+				request.getRule().getStreamId(),
+				request.getRule().isInReport());
 	}
 	
 	@Override

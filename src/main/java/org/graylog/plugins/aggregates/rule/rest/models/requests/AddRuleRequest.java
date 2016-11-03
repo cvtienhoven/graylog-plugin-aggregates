@@ -18,12 +18,6 @@ import javax.validation.constraints.Size;
 @JsonAutoDetect
 public abstract class AddRuleRequest {
 	
-	/*
-    @JsonProperty("node_id")
-    @NotNull
-    @Size(min = 1)
-    public abstract String nodeId();
-*/
     @JsonProperty("rule")
     @NotNull
     public abstract RuleImpl getRule();
@@ -31,10 +25,7 @@ public abstract class AddRuleRequest {
     @JsonCreator    
     public static AddRuleRequest create(//@JsonProperty("name") @Valid String name,
     		@JsonProperty("rule") @Valid RuleImpl rule
-    		/*@JsonProperty("field") @Valid String field,
-    		@JsonProperty("numberOfMatches") @Valid int numberOfMatches,
-    		@JsonProperty("matchMoreOrEqual") @Valid boolean matchMoreOrEqual,
-    		@JsonProperty("interval") @Valid int interval*/    		
+
     		) {
         return new AutoValue_AddRuleRequest(rule);
     }

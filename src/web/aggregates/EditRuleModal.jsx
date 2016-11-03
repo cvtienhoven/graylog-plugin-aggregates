@@ -30,6 +30,7 @@ const EditRuleModal = React.createClass({
       	numberOfMatches: 1, 
       	interval: 1,
       	streamId: '',
+      	inReport: true,
       },
     };
   },
@@ -241,7 +242,7 @@ const EditRuleModal = React.createClass({
                		labelClassName="col-sm-2" wrapperClassName="col-sm-10"
                		label="Email Receivers" help="Comma separated list of email addresses. Send a message to the addresses above when the alert condition was met."
                		onChange={this._onValueChanged} />
-              
+                            
 			  
           </fieldset>
 

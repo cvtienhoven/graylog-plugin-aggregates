@@ -1,30 +1,25 @@
 package org.graylog.plugins.aggregates;
 
-import java.io.File;
-import java.io.IOException;
+
+import java.util.Date;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 import org.apache.commons.mail.EmailException;
-import org.elasticsearch.script.Script;
-import org.elasticsearch.search.aggregations.AggregationBuilders;
+import org.graylog.plugins.aggregates.history.HistoryItem;
+import org.graylog.plugins.aggregates.history.HistoryItemImpl;
+import org.graylog.plugins.aggregates.history.HistoryItemService;
 import org.graylog.plugins.aggregates.rule.Rule;
+import org.graylog.plugins.aggregates.rule.RuleImpl;
 import org.graylog.plugins.aggregates.rule.RuleService;
 import org.graylog.plugins.aggregates.rule.alert.RuleAlertSender;
-import org.graylog2.alarmcallbacks.EmailAlarmCallback;
-import org.graylog2.indexer.results.ResultMessage;
-import org.graylog2.indexer.results.SearchResult;
 import org.graylog2.indexer.results.TermsResult;
 import org.graylog2.indexer.searches.Searches;
 import org.graylog2.indexer.searches.SearchesClusterConfig;
-import org.graylog2.indexer.searches.SearchesConfig;
-import org.graylog2.indexer.searches.Sorting;
 import org.graylog2.initializers.IndexerSetupService;
-import org.graylog2.plugin.Message;
 
 import org.graylog2.plugin.alarms.transports.TransportConfigurationException;
 import org.graylog2.plugin.cluster.ClusterConfigService;
@@ -39,10 +34,6 @@ import org.joda.time.Period;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.google.common.annotations.VisibleForTesting;
 
 /**
@@ -57,18 +48,21 @@ public class Aggregates extends Periodical {
 	private final Searches searches;
 	private final IndexerSetupService indexerSetupService;
 	private final RuleService ruleService;
+	private final HistoryItemService historyItemService;
 	private final RuleAlertSender alertSender;
 	private static final Logger LOG = LoggerFactory.getLogger(Aggregates.class);
 	private List<Rule> list;
 
 	@Inject
 	public Aggregates(RuleAlertSender alertSender, Searches searches, ClusterConfigService clusterConfigService,
-			IndexerSetupService indexerSetupService, RuleService ruleService) {
+			IndexerSetupService indexerSetupService, RuleService ruleService, HistoryItemService historyItemService) {
+		LOG.info("constructor");
 		this.searches = searches;
 		this.clusterConfigService = clusterConfigService;
 		this.alertSender = alertSender;
 		this.indexerSetupService = indexerSetupService;
 		this.ruleService = ruleService;
+		this.historyItemService = historyItemService;
 	}
 	
 	@VisibleForTesting
@@ -132,6 +126,7 @@ public class Aggregates extends Periodical {
 						LOG.debug("query took " + result.took().format());
 						
 						Map<String, Long> matchedTerms = new HashMap<String, Long>();
+						long ruleCount = 0;
 						
 						for (Map.Entry<String, Long> term : result.getTerms().entrySet()){
 							
@@ -142,12 +137,20 @@ public class Aggregates extends Periodical {
 									|| (!matchMoreOrEqual && count < numberOfMatches)) {
 
 								LOG.info(count + " found for " + field + "=" + matchedFieldValue);
-								matchedTerms.put(matchedFieldValue, count);								
+								
+								matchedTerms.put(matchedFieldValue, count);
+								
+								ruleCount += count;
 							}
 
 						}
 						
 						if (!matchedTerms.isEmpty()){
+							HistoryItem historyItem = HistoryItemImpl.create(rule.getName(), new Date(), ruleCount);
+							
+							historyItemService.create(historyItem);
+
+							
 							try {
 								alertSender.sendEmails(rule, matchedTerms, timeRange);
 							} catch (EmailException e) {

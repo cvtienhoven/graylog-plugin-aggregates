@@ -43,7 +43,8 @@ const AggregatesStore = Reflux.createStore({
 				interval: newRule.interval,
 				alertReceivers: newRule.alertReceivers,
 				enabled: true,
-				streamId: newRule.streamId
+				streamId: newRule.streamId,
+				inReport: newRule.inReport
 			}	
 	};
 
@@ -73,7 +74,8 @@ const AggregatesStore = Reflux.createStore({
 					interval: updatedRule.interval,
 					alertReceivers: updatedRule.alertReceivers,
 					enabled: updatedRule.enabled,
-					streamId: updatedRule.streamId
+					streamId: updatedRule.streamId,
+					inReport: updatedRule.inReport
 				}	
 		};
 

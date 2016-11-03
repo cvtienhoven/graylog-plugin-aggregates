@@ -46,6 +46,10 @@ const RulesList = React.createClass({
     rule.enabled = !rule.enabled;
     AggregatesActions.update(rule.name, rule);
   },
+  toggleInReport(rule) {
+    rule.inReport = !rule.inReport;
+    AggregatesActions.update(rule.name, rule);
+  },
   _deleteRuleFunction(name) {
     return () => {
       if (window.confirm('Do you really want to delete rule ' + name + '?')) {
@@ -59,6 +63,13 @@ const RulesList = React.createClass({
       if (window.confirm('Do you really want to ' + text + ' rule ' + rule.name + '?')) {
         this.toggleEnabled(rule);
       }
+    };
+  },
+  _toggleRuleInReportFunction(rule) {
+    return () => {
+      
+        this.toggleInReport(rule);
+      
     };
   },
   _headerCellFormatter(header) {
@@ -98,6 +109,9 @@ const RulesList = React.createClass({
  	);
  	
  	
+ 	const inReport = (
+ 		<input id="toggle-in-report" type="checkbox" checked={rule.inReport} onClick={this._toggleRuleInReportFunction(rule)} ></input>
+ 	);
  	
     const deleteAction = (
       <IfPermitted permissions="aggregate_rules:delete">          	           	
@@ -110,7 +124,7 @@ const RulesList = React.createClass({
 
     const toggleText = (
  	  rule.enabled === true ? 'Disable' : 'Enable'
- 	)
+ 	);
 
     const toggleAction = (
       <IfPermitted permissions="aggregate_rules:update">
@@ -156,13 +170,14 @@ const RulesList = React.createClass({
         <td className="limited">The same value of field '{rule.field}' occurs {match} times in a {rule.interval} minute interval</td>
 		<td className="limited">{this._alertReceiversFormatter(rule)}</td>
 		<td className="limited">{streamTitle}</td>
+		<td>{inReport}</td>
         <td>{actions}</td>
       </tr>
     );
   },
   render() {
     const filterKeys = ['name', 'query', 'field', 'stream'];
-    const headers = ['Rule name', 'Query', 'Alert condition', 'Alert receivers', 'Stream'];
+    const headers = ['Rule name', 'Query', 'Alert condition', 'Alert receivers', 'Stream', 'In report'];
     
     if (this.state.rules) {
       return (
