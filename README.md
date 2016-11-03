@@ -79,7 +79,7 @@ The sending of alerts by email relies on the same configuration as the Email Ala
 
 **Reporting**
 
-In the rule overview, there's an option (checkbox) to include rule history in a report, which is generated weekly (every Sunday) and monthly (every last day of the month) at 23:59. This report contains a bar chart for every rule, summing up the total number of hits for that rule per day. The report is tailored per alert receiver, which means that a receipient will only receive charts for the rules subscribed to. 
+In the rule overview, there's an option (checkbox) to include rule history in a report, which is generated weekly (every Sunday) and monthly (every last day of the month) at 23:59. This report is a PDF file that contains a bar chart for every rule, summing up the total number of hits for that rule per day. The report is tailored per alert receiver, which means that a receipient will only receive charts for the rules subscribed to. 
 
 **_Note_**: The configuration of intervals, schedules etc. for reports is not possible yet, but is something that might be included in the future. Currently, the retention of the history is set to 31 days (which might also be configurable in the future).
 
