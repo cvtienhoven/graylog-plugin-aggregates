@@ -135,7 +135,13 @@ public class RuleAlertSender {
         	sb.append("<td " + TD_TR_STYLE + ">").append(entry.getValue()).append("</td>");
         	        	        	
         	try {
-        		String search_uri="/search?rangetype=absolute&fields=message%2Csource%2C"+rule.getField()+"&from="+timeRange.getFrom()+"&to="+timeRange.getTo()+"&q="+URLEncoder.encode(rule.getQuery()+" AND " + rule.getField()+":\""+entry.getKey()+"\"", "UTF-8");
+        		String streamId = rule.getStreamId();
+        		String search_uri = "";
+        		
+        		if (streamId != null && streamId != ""){
+        			search_uri+="/streams/"+streamId;
+        		}
+        		search_uri+="/search?rangetype=absolute&fields=message%2Csource%2C"+rule.getField()+"&from="+timeRange.getFrom()+"&to="+timeRange.getTo()+"&q="+URLEncoder.encode(rule.getQuery()+" AND " + rule.getField()+":\""+entry.getKey()+"\"", "UTF-8");
 				sb.append("<td " + TD_TR_STYLE + ">").append("<a href=\""+configuration.getWebInterfaceUri()+search_uri+"\">Search</a>").append("</td>");
 			} catch (UnsupportedEncodingException e) {
 				sb.append("<td " + TD_TR_STYLE + ">").append("Unable to URL encode search URI").append("</td>");
