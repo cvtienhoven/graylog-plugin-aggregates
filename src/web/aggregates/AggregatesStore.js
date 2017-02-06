@@ -29,7 +29,6 @@ const AggregatesStore = Reflux.createStore({
     AggregatesActions.list.promise(promise);
   },
   create(newRule) {
-	console.log(JSON.stringify(newRule));
 	const url = URLUtils.qualifyUrl(this.sourceUrl);
 	const method = 'PUT';
 	
@@ -61,7 +60,7 @@ const AggregatesStore = Reflux.createStore({
 	
   },
   update(name, updatedRule) {
-		const url = URLUtils.qualifyUrl(this.sourceUrl+'/' + name);
+		const url = URLUtils.qualifyUrl(this.sourceUrl+'/' + encodeURIComponent(name));
 		const method = 'POST';
 		
 		const request = {
@@ -92,10 +91,9 @@ const AggregatesStore = Reflux.createStore({
 		
 	  },
   deleteByName(ruleName) {
-	const url = URLUtils.qualifyUrl(this.sourceUrl + '/' + ruleName);
+	const url = URLUtils.qualifyUrl(this.sourceUrl + '/' + encodeURIComponent(ruleName));
 	const method = 'DELETE';
-	//const request;
-		
+
 	const promise = fetch(method, url)
 	  .then(() => {
 		UserNotification.success('Rule successfully deleted');

@@ -4,6 +4,8 @@ import com.codahale.metrics.annotation.Timed;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Function;
 import com.google.common.base.Supplier;
+import com.mongodb.MongoException;
+
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -41,6 +43,8 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+
+import java.io.UnsupportedEncodingException;
 import java.util.List;
 
 @Api(value = "Aggregates", description = "Management of Aggregation rules.")
@@ -93,10 +97,10 @@ public class RuleResource extends RestResource implements PluginRestResource {
     public Response update(@ApiParam(name = "name", required = true)
     					   @PathParam("name") String name,
                              @ApiParam(name = "JSON body", required = true) @Valid @NotNull UpdateRuleRequest request
-                             ) {
+                             ) throws UnsupportedEncodingException {
         final Rule rule = ruleService.fromRequest(request);
 
-        ruleService.update(name, rule);
+        ruleService.update(java.net.URLDecoder.decode(name, "UTF-8"), rule);
 
         return Response.accepted().build();
     }
@@ -112,7 +116,7 @@ public class RuleResource extends RestResource implements PluginRestResource {
     })
     public void delete(@ApiParam(name = "name", required = true)
                               @PathParam("name") String name
-                              ) throws NotFoundException {
-        ruleService.destroy(name);
+                              ) throws NotFoundException, MongoException, UnsupportedEncodingException {
+        ruleService.destroy(java.net.URLDecoder.decode(name, "UTF-8"));
     }
 }
