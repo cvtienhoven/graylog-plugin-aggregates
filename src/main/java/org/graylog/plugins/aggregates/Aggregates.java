@@ -55,8 +55,7 @@ public class Aggregates extends Periodical {
 
 	@Inject
 	public Aggregates(RuleAlertSender alertSender, Searches searches, ClusterConfigService clusterConfigService,
-			IndexerSetupService indexerSetupService, RuleService ruleService, HistoryItemService historyItemService) {
-		LOG.info("constructor");
+			IndexerSetupService indexerSetupService, RuleService ruleService, HistoryItemService historyItemService) {		
 		this.searches = searches;
 		this.clusterConfigService = clusterConfigService;
 		this.alertSender = alertSender;
@@ -74,6 +73,10 @@ public class Aggregates extends Periodical {
 
 	@Override
 	public void doRun() {
+		//correct rules that don't have a schedule yet for backwards compatibility
+
+		
+		
 		if (!shouldRun()) {
 			LOG.warn("Indexer is not running, not checking any rules this run.");
 		} else {

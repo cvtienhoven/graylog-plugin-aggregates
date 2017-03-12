@@ -1,4 +1,4 @@
-package org.graylog.plugins.aggregates.rule.rest;
+package org.graylog.plugins.aggregates.report.schedule.rest;
 
 import com.codahale.metrics.annotation.Timed;
 import com.google.common.annotations.VisibleForTesting;
@@ -16,7 +16,11 @@ import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.graylog.plugins.aggregates.permissions.RuleRestPermissions;
 import org.graylog.plugins.aggregates.rule.Rule;
 import org.graylog.plugins.aggregates.rule.RuleImpl;
-import org.graylog.plugins.aggregates.rule.RuleService;
+import org.graylog.plugins.aggregates.report.schedule.ReportSchedule;
+import org.graylog.plugins.aggregates.report.schedule.ReportScheduleService;
+import org.graylog.plugins.aggregates.report.schedule.rest.models.requests.AddReportScheduleRequest;
+import org.graylog.plugins.aggregates.report.schedule.rest.models.requests.UpdateReportScheduleRequest;
+import org.graylog.plugins.aggregates.report.schedule.rest.models.responses.ReportSchedulesList;
 import org.graylog.plugins.aggregates.rule.rest.models.requests.AddRuleRequest;
 import org.graylog.plugins.aggregates.rule.rest.models.requests.UpdateRuleRequest;
 import org.graylog.plugins.aggregates.rule.rest.models.responses.RulesList;
@@ -48,40 +52,40 @@ import java.io.UnsupportedEncodingException;
 import java.util.List;
 
 @Api(value = "Aggregates", description = "Management of Aggregation rules.")
-@Path("/rules")
+@Path("/schedules")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
-public class RuleResource extends RestResource implements PluginRestResource {
-    private final RuleService ruleService;
-    private static final Logger LOG = LoggerFactory.getLogger(RuleResource.class);    
+public class ReportScheduleResource extends RestResource implements PluginRestResource {
+    private final ReportScheduleService reportScheduleService;
+    private static final Logger LOG = LoggerFactory.getLogger(ReportScheduleResource.class);    
     
     @Inject
-    public RuleResource(RuleService ruleService) {
-        this.ruleService = ruleService;
+    public ReportScheduleResource(ReportScheduleService ruleService) {
+        this.reportScheduleService = ruleService;
     }
 
     @GET
     @Timed
-    @ApiOperation(value = "Lists all existing rules")
+    @ApiOperation(value = "Lists all existing report schedules")
     @RequiresAuthentication
     @RequiresPermissions(RuleRestPermissions.AGGREGATE_RULES_READ)
-    public RulesList list() {
-        final List<Rule> rules = ruleService.all();   
-        return RulesList.create(rules);
+    public ReportSchedulesList list() {
+        final List<ReportSchedule> reportSchedules = reportScheduleService.all();   
+        return ReportSchedulesList.create(reportSchedules);
     }
     
     @PUT
     @Timed    
-    @ApiOperation(value = "Create a rule")
+    @ApiOperation(value = "Create a report schedule")
     @ApiResponses(value = {
             @ApiResponse(code = 400, message = "The supplied request is not valid.")
     })
     public Response create(
-                             @ApiParam(name = "JSON body", required = true) @Valid @NotNull AddRuleRequest request
+                             @ApiParam(name = "JSON body", required = true) @Valid @NotNull AddReportScheduleRequest request
                              ) {
-        final Rule rule = ruleService.fromRequest(request);
+        final ReportSchedule reportSchedule = reportScheduleService.fromRequest(request);
 
-        ruleService.create(rule);
+        reportScheduleService.create(reportSchedule);
 
         return Response.accepted().build();
     }
@@ -95,11 +99,11 @@ public class RuleResource extends RestResource implements PluginRestResource {
     })
     public Response update(@ApiParam(name = "name", required = true)
     					   @PathParam("name") String name,
-                             @ApiParam(name = "JSON body", required = true) @Valid @NotNull UpdateRuleRequest request
+                             @ApiParam(name = "JSON body", required = true) @Valid @NotNull UpdateReportScheduleRequest request
                              ) throws UnsupportedEncodingException {
-        final Rule rule = ruleService.fromRequest(request);
+        final ReportSchedule reportSchedule = reportScheduleService.fromRequest(request);
 
-        ruleService.update(java.net.URLDecoder.decode(name, "UTF-8"), rule);
+        reportScheduleService.update(java.net.URLDecoder.decode(name, "UTF-8"), reportSchedule);
 
         return Response.accepted().build();
     }
@@ -108,7 +112,7 @@ public class RuleResource extends RestResource implements PluginRestResource {
     @Path("/{name}")
     @RequiresAuthentication
     @RequiresPermissions(RuleRestPermissions.AGGREGATE_RULES_DELETE)
-    @ApiOperation(value = "Delete a rule")
+    @ApiOperation(value = "Delete a report schedule")
     @ApiResponses(value = {
             @ApiResponse(code = 404, message = "Rule not found."),
             @ApiResponse(code = 400, message = "Invalid ObjectId.")
@@ -116,6 +120,6 @@ public class RuleResource extends RestResource implements PluginRestResource {
     public void delete(@ApiParam(name = "name", required = true)
                               @PathParam("name") String name
                               ) throws NotFoundException, MongoException, UnsupportedEncodingException {
-        ruleService.destroy(java.net.URLDecoder.decode(name, "UTF-8"));
+        reportScheduleService.destroy(java.net.URLDecoder.decode(name, "UTF-8"));
     }
 }

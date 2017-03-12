@@ -2,6 +2,7 @@ import React from 'react';
 import Reflux from 'reflux'
 import { Row, Col, Button } from 'react-bootstrap';
 import { LinkContainer } from 'react-router-bootstrap';
+import Routes from 'routing/Routes';
 
 import DocsHelper from 'util/DocsHelper';
 
@@ -10,7 +11,6 @@ import RulesList from './RulesList';
 import EditRuleModal from './EditRuleModal';
 import DocumentationLink from 'components/support/DocumentationLink';
 import { IfPermitted, PageHeader } from 'components/common';
-
 
 const AggregatesPage = React.createClass({
   mixins: [],
@@ -31,6 +31,13 @@ const AggregatesPage = React.createClass({
           <span>
             <IfPermitted permissions="aggregate_rules:create">
           	  <EditRuleModal create createRule={this._createRule}/>
+          	</IfPermitted>
+          </span>
+          <span>
+            <IfPermitted permissions="aggregate_rules:create">
+              <LinkContainer to='/aggregates/schedules'>
+                <Button bsStyle="info">Manage Reporting Schedules</Button>
+              </LinkContainer>
           	</IfPermitted>
           </span>
         </PageHeader>

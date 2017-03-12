@@ -10,8 +10,11 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+import org.graylog.plugins.aggregates.Aggregates;
 import org.graylog.plugins.aggregates.history.HistoryAggregateItem;
 import org.jfree.chart.JFreeChart;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.itextpdf.awt.DefaultFontMapper;
 import com.itextpdf.text.Document;
@@ -22,13 +25,14 @@ import com.itextpdf.text.pdf.PdfTemplate;
 import com.itextpdf.text.pdf.PdfWriter;
 
 public class ReportFactory {
-
-	public static void createReport(Map<String, List<HistoryAggregateItem>> series, int days, OutputStream outputStream, String hostname, Date date) throws ParseException {
-		
+	private static final Logger LOG = LoggerFactory.getLogger(ReportFactory.class);
+	
+	public static void createReport(Map<String, List<HistoryAggregateItem>> series, int days, OutputStream outputStream, String hostname, Date date) throws ParseException {		
 		List<JFreeChart> charts = new ArrayList<JFreeChart>();
 		
-		for (Map.Entry<String, List<HistoryAggregateItem>> serie : series.entrySet()){
+		for (Map.Entry<String, List<HistoryAggregateItem>> serie : series.entrySet()){			
 			charts.add(ChartFactory.generateTimeSeriesChart(serie.getKey(), serie.getValue(), days));
+			LOG.info("Adding chart \"" + serie.getKey() + "\"");
 		}
 				
 		writeChartsToPDF(charts, 500, 200, outputStream, hostname, date);
@@ -65,7 +69,7 @@ public class ReportFactory {
 			
 			
 			for (JFreeChart chart : charts){
-				
+				LOG.info("Writing chart to PDF");
 				if (writer.getVerticalPosition(true)-height+(height*position) < 0){
 					position = 0;
 					document.newPage();

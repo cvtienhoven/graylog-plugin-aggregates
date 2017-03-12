@@ -5,6 +5,10 @@ const AggregatesActions = Reflux.createActions({
   create: { asyncResult: true },
   deleteByName: { asyncResult: true },
   update: { asyncResult: true },
+  createSchedule: { asyncResult: true },
+  listSchedules: { asyncResult: true },
+  deleteScheduleByName: { asyncResult: true },
+  updateSchedule: { asyncResult: true },
 });
 
 export default AggregatesActions;

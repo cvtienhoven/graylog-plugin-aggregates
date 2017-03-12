@@ -56,7 +56,8 @@ public class AggregatesReport extends Periodical {
 		boolean generateReport = false;
 		int days = 0;
 		String description = "";
-
+		
+		
 		if (cal.get(Calendar.HOUR_OF_DAY) == 23 && cal.get(Calendar.MINUTE) == 59) {
 			if (cal.getActualMaximum(Calendar.DAY_OF_MONTH) == cal.get(Calendar.DAY_OF_MONTH)) {
 				generateReport = true;
@@ -85,6 +86,7 @@ public class AggregatesReport extends Periodical {
 			 */
 			for (Rule rule : rules) {				
 				if (rule.isInReport()){
+					LOG.info("Rule \"" + rule.getName() + "\" should be added to report");
 					for (String receipient: rule.getAlertReceivers()){
 						if (!receipientsSeries.containsKey(receipient)){
 							receipientsSeries.put(receipient, new HashMap<String, List<HistoryAggregateItem>>());
