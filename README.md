@@ -30,6 +30,17 @@ This scenario is actually very useful in a security context, but with the built-
 
 ![](https://github.com/cvtienhoven/graylog-plugin-aggregates/blob/master/images/aggregates_alert.png)
 
+
+**Report schedule overview**
+
+![](https://github.com/cvtienhoven/graylog-plugin-aggregates/blob/master/images/schedule_list.png)
+
+
+**Create / edit a report schedule**
+
+![](https://github.com/cvtienhoven/graylog-plugin-aggregates/blob/master/images/edit_schedule.png)
+
+
 **Report example**
 
 ![](https://github.com/cvtienhoven/graylog-plugin-aggregates/blob/master/images/report.png)
@@ -62,10 +73,17 @@ Usage
 
 Use the Aggregates tab in the web interface of Graylog to define rules with alert criteria. For non-admin users, there are the following permissions that should be configured (via the REST API) to be able to fully (or partly) operate the plugin:
 
-* aggregate_rules:read
 * aggregate_rules:create
+* aggregate_rules:read
 * aggregate_rules:update
 * aggregate_rules:delete
+
+* aggregate_report_schedules:create
+* aggregate_report_schedules:read
+* aggregate_report_schedules:update
+* aggregate_report_schedules:delete
+
+**_Note_**: To be able to view the list of rules, non-admin users need both the `aggregate_rules:read` and the `aggregate_report_schedules:create` permissions.
 
 Each rule can be configured to be executed on a particular stream, or on "No Stream", e.g. a global search. For the latter option to be present, the user needs to be able to have at least the following permissions:
 
@@ -79,9 +97,12 @@ The sending of alerts by email relies on the same configuration as the Email Ala
 
 **Reporting**
 
-In the rule overview, there's an option (checkbox) to include rule history in a report, which is generated weekly (every Sunday) and monthly (every last day of the month) at 23:59. This report is a PDF file that contains a bar chart for every rule, summing up the total number of hits for that rule per day. The report is tailored per alert receiver, which means that a receipient will only receive charts for the rules subscribed to. 
+In the rule overview, there's an option (checkbox) to include rule history in a report. This report is a PDF file that contains a bar chart for every rule, summing up the total number of hits for that rule per period. The grid for the chart is automatically determined based on the total amount of time. The report is tailored per alert receiver, which means that a receipient will only receive charts for the rules subscribed to.
 
-**_Note_**: The configuration of intervals, schedules etc. for reports is not possible yet, but is something that might be included in the future. Currently, the retention of the history is set to 31 days (which might also be configurable in the future).
+When creating or editing a rule, the schedule(s) for generating report(s) can be supplied. There are two default schedules (for migration purposes) that can't be removed (`Every Saturday 23:59` and `First day of month, 00:00`), however they are not mandatory to be used. For configuring a schedule, you should supply a name, a valid Cron expression using the [Drools](http://javadox.com/org.drools/drools-core/6.2.0.Final/org/drools/core/time/impl/CronExpression.html) syntax and the timespan, e.g. the amount of history you wish to incorporate in the report.
+
+**_Note_**: The maximum timespan determines the overall retention. So, if you have a report schedule that takes a year of history, the retention of hits will be a year. This might influence your MongoDB storage needs.
+
 
 Getting started
 ---------------

@@ -2,17 +2,19 @@ package org.graylog.plugins.aggregates.report;
 
 import java.awt.Graphics2D;
 import java.awt.geom.Rectangle2D;
-
 import java.io.OutputStream;
 import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-
 import org.graylog.plugins.aggregates.history.HistoryAggregateItem;
+import org.graylog.plugins.aggregates.report.schedule.ReportSchedule;
+import org.graylog.plugins.aggregates.rule.Rule;
 import org.jfree.chart.JFreeChart;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import com.itextpdf.awt.DefaultFontMapper;
 import com.itextpdf.text.Document;
 import com.itextpdf.text.PageSize;
@@ -22,19 +24,21 @@ import com.itextpdf.text.pdf.PdfTemplate;
 import com.itextpdf.text.pdf.PdfWriter;
 
 public class ReportFactory {
-
-	public static void createReport(Map<String, List<HistoryAggregateItem>> series, int days, OutputStream outputStream, String hostname, Date date) throws ParseException {
-		
+	private static final Logger LOG = LoggerFactory.getLogger(ReportFactory.class);
+	
+	public static void createReport(Map<Rule, List<HistoryAggregateItem>> series, Map<Rule, ReportSchedule> ruleScheduleMapping, Calendar cal, OutputStream outputStream, String hostname) throws ParseException {		
 		List<JFreeChart> charts = new ArrayList<JFreeChart>();
 		
-		for (Map.Entry<String, List<HistoryAggregateItem>> serie : series.entrySet()){
-			charts.add(ChartFactory.generateTimeSeriesChart(serie.getKey(), serie.getValue(), days));
+		for (Map.Entry<Rule, List<HistoryAggregateItem>> serie : series.entrySet()){			
+			charts.add(ChartFactory.generateTimeSeriesChart(serie.getKey().getName(), serie.getValue(), ruleScheduleMapping.get(serie.getKey()).getTimespan(), cal));
+			LOG.debug("Adding chart \"" + serie.getKey() + "\"");
 		}
 				
-		writeChartsToPDF(charts, 500, 200, outputStream, hostname, date);
+		writeChartsToPDF(charts, 500, 200, outputStream, hostname, cal.getTime());
 
 	}
 
+	@SuppressWarnings("deprecation")
 	public static void writeChartsToPDF(List<JFreeChart> charts, int width, int height, OutputStream outputStream, String hostname, Date date) {
 		PdfWriter writer = null;
 
@@ -65,7 +69,7 @@ public class ReportFactory {
 			
 			
 			for (JFreeChart chart : charts){
-				
+				LOG.debug("Writing chart to PDF");
 				if (writer.getVerticalPosition(true)-height+(height*position) < 0){
 					position = 0;
 					document.newPage();

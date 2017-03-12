@@ -1,24 +1,22 @@
 package org.graylog.plugins.aggregates.report;
 
-import java.io.ByteArrayOutputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.graylog.plugins.aggregates.history.HistoryAggregateItem;
 import org.graylog.plugins.aggregates.history.HistoryAggregateItemImpl;
-import org.graylog.plugins.aggregates.history.HistoryItem;
-import org.graylog.plugins.aggregates.history.HistoryItemImpl;
-import org.joda.time.DateTime;
+import org.graylog.plugins.aggregates.report.schedule.ReportSchedule;
+import org.graylog.plugins.aggregates.report.schedule.ReportScheduleImpl;
+import org.graylog.plugins.aggregates.rule.Rule;
+import org.graylog.plugins.aggregates.rule.RuleImpl;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
@@ -30,10 +28,10 @@ public class ReportFactoryTest {
 
 	@Test
 	public void testGenerateTimeSeriesChart() throws ParseException, FileNotFoundException{
-		Map<String, List<HistoryAggregateItem>> map = new HashMap<String, List<HistoryAggregateItem>>();
+		Map<Rule, List<HistoryAggregateItem>> map = new HashMap<Rule, List<HistoryAggregateItem>>();
 		
 		Calendar cal = Calendar.getInstance();		
-		SimpleDateFormat format =  new SimpleDateFormat ("yyyy-MM-dd");
+		SimpleDateFormat format =  new SimpleDateFormat ("yyyy-MM-dd'T'HH");
 		
 		List<HistoryAggregateItem> history = new ArrayList<HistoryAggregateItem>();
 		for (int i=0; i<15; i++){
@@ -43,8 +41,10 @@ public class ReportFactoryTest {
 			history.add(HistoryAggregateItemImpl.create(day, 10+i));
 		}
 		
+		ReportSchedule schedule = ReportScheduleImpl.create("1231231", "name", "expression", "P1D", false, 0L);
 		
-		map.put("Rule 1 Test", history);
+		Rule rule1 = RuleImpl.create("query", "field", 1L, true, 1, "Rule 1", new ArrayList<String>(), true, "", true, new ArrayList<String>(), true);
+		map.put(rule1, history);
 		
 		
 		cal = Calendar.getInstance();		
@@ -58,8 +58,8 @@ public class ReportFactoryTest {
 
 		}
 		
-		map.put("Rule 2", history);
-		
+		Rule rule2 = RuleImpl.create("query", "field", 1L, true, 1, "Rule 2", new ArrayList<String>(), true, "", true, new ArrayList<String>(), true);
+		map.put(rule2, history);
 		history = new ArrayList<HistoryAggregateItem>();
 		for (int i=0; i<30; i++){
 			cal.add(Calendar.DATE, -1);
@@ -69,7 +69,8 @@ public class ReportFactoryTest {
 
 		}
 		
-		map.put("Rule 3", history);
+		Rule rule3 = RuleImpl.create("query", "field", 1L, true, 1, "Rule 3", new ArrayList<String>(), true, "", true, new ArrayList<String>(), true);
+		map.put(rule3, history);
 		
 		history = new ArrayList<HistoryAggregateItem>();
 		for (int i=0; i<70; i++){
@@ -80,8 +81,8 @@ public class ReportFactoryTest {
 			
 		}
 		
-		map.put("Rule 4", history);
-		
+		Rule rule4 = RuleImpl.create("query", "field", 1L, true, 1, "Rule 4", new ArrayList<String>(), true, "", true, new ArrayList<String>(), true);
+		map.put(rule4, history);
 		
 		history = new ArrayList<HistoryAggregateItem>();
 		for (int i=0; i<100; i++){
@@ -92,14 +93,23 @@ public class ReportFactoryTest {
 
 		}
 		
-		map.put("Rule 5", history);
-
+		Rule rule5 = RuleImpl.create("query", "field", 1L, true, 1, "Rule 5", new ArrayList<String>(), true, "", true, new ArrayList<String>(), true);
+		map.put(rule5, history);
+		
+		Map<Rule, ReportSchedule> mapping = new HashMap<Rule, ReportSchedule>();
+		mapping.put(rule1, schedule);
+		mapping.put(rule2, schedule);
+		mapping.put(rule3, schedule);
+		mapping.put(rule4, schedule);
+		mapping.put(rule5, schedule);
+		
 		Calendar c = Calendar.getInstance();
 		c.add(Calendar.DATE, -31);
 		
 		System.out.println(new ISO8601DateConverter().toString(c.getTime()));
+		
 		FileOutputStream outputStream = new FileOutputStream("/tmp/report.pdf"); 
-		ReportFactory.createReport(map, 31, outputStream, "test.domain", Calendar.getInstance().getTime());
+		ReportFactory.createReport(map, mapping, Calendar.getInstance(), outputStream, "test.domain");
 		try {
 			outputStream.close();
 		} catch (IOException e) {

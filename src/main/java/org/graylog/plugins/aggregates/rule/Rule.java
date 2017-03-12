@@ -23,4 +23,8 @@ public interface Rule {
 	public String getStreamId();
 	
 	public boolean isInReport();
+
+	public List<String> getReportSchedules();
+
+	public boolean isSliding();
 }

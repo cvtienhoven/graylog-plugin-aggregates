@@ -21,9 +21,9 @@ import com.google.auto.value.AutoValue;
 @JsonAutoDetect
 public abstract class HistoryAggregateItemImpl implements HistoryAggregateItem{
     
-	@JsonProperty("day")
+	@JsonProperty("moment")
     @Override
-    public abstract String getDay();
+    public abstract String getMoment();
 	
     @JsonProperty("numberOfHits")
     @Override
@@ -32,15 +32,15 @@ public abstract class HistoryAggregateItemImpl implements HistoryAggregateItem{
     
 	@JsonCreator
     public static HistoryAggregateItemImpl create(@JsonProperty("_id") String objectId,
-    								   @JsonProperty("day") String day,
+    								   @JsonProperty("moment") String moment,
                                        @JsonProperty("numberOfHits") long numberOfHits) {		
-        return new AutoValue_HistoryAggregateItemImpl(day, numberOfHits);
+        return new AutoValue_HistoryAggregateItemImpl(moment, numberOfHits);
     }
 	
 	public static HistoryAggregateItemImpl create(
-			String day,
+			String moment,
             long numberOfHits) {
-		return new AutoValue_HistoryAggregateItemImpl(day, numberOfHits);
+		return new AutoValue_HistoryAggregateItemImpl(moment, numberOfHits);
 	
 	}
 }

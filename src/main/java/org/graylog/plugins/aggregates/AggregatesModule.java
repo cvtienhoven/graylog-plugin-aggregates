@@ -4,10 +4,14 @@ import org.graylog.plugins.aggregates.history.HistoryItemService;
 import org.graylog.plugins.aggregates.history.HistoryItemServiceImpl;
 import org.graylog.plugins.aggregates.maintenance.AggregatesMaintenance;
 import org.graylog.plugins.aggregates.permissions.RuleRestPermissions;
+import org.graylog.plugins.aggregates.permissions.ReportScheduleRestPermissions;
 import org.graylog.plugins.aggregates.report.AggregatesReport;
 import org.graylog.plugins.aggregates.rule.RuleService;
 import org.graylog.plugins.aggregates.rule.RuleServiceImpl;
 import org.graylog.plugins.aggregates.rule.rest.RuleResource;
+import org.graylog.plugins.aggregates.report.schedule.ReportScheduleService;
+import org.graylog.plugins.aggregates.report.schedule.ReportScheduleServiceImpl;
+import org.graylog.plugins.aggregates.report.schedule.rest.ReportScheduleResource;
 import org.graylog2.plugin.PluginConfigBean;
 import org.graylog2.plugin.PluginModule;
 
@@ -31,14 +35,17 @@ public class AggregatesModule extends PluginModule {
     @Override
     protected void configure() {
     	bind(RuleService.class).to(RuleServiceImpl.class);
+    	bind(ReportScheduleService.class).to(ReportScheduleServiceImpl.class);
     	bind(HistoryItemService.class).to(HistoryItemServiceImpl.class);
+    	
     	
         addPeriodical(Aggregates.class);
         addPeriodical(AggregatesReport.class);
         addPeriodical(AggregatesMaintenance.class);
         addPermissions(RuleRestPermissions.class);
+        addPermissions(ReportScheduleRestPermissions.class);
         addRestResource(RuleResource.class);
-        
+        addRestResource(ReportScheduleResource.class);
         
         //;
         /*

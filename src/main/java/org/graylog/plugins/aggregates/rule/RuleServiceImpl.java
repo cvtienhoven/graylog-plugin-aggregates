@@ -30,7 +30,6 @@ public class RuleServiceImpl implements RuleService {
 	@Inject
 	public RuleServiceImpl(MongoConnection mongoConnection, MongoJackObjectMapperProvider mapperProvider,
 			Validator validator) {
-		LOG.info("constructor");
 		this.validator = validator;
 		final String collectionName = RuleImpl.class.getAnnotation(CollectionName.class).value();
 		final DBCollection dbCollection = mongoConnection.getDatabase().getCollection(collectionName);
@@ -48,9 +47,8 @@ public class RuleServiceImpl implements RuleService {
 		if (rule instanceof RuleImpl) {
 			final RuleImpl ruleImpl = (RuleImpl) rule;
 			final Set<ConstraintViolation<RuleImpl>> violations = validator.validate(ruleImpl);
-			if (violations.isEmpty()) {				
+			if (violations.isEmpty()) {
 				return coll.insert(ruleImpl).getSavedObject();
-
 			} else {
 				throw new IllegalArgumentException("Specified object failed validation: " + violations);
 			}
@@ -95,7 +93,9 @@ public class RuleServiceImpl implements RuleService {
 				request.getRule().getAlertReceivers(),
 				request.getRule().isEnabled(),
 				request.getRule().getStreamId(),
-				request.getRule().isInReport());
+				request.getRule().isInReport(),
+				request.getRule().getReportSchedules(),
+				request.getRule().isSliding());
 	}
 
 	@Override
@@ -110,7 +110,9 @@ public class RuleServiceImpl implements RuleService {
 				request.getRule().getAlertReceivers(),
 				request.getRule().isEnabled(),
 				request.getRule().getStreamId(),
-				request.getRule().isInReport());
+				request.getRule().isInReport(),
+				request.getRule().getReportSchedules(),
+				request.getRule().isSliding());
 	}
 	
 	@Override
@@ -125,7 +127,8 @@ public class RuleServiceImpl implements RuleService {
 	private List<Rule> toAbstractListType(List<RuleImpl> rules) {
 		final List<Rule> result = Lists.newArrayListWithCapacity(rules.size());
 		result.addAll(rules);
-
+	
+		
 		return result;
 	}
 }

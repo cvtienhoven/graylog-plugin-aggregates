@@ -6,6 +6,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -59,23 +60,6 @@ public class AggregatesTest {
 	@InjectMocks
 	@Spy
 	Aggregates aggregates;
-	
-	
-	
-	
-	
-	
-	/*
-	@Before
-	public void setUp() {
-		alertSender = mock(RuleAlertSender.class);
-		searches = mock(Searches.class);
-		clusterConfigService = mock(ClusterConfigService.class);
-		indexerSetupService = mock(IndexerSetupService.class);		
-		ruleService = mock(RuleService.class);
-		aggregates = new Aggregates(alertSender, searches, clusterConfigService, indexerSetupService, ruleService);
-	
-	}*/
 	
 	@Test
 	public void testBuildRelativeTimeRange() {
@@ -149,6 +133,7 @@ public class AggregatesTest {
 		verify(searches, Mockito.never()).terms(Mockito.any(String.class), Mockito.anyInt(), Mockito.any(String.class), Mockito.any(TimeRange.class));
 	}
 	
+	@SuppressWarnings("unchecked")
 	@Test
 	public void testDoRunIndexerRunningOneRuleEnabledNoMatch() throws EmailException, TransportConfigurationException{
 		long occurrences = 5;
@@ -188,9 +173,10 @@ public class AggregatesTest {
 		verify(ruleList.get(0)).getInterval();
 		verify(ruleList.get(0)).getQuery();
 		verify(ruleList.get(0)).getStreamId();
-		verify(alertSender, Mockito.never()).sendEmails(Mockito.any(Rule.class),Mockito.any(Map.class),Mockito.any(TimeRange.class));
+		verify(alertSender, Mockito.never()).sendEmails(Mockito.any(Rule.class),Mockito.any(Map.class),Mockito.any(TimeRange.class),Mockito.any(Date.class));
 	}
 	
+	@SuppressWarnings("unchecked")
 	@Test
 	public void testDoRunIndexerRunningOneRuleEnabledMatch() throws EmailException, TransportConfigurationException{
 		long occurrences = 5;
@@ -230,7 +216,7 @@ public class AggregatesTest {
 		verify(ruleList.get(0)).getInterval();
 		verify(ruleList.get(0)).getQuery();
 		verify(ruleList.get(0)).getStreamId();
-		verify(alertSender).sendEmails(Mockito.any(Rule.class),Mockito.any(Map.class),Mockito.any(TimeRange.class));
+		verify(alertSender).sendEmails(Mockito.any(Rule.class),Mockito.any(Map.class),Mockito.any(TimeRange.class), Mockito.any(Date.class));
 	}
 	
 	private TermsResult mockTermsResult(String termsValue, Long termsOccurrences ){

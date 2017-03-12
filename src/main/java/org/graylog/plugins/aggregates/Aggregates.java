@@ -3,24 +3,22 @@ package org.graylog.plugins.aggregates;
 
 import java.util.Date;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import javax.inject.Inject;
 import org.apache.commons.mail.EmailException;
 import org.graylog.plugins.aggregates.history.HistoryItem;
 import org.graylog.plugins.aggregates.history.HistoryItemImpl;
 import org.graylog.plugins.aggregates.history.HistoryItemService;
 import org.graylog.plugins.aggregates.rule.Rule;
-import org.graylog.plugins.aggregates.rule.RuleImpl;
 import org.graylog.plugins.aggregates.rule.RuleService;
 import org.graylog.plugins.aggregates.rule.alert.RuleAlertSender;
 import org.graylog2.indexer.results.TermsResult;
 import org.graylog2.indexer.searches.Searches;
 import org.graylog2.indexer.searches.SearchesClusterConfig;
 import org.graylog2.initializers.IndexerSetupService;
-
 import org.graylog2.plugin.alarms.transports.TransportConfigurationException;
 import org.graylog2.plugin.cluster.ClusterConfigService;
 import org.graylog2.plugin.indexer.searches.timeranges.AbsoluteRange;
@@ -28,12 +26,10 @@ import org.graylog2.plugin.indexer.searches.timeranges.InvalidRangeParametersExc
 import org.graylog2.plugin.indexer.searches.timeranges.RelativeRange;
 import org.graylog2.plugin.indexer.searches.timeranges.TimeRange;
 import org.graylog2.plugin.periodical.Periodical;
-
 import org.joda.time.DateTime;
 import org.joda.time.Period;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import com.google.common.annotations.VisibleForTesting;
 
 /**
@@ -55,8 +51,7 @@ public class Aggregates extends Periodical {
 
 	@Inject
 	public Aggregates(RuleAlertSender alertSender, Searches searches, ClusterConfigService clusterConfigService,
-			IndexerSetupService indexerSetupService, RuleService ruleService, HistoryItemService historyItemService) {
-		LOG.info("constructor");
+			IndexerSetupService indexerSetupService, RuleService ruleService, HistoryItemService historyItemService) {		
 		this.searches = searches;
 		this.clusterConfigService = clusterConfigService;
 		this.alertSender = alertSender;
@@ -73,7 +68,8 @@ public class Aggregates extends Periodical {
 	
 
 	@Override
-	public void doRun() {
+	public void doRun() {		
+		
 		if (!shouldRun()) {
 			LOG.warn("Indexer is not running, not checking any rules this run.");
 		} else {
@@ -90,14 +86,17 @@ public class Aggregates extends Periodical {
 					LOG.debug("Rule '" + rule.getName() + "' is disabled, skipping.");
 					continue;
 				}
+				
 				int interval_minutes = rule.getInterval();
+				
 						
 				if (interval_minutes > maxInterval) {
 					maxInterval = rule.getInterval();
 				}
 				
-				if (sequence % interval_minutes == 0) {
-
+				//always evaluate when isSliding()
+				if (rule.isSliding() || sequence % interval_minutes == 0) {
+				
 					String field = rule.getField();
 
 					List<String> unique_field_list = new ArrayList<String>();
@@ -115,7 +114,10 @@ public class Aggregates extends Periodical {
 					if (streamId != null && streamId != ""){
 						query = query + " AND streams:" + streamId;
 					}
-
+					
+					
+					
+					
 					final TimeRange timeRange = buildRelativeTimeRange(60 * interval_minutes);
 					if (null != timeRange) {
 						TermsResult result = searches.terms(field, limit, query, /*filter,*/ timeRange);						
@@ -152,7 +154,7 @@ public class Aggregates extends Periodical {
 
 							
 							try {
-								alertSender.sendEmails(rule, matchedTerms, timeRange);
+								alertSender.sendEmails(rule, matchedTerms, timeRange, Calendar.getInstance().getTime());
 							} catch (EmailException e) {
 								LOG.error("failed to send email: " + e.getMessage());
 							} catch (TransportConfigurationException e) {
