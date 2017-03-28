@@ -33,6 +33,11 @@ const SchedulesPage = React.createClass({
           	  <EditScheduleModal create createReportSchedule={this._createReportSchedule}/>
           	</IfPermitted>
           </span>
+          <span>
+            <LinkContainer to='/aggregates'>
+              <Button bsStyle="info">Back to rules</Button>
+            </LinkContainer>
+          </span>
         </PageHeader>
 
         <Row className="content">

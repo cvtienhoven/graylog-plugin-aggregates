@@ -36,7 +36,8 @@ const SchedulesStore = Reflux.createStore({
 	const request = {
 			reportSchedule: {
 				name: newSchedule.name,
-				expression: newSchedule.expression
+				expression: newSchedule.expression,
+				timespan: newSchedule.timespan
 			}	
 	};
     console.log('request: ' + JSON.stringify(request));
@@ -56,10 +57,13 @@ const SchedulesStore = Reflux.createStore({
 		const url = URLUtils.qualifyUrl(this.sourceUrl+'/' + encodeURIComponent(name));
 		const method = 'POST';
 		
+		console.log('schedule: ' + JSON.stringify(updatedSchedule));
+		
 		const request = {
 				reportSchedule: {
 					name: updatedSchedule.name,
-					interval: updatedSchedule.expression
+					expression: updatedSchedule.expression,
+					timespan: updatedSchedule.timespan					
 				}
 		};
 

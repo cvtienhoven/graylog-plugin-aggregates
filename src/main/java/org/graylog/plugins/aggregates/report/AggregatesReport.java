@@ -6,6 +6,7 @@ import java.net.UnknownHostException;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -16,8 +17,13 @@ import javax.inject.Inject;
 import javax.mail.MessagingException;
 
 import org.apache.commons.mail.EmailException;
+import org.drools.core.time.impl.CronExpression;
 import org.graylog.plugins.aggregates.history.HistoryAggregateItem;
 import org.graylog.plugins.aggregates.history.HistoryItemService;
+import org.graylog.plugins.aggregates.report.schedule.ReportSchedule;
+import org.graylog.plugins.aggregates.report.schedule.ReportScheduleImpl;
+import org.graylog.plugins.aggregates.report.schedule.ReportScheduleService;
+import org.graylog.plugins.aggregates.report.schedule.rest.models.requests.UpdateReportScheduleRequest;
 import org.graylog.plugins.aggregates.rule.Rule;
 import org.graylog.plugins.aggregates.rule.RuleService;
 import org.graylog2.plugin.alarms.transports.TransportConfigurationException;
@@ -33,13 +39,16 @@ public class AggregatesReport extends Periodical {
 	private final ReportSender reportSender;
 	private final HistoryItemService historyItemService;
 	private final RuleService ruleService;
+	private final ReportScheduleService reportScheduleService;
 	private String hostname = "localhost";
 	
 	@Inject
-	public AggregatesReport(ReportSender reportSender, HistoryItemService historyItemService, RuleService ruleService) {
+	public AggregatesReport(ReportSender reportSender, HistoryItemService historyItemService, RuleService ruleService, ReportScheduleService reportScheduleService) {
 		this.reportSender = reportSender;
 		this.historyItemService = historyItemService;
 		this.ruleService = ruleService;
+		this.reportScheduleService = reportScheduleService;
+		
 		InetAddress addr;
 		try {
 			addr = InetAddress.getLocalHost();
@@ -56,6 +65,29 @@ public class AggregatesReport extends Periodical {
 		boolean generateReport = false;
 		int days = 0;
 		String description = "";
+		
+		
+		List<ReportSchedule> reportSchedules = reportScheduleService.all();
+		
+		for (ReportSchedule reportSchedule: reportSchedules){						
+			CronExpression c;
+			if (reportSchedule.getNextFireTime() == null){
+				LOG.info("Updating nextFireTime");
+				try {				
+					c = new CronExpression(reportSchedule.getExpression());
+					reportScheduleService.updateNextFireTime(reportSchedule.getId(), c.getNextValidTimeAfter(cal.getTime()));					
+				} catch (ParseException e) {				
+					LOG.error("Schedule " + reportSchedule.getName() + " has invalid Cron Expression " + reportSchedule.getExpression());
+				}
+			}		
+		}
+
+		reportSchedules = reportScheduleService.all();
+		for (ReportSchedule reportSchedule: reportSchedules){
+			LOG.info("Schedule " + reportSchedule.getName() + " should fire at " + reportSchedule.getNextFireTime());			
+		}
+		
+		
 		
 		
 		if (cal.get(Calendar.HOUR_OF_DAY) == 23 && cal.get(Calendar.MINUTE) == 59) {
@@ -78,6 +110,11 @@ public class AggregatesReport extends Periodical {
 			LOG.info("generating " + description + " report");
 
 			List<Rule> rules = ruleService.all();
+			
+			
+			
+			
+			
 
 			Map<String, Map<String, List<HistoryAggregateItem>>> receipientsSeries = new HashMap<String, Map<String, List<HistoryAggregateItem>>>();
 			

@@ -4,6 +4,8 @@ import { Button, Input, Alert, Row, Col } from 'react-bootstrap';
 import BootstrapModalForm from 'components/bootstrap/BootstrapModalForm';
 import ObjectUtils from 'util/ObjectUtils';
 
+import TimespanConfiguration from './TimespanConfiguration';
+
 import ValidationsUtils from 'util/ValidationsUtils';
 
 import SchedulesStore from './SchedulesStore';
@@ -25,7 +27,8 @@ const EditScheduleModal = React.createClass({
     return {      
       reportSchedule: {
       	name: '',
-      	expression: '* * * * * *'
+      	expression: '* * * * * *',
+      	timespan: 'P1D'
       },
     };
   },
@@ -46,6 +49,10 @@ const EditScheduleModal = React.createClass({
   openModal() {    
     this.refs.modal.open();
     this.setState(this.getInitialState());
+
+    SchedulesActions.list().then(newReportSchedules => {
+  	  this.setState({reportSchedules : newReportSchedules});
+    })
   },
 
   _closeModal() {
@@ -72,34 +79,48 @@ const EditScheduleModal = React.createClass({
     }
 
   },   
-  _onValueChanged(event) {
-    
-    const reportSchedule = this.state.reportSchedule;
-    
+  _onValueChanged(event) {   
+    const reportSchedule = this.state.reportSchedule;    
     const parameter = event.target.name;
     const value = event.target.value;
     
-    if (parameter == 'name'){
-	  reportSchedule.name = value;
-	  console.log('name changed')
+    if (parameter == "name"){
+    	if (this.props.create || (!this.props.create && value != this.state.originalName)){
+    		const nameField = this.refs.name.getInputDOMNode();    	
+    		const nameExists = this.state.reportSchedules.some(reportSchedule => reportSchedule.name === value);
+    		ValidationsUtils.setFieldValidity(nameField, nameExists, 'Schedule name is already taken');
+    	}
     }
     
-    if (parameter == "expression"){
-      reportSchedule.expression = value;
-      console.log('expression changed')
+    if (parameter == "timespan") {
+      console.log('value: ' + value);
+      const timespanField = this.refs.timespan.getInputDOMNode();
+      const timespanValid = value > 0;
+    	
+      ValidationsUtils.setFieldValidity(timespanField, timespanValid, 'Timespan should be greater than 0 days');
     }
-    
 
-    this.setState(reportSchedule);
-    console.log('state: ' + JSON.stringify(this.state))
+	reportSchedule[parameter] = value.trim();
+
+    this.setState({reportSchedule: reportSchedule});
     
+  },
+  _setTimespan(timespan){
+    console.log('timespan: ' + JSON.stringify(timespan));
+    const reportSchedule = this.state.reportSchedule;
+    reportSchedule.timespan = timespan.period;
+    this.setState({reportSchedule: reportSchedule});
   },  
   render() {
+    const config = { rotation_period: 'P1D' }
+  
+  
     return (
       <span>
         <Button onClick={this.openModal}
                 bsStyle={this.props.create ? 'success' : 'info'}
-                bsSize={this.props.create ? null : 'xs'}>
+                bsSize={this.props.create ? null : 'xs'}
+                disabled={this.state.reportSchedule.default}>
           {this.props.create ? 'Create Report Schedule' : 'Edit'}
         </Button>
         <BootstrapModalForm ref="modal"
@@ -114,11 +135,12 @@ const EditScheduleModal = React.createClass({
                		onChange={this._onValueChanged} autoFocus  />
              
             
-              <Input ref="expression" name="expression" id="expression" type="text" maxLength={100} defaultValue='* * * * *'
+              <Input ref="expression" name="expression" id="expression" type="text" maxLength={100} defaultValue={this.state.reportSchedule.expression}
               		labelClassName="col-sm-2" wrapperClassName="col-sm-10"
-               		label="Cron Expression" help="Enter a cron expression" required
+               		label="Cron Expression" help="Enter a cron expression using the Drools Cron Expression syntax. The first item (seconds) has to be supplied, but will be ignored as the analyzer runs once a minute." required
                		onChange={this._onValueChanged} autoFocus  />
-
+               		               		
+			  <TimespanConfiguration ref="timespan" name="timespan" id="timespan"  config={this.state.schedule.timespan} updateConfig={this._setTimespan}/>			  
           </fieldset>
 
         </BootstrapModalForm>

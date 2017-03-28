@@ -93,7 +93,7 @@ public class ReportScheduleResource extends RestResource implements PluginRestRe
     @POST
     @Path("/{name}")
     @Timed    
-    @ApiOperation(value = "Update a rule")
+    @ApiOperation(value = "Update a schedule")
     @ApiResponses(value = {
             @ApiResponse(code = 400, message = "The supplied request is not valid.")
     })

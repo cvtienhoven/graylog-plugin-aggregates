@@ -72,10 +72,7 @@ public class Aggregates extends Periodical {
 	
 
 	@Override
-	public void doRun() {
-		//correct rules that don't have a schedule yet for backwards compatibility
-
-		
+	public void doRun() {		
 		
 		if (!shouldRun()) {
 			LOG.warn("Indexer is not running, not checking any rules this run.");

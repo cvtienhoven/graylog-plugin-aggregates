@@ -26,7 +26,7 @@ const SchedulesList = React.createClass({
   list () {
     SchedulesActions.list().then(newSchedules => {
       this.setState({reportSchedules: newSchedules})
-      console.log('list() state: ' + JSON.stringify(this.state));
+      console.log('list() state.reportSchedules: ' + JSON.stringify(this.state.reportSchedules));
     })
   },
   delete (name) {
@@ -59,7 +59,7 @@ const SchedulesList = React.createClass({
     const deleteAction = (
       <IfPermitted permissions="aggregate_rules:delete">
         <button id="delete-reportSchedule" type="button" className="btn btn-xs btn-primary" title="Delete schedule"
-              onClick={this._deleteScheduleFunction(reportSchedule.name)}>
+              onClick={this._deleteScheduleFunction(reportSchedule.name)} disabled={reportSchedule.default}>
           Delete
         </button>
       </IfPermitted>
@@ -86,14 +86,16 @@ const SchedulesList = React.createClass({
     return (
       <tr key={reportSchedule.name}>
       	<td className="limited">{reportSchedule.name}</td>
-        <td className="limited">{reportSchedule.expression}</td>		
+        <td className="limited">{reportSchedule.expression}</td>
+        <td className="limited">{reportSchedule.timespan}</td>
+        <td className="limited">{reportSchedule.nextFireTime != null ? new Date(reportSchedule.nextFireTime).toString() : 'unknown'}</td>
         <td>{actions}</td>
       </tr>
     );
   },
   render () {
     const filterKeys = ['name'];
-    const headers = ['Schedule name', 'Cron Expression'];
+    const headers = ['Schedule name', 'Cron Expression', 'Timespan', 'Next Fire Time'];
     
     console.log('state: ' + JSON.stringify(this.state));
     

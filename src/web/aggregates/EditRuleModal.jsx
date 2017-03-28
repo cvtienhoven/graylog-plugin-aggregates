@@ -1,5 +1,6 @@
 import React from 'react';
 import { Button, Input, Alert, Row, Col } from 'react-bootstrap';
+import MultiSelect from 'components/common/MultiSelect';
 
 import BootstrapModalForm from 'components/bootstrap/BootstrapModalForm';
 import ObjectUtils from 'util/ObjectUtils';
@@ -8,11 +9,14 @@ import ValidationsUtils from 'util/ValidationsUtils';
 
 import AggregatesStore from './AggregatesStore';
 import AggregatesActions from './AggregatesActions';
+import SchedulesStore from './SchedulesStore';
+import SchedulesActions from './SchedulesActions';
 
-import { IfPermitted } from 'components/common';
+import { IfPermitted, TypeAheadInput } from 'components/common';
 
 import StoreProvider from 'injection/StoreProvider';
 const StreamsStore = StoreProvider.getStore('Streams');
+
 
 const EditRuleModal = React.createClass({
   propTypes: {
@@ -31,7 +35,8 @@ const EditRuleModal = React.createClass({
       	interval: 1,
       	streamId: '',
       	inReport: true,
-      },
+      	reportSchedules: []
+      }
     };
   },
   
@@ -42,6 +47,8 @@ const EditRuleModal = React.createClass({
       create: ObjectUtils.clone(this.props.create),
       rules: [],
       streams: [],
+      reportSchedules: [],
+      selectedReportSchedules: []
     };
   },
   _alertReceiversToString(alertReceivers){
@@ -60,7 +67,7 @@ const EditRuleModal = React.createClass({
           }
         }
     } 
-    console.log('receivers: ' + alertReceiversString);
+
     return alertReceiversString;
   },
   
@@ -82,14 +89,23 @@ const EditRuleModal = React.createClass({
   		return 0;
   	  });
       this.setState({streams: list});
+            
     });
     
     const alertReceivers = this._alertReceiversToString(this.state.rule.alertReceivers);
     this.setState({alertReceivers: alertReceivers});
+    
+    const selectedReportSchedules = (this.state.rule.reportSchedules === null ? [] : this.state.rule.reportSchedules)
+    
+    this.setState({selectedReportSchedules: selectedReportSchedules})
         
     AggregatesActions.list().then(newRules => {
   	  this.setState({rules : newRules});
     });
+    
+    SchedulesActions.list().then(newReportSchedules => {
+  	  this.setState({reportSchedules : newReportSchedules});
+    })
   },
 
   _closeModal() {
@@ -107,6 +123,8 @@ const EditRuleModal = React.createClass({
 
   _save() {
     const rule = this.state.rule;
+    
+    rule.reportSchedules = this.state.selectedReportSchedules;
     
     if (!rule.alertReceivers){
       rule.alertReceivers = [];
@@ -178,12 +196,33 @@ const EditRuleModal = React.createClass({
       rule[parameter] = value.trim();
     }
     
-
-    this.setState(rule);
+    this.setState({rule: rule});
     
-  },  
+  },
+  formatMultiselectOptions(collection) {
+    return collection.map((item) => {
+      return { key: item._id, value: item._id, label: item.name };
+    });
+  },
+  formatSelectedOptions(collection) {
+    return collection.map((item) => item._id).join(',');
+  },
+  _setReportSchedules(suppliedReportSchedules){
+    if (suppliedReportSchedules == ''){
+      this.setState({selectedReportSchedules: []});
+    } else {
+      this.setState({selectedReportSchedules: suppliedReportSchedules.split(',')})
+    }
+
+  },
   render() {
+ 	
+    const reportScheduleOptions = this.formatMultiselectOptions(this.state.reportSchedules);
+        
     return (
+    
+      
+    
       <span>
         <Button onClick={this.openModal}
                 bsStyle={this.props.create ? 'success' : 'info'}
@@ -242,7 +281,19 @@ const EditRuleModal = React.createClass({
                		labelClassName="col-sm-2" wrapperClassName="col-sm-10"
                		label="Email Receivers" help="Comma separated list of email addresses. Send a message to the addresses above when the alert condition was met."
                		onChange={this._onValueChanged} />
-                            
+			  
+			  <Input id="schedules" labelClassName="col-sm-2"
+                     wrapperClassName="col-sm-10" label="Report Schedule(s)">
+                
+                <MultiSelect
+                  ref="select"
+                  options={reportScheduleOptions}
+                  value={this.state.selectedReportSchedules.join(',')}
+                  onChange={this._setReportSchedules}            
+                  placeholder="Choose report schedules..."
+                />
+              </Input>
+			  
 			  
           </fieldset>
 

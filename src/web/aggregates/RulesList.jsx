@@ -6,6 +6,8 @@ import { Button } from 'react-bootstrap';
 import PermissionsMixin from 'util/PermissionsMixin';
 import AggregatesStore from './AggregatesStore';
 import AggregatesActions from './AggregatesActions';
+import SchedulesStore from './SchedulesStore';
+import SchedulesActions from './SchedulesActions';
 import EditRuleModal from './EditRuleModal';
 
 import StoreProvider from 'injection/StoreProvider';
@@ -37,7 +39,10 @@ const RulesList = React.createClass({
     });  	
     AggregatesActions.list().then(newRules => {
   	  this.setState({rules : newRules});      
-    });  
+    });
+    SchedulesActions.list().then(newSchedules => {
+      this.setState({reportSchedules: newSchedules});
+    });
   },
   deleteRule(name) {
     AggregatesActions.deleteByName(name);
@@ -92,7 +97,7 @@ const RulesList = React.createClass({
     const emailReceivers = rule.alertReceivers.map((receiver) => {
       return (        
           <li key={receiver}>
-            <i className="fa fa-envelope"/>{receiver}
+            <i className="fa fa-envelope"/> {receiver}
             
         </li>);
     
@@ -100,6 +105,31 @@ const RulesList = React.createClass({
    return (
      <ul className="alert-receivers">
        {emailReceivers}
+     </ul>
+    );
+  },
+  _reportScheduleFormatter(rule){
+    var reportSchedules = '';
+    if (rule.reportSchedules != null && this.state.reportSchedules != null) {
+      reportSchedules = rule.reportSchedules === null ? '' : rule.reportSchedules.map((reportSchedule) => {
+        for (var i=0; i<this.state.reportSchedules.length; i++){
+          if (reportSchedule == this.state.reportSchedules[i]._id){
+            name = this.state.reportSchedules[i].name;
+            break;
+          }
+        }
+                
+        return (        
+          <li key={reportSchedule}>
+            <i className="fa fa-clock-o"/> {name}
+           
+          </li>);
+    
+       });
+   }
+   return (
+     <ul className="alert-receivers">
+       {reportSchedules}
      </ul>
     );
   },     
@@ -171,13 +201,14 @@ const RulesList = React.createClass({
 		<td className="limited">{this._alertReceiversFormatter(rule)}</td>
 		<td className="limited">{streamTitle}</td>
 		<td>{inReport}</td>
+		<td>{this._reportScheduleFormatter(rule)}</td>
         <td>{actions}</td>
       </tr>
     );
   },
   render() {
     const filterKeys = ['name', 'query', 'field', 'stream'];
-    const headers = ['Rule name', 'Query', 'Alert condition', 'Alert receivers', 'Stream', 'In report'];
+    const headers = ['Rule name', 'Query', 'Alert condition', 'Alert receivers', 'Stream', 'In report', 'Schedules'];
     
     if (this.state.rules) {
       return (

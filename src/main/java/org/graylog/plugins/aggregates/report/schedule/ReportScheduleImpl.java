@@ -1,5 +1,6 @@
 package org.graylog.plugins.aggregates.report.schedule;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -41,18 +42,30 @@ public abstract class ReportScheduleImpl implements ReportSchedule{
     @NotNull
     public abstract String getExpression();
 
+    @JsonProperty("timespan")
+    @Override
+    @NotNull
+    public abstract String getTimespan();
+       
+    @JsonProperty("default")
+    @Override
+    @Nullable
+    public abstract boolean isDefaultSchedule();
+    
+    @JsonProperty("nextFireTime")
+    @Override
+    @Nullable
+    public abstract Long getNextFireTime();
+    
+    
 	@JsonCreator
     public static ReportScheduleImpl create(@JsonProperty("_id") String id,
                                        @JsonProperty("name") String name,
-                                       @JsonProperty("expression") String expression) {		
-        return new AutoValue_ReportScheduleImpl(id, name, expression);
+                                       @JsonProperty("expression") String expression,
+                                       @JsonProperty("timespan") String timespan,
+                                       @JsonProperty("default") boolean defaultSchedule,
+                                       @JsonProperty("nextFireTime") Long nextFireTime) {		
+        return new AutoValue_ReportScheduleImpl(id, name, expression, timespan, defaultSchedule, nextFireTime);
     }
 	
-	/*public static ReportScheduleImpl create(
-			String 
-            String name,
-            String expression) {
-		return new AutoValue_ReportScheduleImpl(name, expression);
-	
-	}*/
 }

@@ -1,6 +1,6 @@
 package org.graylog.plugins.aggregates.report.schedule;
 
-import java.util.List;
+import java.util.Date;
 
 public interface ReportSchedule {
 	
@@ -10,4 +10,9 @@ public interface ReportSchedule {
 
 	public String getExpression();
 
+	public String getTimespan();
+	
+	public boolean isDefaultSchedule();
+	
+	public Long getNextFireTime();
 }

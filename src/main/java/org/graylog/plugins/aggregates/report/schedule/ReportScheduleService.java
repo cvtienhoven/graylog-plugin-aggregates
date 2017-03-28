@@ -1,6 +1,7 @@
 package org.graylog.plugins.aggregates.report.schedule;
 
 import java.io.UnsupportedEncodingException;
+import java.util.Date;
 import java.util.List;
 
 import org.graylog.plugins.aggregates.report.schedule.rest.models.requests.AddReportScheduleRequest;
@@ -24,5 +25,9 @@ public interface ReportScheduleService {
 	ReportSchedule fromRequest(AddReportScheduleRequest request);
 	
 	ReportSchedule fromRequest(UpdateReportScheduleRequest request);
+	
+	ReportSchedule get(String id);
+	
+	ReportSchedule updateNextFireTime(String id, Date nextFireTime);
 
 }
