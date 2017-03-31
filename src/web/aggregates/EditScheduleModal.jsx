@@ -140,7 +140,7 @@ const EditScheduleModal = React.createClass({
                		label="Cron Expression" help="Enter a cron expression using the Drools Cron Expression syntax. The first item (seconds) has to be supplied, but will be ignored as the analyzer runs once a minute." required
                		onChange={this._onValueChanged} autoFocus  />
                		               		
-			  <TimespanConfiguration ref="timespan" name="timespan" id="timespan"  config={this.state.schedule.timespan} updateConfig={this._setTimespan}/>			  
+			  <TimespanConfiguration ref="timespan" name="timespan" id="timespan"  config={this.state.schedule ? this.state.schedule.timespan : { "period" : "P1D" }} updateConfig={this._setTimespan} />			  
           </fieldset>
 
         </BootstrapModalForm>

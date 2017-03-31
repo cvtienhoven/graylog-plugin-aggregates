@@ -6,8 +6,7 @@ import java.util.List;
 
 import org.graylog.plugins.aggregates.report.schedule.rest.models.requests.AddReportScheduleRequest;
 import org.graylog.plugins.aggregates.report.schedule.rest.models.requests.UpdateReportScheduleRequest;
-import org.graylog.plugins.aggregates.rule.rest.models.requests.AddRuleRequest;
-import org.graylog.plugins.aggregates.rule.rest.models.requests.UpdateRuleRequest;
+
 
 import com.mongodb.MongoException;
 

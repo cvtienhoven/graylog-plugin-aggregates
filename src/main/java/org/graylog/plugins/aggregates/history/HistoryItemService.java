@@ -14,4 +14,6 @@ public interface HistoryItemService {
 	
 	void removeBefore(Date date);
 
+	List<HistoryAggregateItem> getForRuleName(String ruleName, String timespan);
+
 }

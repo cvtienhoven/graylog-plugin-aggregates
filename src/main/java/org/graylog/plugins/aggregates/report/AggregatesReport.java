@@ -41,14 +41,15 @@ public class AggregatesReport extends Periodical {
 	private final RuleService ruleService;
 	private final ReportScheduleService reportScheduleService;
 	private String hostname = "localhost";
-	
+
 	@Inject
-	public AggregatesReport(ReportSender reportSender, HistoryItemService historyItemService, RuleService ruleService, ReportScheduleService reportScheduleService) {
+	public AggregatesReport(ReportSender reportSender, HistoryItemService historyItemService, RuleService ruleService,
+			ReportScheduleService reportScheduleService) {
 		this.reportSender = reportSender;
 		this.historyItemService = historyItemService;
 		this.ruleService = ruleService;
 		this.reportScheduleService = reportScheduleService;
-		
+
 		InetAddress addr;
 		try {
 			addr = InetAddress.getLocalHost();
@@ -56,115 +57,109 @@ public class AggregatesReport extends Periodical {
 		} catch (UnknownHostException e) {
 			e.printStackTrace();
 		}
-		
+
+	}
+
+	private void setNewFireTime(ReportSchedule reportSchedule, Calendar cal) {
+		LOG.info("Updating nextFireTime");
+		CronExpression c;
+		try {
+			c = new CronExpression(reportSchedule.getExpression());
+			reportScheduleService.updateNextFireTime(reportSchedule.getId(), c.getNextValidTimeAfter(cal.getTime()));
+		} catch (ParseException e) {
+			LOG.error("Schedule " + reportSchedule.getName() + " has invalid Cron Expression "
+					+ reportSchedule.getExpression());
+		}
+	}
+
+	private ReportSchedule getMatchingSchedule(Rule rule, List<ReportSchedule> reportSchedules) {
+		for (ReportSchedule reportSchedule : reportSchedules) {
+			if (rule.getReportSchedules().contains(reportSchedule.getId())) {
+				return reportSchedule;
+			}
+		}
+		return null;
 	}
 
 	@Override
 	public void doRun() {
-		Calendar cal = Calendar.getInstance();		
-		boolean generateReport = false;
+		Calendar cal = Calendar.getInstance();
+		
 		int days = 0;
 		String description = "";
-		
-		
+
 		List<ReportSchedule> reportSchedules = reportScheduleService.all();
-		
-		for (ReportSchedule reportSchedule: reportSchedules){						
-			CronExpression c;
-			if (reportSchedule.getNextFireTime() == null){
-				LOG.info("Updating nextFireTime");
-				try {				
-					c = new CronExpression(reportSchedule.getExpression());
-					reportScheduleService.updateNextFireTime(reportSchedule.getId(), c.getNextValidTimeAfter(cal.getTime()));					
-				} catch (ParseException e) {				
-					LOG.error("Schedule " + reportSchedule.getName() + " has invalid Cron Expression " + reportSchedule.getExpression());
-				}
-			}		
-		}
 
-		reportSchedules = reportScheduleService.all();
-		for (ReportSchedule reportSchedule: reportSchedules){
-			LOG.info("Schedule " + reportSchedule.getName() + " should fire at " + reportSchedule.getNextFireTime());			
-		}
-		
-		
-		
-		
-		if (cal.get(Calendar.HOUR_OF_DAY) == 23 && cal.get(Calendar.MINUTE) == 59) {
-			if (cal.getActualMaximum(Calendar.DAY_OF_MONTH) == cal.get(Calendar.DAY_OF_MONTH)) {
-				generateReport = true;
-				days = cal.getActualMaximum(Calendar.DAY_OF_MONTH);
-				description = "Monthly";
+		List<ReportSchedule> applicableReportSchedules = new ArrayList<ReportSchedule>();
+
+		// get the schedules that apply to the current dateTime
+		for (ReportSchedule reportSchedule : reportSchedules) {
+			if (reportSchedule.getNextFireTime() == null) {
+				setNewFireTime(reportSchedule, cal);
 			}
 
-			if (cal.getActualMaximum(Calendar.DAY_OF_WEEK) == cal.get(Calendar.DAY_OF_WEEK)) {
-			
-				generateReport = true;
-				days = cal.getActualMaximum(Calendar.DAY_OF_WEEK);
-				description = "Weekly";
+			if (reportSchedule.getNextFireTime() != null && new Date(reportSchedule.getNextFireTime()).before(cal.getTime())) {
+				applicableReportSchedules.add(reportSchedule);
+				setNewFireTime(reportSchedule, cal);
 			}
 		}
 
-		if (generateReport) {
-			
-			LOG.info("generating " + description + " report");
-
-			List<Rule> rules = ruleService.all();
-			
-			
-			
-			
-			
-
-			Map<String, Map<String, List<HistoryAggregateItem>>> receipientsSeries = new HashMap<String, Map<String, List<HistoryAggregateItem>>>();
-			
-			/*
-			 * Construct a map with key=receipient and value=Map of rule name + series
-			 */
-			for (Rule rule : rules) {				
-				if (rule.isInReport()){
+		// select the rules that match the applicable schedules
+		List<Rule> rulesList = ruleService.all();
+		Map<String, Map<Rule, List<HistoryAggregateItem>>> receipientsSeries = new HashMap<String, Map<Rule, List<HistoryAggregateItem>>>();
+		Map<Rule, ReportSchedule>  ruleScheduleMapping = new HashMap<Rule, ReportSchedule>();
+		
+		for (Rule rule : rulesList) {
+			if (rule.isInReport()) {
+				ReportSchedule matchingSchedule = getMatchingSchedule(rule, applicableReportSchedules);
+				if (matchingSchedule != null) {
+					ruleScheduleMapping.put(rule, matchingSchedule);
 					LOG.info("Rule \"" + rule.getName() + "\" should be added to report");
-					for (String receipient: rule.getAlertReceivers()){
-						if (!receipientsSeries.containsKey(receipient)){
-							receipientsSeries.put(receipient, new HashMap<String, List<HistoryAggregateItem>>());
+					
+					for (String receipient : rule.getAlertReceivers()) {
+						if (!receipientsSeries.containsKey(receipient)) {
+							receipientsSeries.put(receipient, new HashMap<Rule, List<HistoryAggregateItem>>());
 						}
-						receipientsSeries.get(receipient).put(rule.getName(), historyItemService.getForRuleName(rule.getName(), days));						
+						receipientsSeries.get(receipient).put(rule,
+								historyItemService.getForRuleName(rule.getName(), matchingSchedule.getTimespan()));
 					}
 				}
+
 			}
-
-
-			ByteArrayOutputStream outputStream = null;
-			try {
-				for (Map.Entry<String, Map<String, List<HistoryAggregateItem>>> receipientSeries : receipientsSeries.entrySet()){
-					outputStream = new ByteArrayOutputStream();
-					ReportFactory.createReport(receipientSeries.getValue(), days, outputStream, hostname, cal.getTime());
-					byte[] bytes = outputStream.toByteArray();
-
-					reportSender.sendEmail(receipientSeries.getKey(), bytes, description);
-				}
-
-			} catch (ParseException e) {
-				LOG.error("Failed to create report, " + e.getMessage());
-				LOG.debug("Stacktrace: " + e.getStackTrace());
-			} catch (TransportConfigurationException e) {
-
-				e.printStackTrace();
-			} catch (EmailException e) {
-				e.printStackTrace();
-			} catch (MessagingException e) {
-				e.printStackTrace();
-			} finally {
-				if (null != outputStream) {
-					try {
-						outputStream.close();
-						outputStream = null;
-					} catch (Exception ex) {
-					}
-				}
-			}
-			LOG.info("finished generating report");
 		}
+
+		ByteArrayOutputStream outputStream = null;
+		try {
+			for (Map.Entry<String, Map<Rule, List<HistoryAggregateItem>>> receipientSeries : receipientsSeries
+					.entrySet()) {
+				outputStream = new ByteArrayOutputStream();
+				
+				ReportFactory.createReport(receipientSeries.getValue(), ruleScheduleMapping, cal, outputStream, hostname);
+				byte[] bytes = outputStream.toByteArray();
+
+				reportSender.sendEmail(receipientSeries.getKey(), bytes, description);
+			}
+
+		} catch (ParseException e) {
+			LOG.error("Failed to create report, " + e.getMessage());
+			LOG.debug("Stacktrace: " + e.getStackTrace());
+		} catch (TransportConfigurationException e) {
+
+			e.printStackTrace();
+		} catch (EmailException e) {
+			e.printStackTrace();
+		} catch (MessagingException e) {
+			e.printStackTrace();
+		} finally {
+			if (null != outputStream) {
+				try {
+					outputStream.close();
+					outputStream = null;
+				} catch (Exception ex) {
+				}
+			}
+		}
+		LOG.info("finished generating report");
 	}
 
 	@Override

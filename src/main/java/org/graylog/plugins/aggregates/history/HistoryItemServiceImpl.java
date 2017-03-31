@@ -11,6 +11,8 @@ import com.thoughtworks.xstream.converters.extended.ISO8601DateConverter;
 import org.graylog2.bindings.providers.MongoJackObjectMapperProvider;
 import org.graylog2.database.CollectionName;
 import org.graylog2.database.MongoConnection;
+import org.joda.time.LocalDateTime;
+import org.joda.time.Period;
 import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.format.ISODateTimeFormat;
 import org.mongojack.Aggregation;
@@ -37,9 +39,15 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.TimeUnit.*;
 
 public class HistoryItemServiceImpl implements HistoryItemService {
-
+	private final static int SECONDS_IN_YEAR = 3600*24*366;
+	private final static int SECONDS_IN_MONTH = 3600*24*31;
+	private final static int SECONDS_IN_DAY = 3600*24;
+	private final static int SECONDS_IN_HOUR = 3600;
+	
+	
 	private final JacksonDBCollection<HistoryItemImpl, String> coll;
 	private final Validator validator;
 	private static final Logger LOG = LoggerFactory.getLogger(HistoryItemServiceImpl.class);
@@ -84,22 +92,47 @@ public class HistoryItemServiceImpl implements HistoryItemService {
 	
 	
 	@Override
-	public List<HistoryAggregateItem> getForRuleName(String ruleName, int days) {
+	public List<HistoryAggregateItem> getForRuleName(String ruleName, String timespan) {
+		java.time.Duration duration = java.time.Duration.parse(timespan);
+		long seconds = duration.get(java.time.temporal.ChronoUnit.SECONDS);
+		
+		if (seconds > Integer.MAX_VALUE) {
+			throw new IllegalArgumentException("timespan " + timespan + "is not supported, please enter something useful.");
+		}
+		
 		Calendar c = Calendar.getInstance();
-		c.add(Calendar.DATE, days * -1);
+		c.add(Calendar.SECOND, (int) seconds * -1);
+		DBObject project = null;
+		BasicDBObject additionalOperation = null;
 		
-		DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
+		if (seconds <= SECONDS_IN_DAY) {
+			project = (DBObject) JSON.parse("{'$project': { 'datePartHour' : {'$concat' : [{'$substr' : [{'$year' : '$timestamp'}, 0, 4]}, '-', {'$substr' : [{'$month' : '$timestamp'}, 0, 2]}, '-', {'$substr' : [{'$dayOfMonth' : '$timestamp'}, 0, 2]}, 'T',  {'$substr' : [{'$hour' : '$timestamp'}, 0, 2]}] }, 'numberOfHits':'$numberOfHits'}}");
+			additionalOperation = new BasicDBObject("$group", (new BasicDBObject("_id",
+					"$datePartHour").append("moment", new BasicDBObject("$first","$datePartHour"))).append("numberOfHits", new BasicDBObject("$sum", "$numberOfHits")));
+		} else if (seconds <= SECONDS_IN_MONTH){
+			project = (DBObject) JSON.parse("{'$project': { 'datePartDay' : {'$concat' : [ {'$substr' : [{'$year' : '$timestamp'}, 0, 4]}, '-', {'$substr' : [{'$month' : '$timestamp'}, 0, 2]}, '-', {'$substr' : [{'$dayOfMonth' : '$timestamp'}, 0, 2]}] }, 'numberOfHits':'$numberOfHits'}}");
+			additionalOperation = new BasicDBObject("$group", (new BasicDBObject("_id",
+					"$datePartDay").append("moment", new BasicDBObject("$first","$datePartDay"))).append("numberOfHits", new BasicDBObject("$sum", "$numberOfHits")));
+		} else if (seconds <= SECONDS_IN_YEAR) {
 
+			project = (DBObject) JSON.parse(
+					"{'$project': { 'datePartMonth' : {'$concat' : [ {'$substr' : [{'$year' : '$timestamp'}, 0, 4]}, '-', {'$substr' : [{'$month' : '$timestamp'}, 0, 2]}] }, 'numberOfHits':'$numberOfHits'}}");
+			additionalOperation = new BasicDBObject("$group", (new BasicDBObject("_id",
+					"$datePartMonth").append("moment", new BasicDBObject("$first","$datePartMonth"))).append("numberOfHits", new BasicDBObject("$sum", "$numberOfHits")));
+		} else {
+
+			project = (DBObject) JSON.parse(
+					"{'$project': { 'datePartYear' : {'$concat' : [ {'$substr' : [{'$year' : '$timestamp'}, 0, 4]}] }, 'numberOfHits':'$numberOfHits'}}");
+			additionalOperation = new BasicDBObject("$group", (new BasicDBObject("_id",
+					"$datePartYear").append("moment", new BasicDBObject("$first","$datePartYear"))).append("numberOfHits", new BasicDBObject("$sum", "$numberOfHits")));
+		}
+		
+		
+		
+		DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+		
 		//first match the records that meet the rule and the number of days 
-		DBObject match = (DBObject) JSON.parse("{ '$match' : { $and: [ {'ruleName': '" + ruleName +"'}, {'timestamp': {'$gt' : { '$date': '" + df.format(c.getTime()) + "T00:00:00.000Z'}}}]}}");
-		
-		//then create a projection, so we can group by the date part
-		DBObject project = (DBObject) JSON.parse(
-				"{'$project': { 'datePartDay' : {'$concat' : [ {'$substr' : [{'$year' : '$timestamp'}, 0, 4]}, '-', {'$substr' : [{'$month' : '$timestamp'}, 0, 2]}, '-', {'$substr' : [{'$dayOfMonth' : '$timestamp'}, 0, 2]}] }, 'numberOfHits':'$numberOfHits'}}");
-		
-		//finally execute the grouping by day, adding the total number of hits
-		BasicDBObject additionalOperation = new BasicDBObject("$group", (new BasicDBObject("_id",
-				"$datePartDay").append("day", new BasicDBObject("$first","$datePartDay"))).append("numberOfHits", new BasicDBObject("$sum", "$numberOfHits")));
+		DBObject match = (DBObject) JSON.parse("{ '$match' : { $and: [ {'ruleName': '" + ruleName +"'}, {'timestamp': {'$gt' : { '$date': '" + df.format(c.getTime()) + "'}}}]}}");
 
 		Aggregation<? extends HistoryAggregateItem> aggregation = new Aggregation<HistoryAggregateItemImpl>(HistoryAggregateItemImpl.class, match, project,
 				additionalOperation);
@@ -128,5 +161,11 @@ public class HistoryItemServiceImpl implements HistoryItemService {
 	public void removeBefore(Date date) {
 		coll.remove(new BasicDBObject("timestamp", new BasicDBObject("$lt", date)));
 		
+	}
+
+	@Override
+	public List<HistoryAggregateItem> getForRuleName(String ruleName, int days) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }

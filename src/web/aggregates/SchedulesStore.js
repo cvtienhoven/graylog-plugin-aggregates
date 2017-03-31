@@ -79,8 +79,8 @@ const SchedulesStore = Reflux.createStore({
 		SchedulesActions.update.promise(promise);
 		
 	  },
-  deleteByName(scheduleName) {
-	const url = URLUtils.qualifyUrl(this.sourceUrl + '/' + encodeURIComponent(scheduleName));
+  delete(id) {
+	const url = URLUtils.qualifyUrl(this.sourceUrl + '/' + encodeURIComponent(id));
 	const method = 'DELETE';
 
 	const promise = fetch(method, url)
@@ -89,10 +89,10 @@ const SchedulesStore = Reflux.createStore({
 		this.list();
 	  }, (error) => {
 		UserNotification.error(`Deleting schedule failed with status: ${error.message}`,
-		  'Could not delete schedule');
+		  'Could not delete schedule, there might be rules associated with it.');
 	  });
 	
-    SchedulesActions.deleteByName.promise(promise);
+    SchedulesActions.delete.promise(promise);
   },
   
 });

@@ -29,13 +29,13 @@ const SchedulesList = React.createClass({
       console.log('list() state.reportSchedules: ' + JSON.stringify(this.state.reportSchedules));
     })
   },
-  delete (name) {
-    SchedulesActions.deleteByName(name)
+  delete (id) {
+    SchedulesActions.delete(id)
   },
-  _deleteScheduleFunction (name) {
+  _deleteScheduleFunction (id, name) {
     return () => {
       if (window.confirm('Do you really want to delete schedule ' + name + '?')) {
-        this.delete(name)
+        this.delete(id)
       }
     }
   },
@@ -59,7 +59,7 @@ const SchedulesList = React.createClass({
     const deleteAction = (
       <IfPermitted permissions="aggregate_rules:delete">
         <button id="delete-reportSchedule" type="button" className="btn btn-xs btn-primary" title="Delete schedule"
-              onClick={this._deleteScheduleFunction(reportSchedule.name)} disabled={reportSchedule.default}>
+              onClick={this._deleteScheduleFunction(reportSchedule._id, reportSchedule.name)} disabled={reportSchedule.default}>
           Delete
         </button>
       </IfPermitted>

@@ -109,17 +109,17 @@ public class ReportScheduleResource extends RestResource implements PluginRestRe
     }
     
     @DELETE
-    @Path("/{name}")
+    @Path("/{id}")
     @RequiresAuthentication
     @RequiresPermissions(RuleRestPermissions.AGGREGATE_RULES_DELETE)
     @ApiOperation(value = "Delete a report schedule")
     @ApiResponses(value = {
-            @ApiResponse(code = 404, message = "Rule not found."),
+            @ApiResponse(code = 404, message = "Schedule not found."),
             @ApiResponse(code = 400, message = "Invalid ObjectId.")
     })
-    public void delete(@ApiParam(name = "name", required = true)
-                              @PathParam("name") String name
+    public void delete(@ApiParam(name = "id", required = true)
+                              @PathParam("id") String id
                               ) throws NotFoundException, MongoException, UnsupportedEncodingException {
-        reportScheduleService.destroy(java.net.URLDecoder.decode(name, "UTF-8"));
+        reportScheduleService.destroy(java.net.URLDecoder.decode(id, "UTF-8"));
     }
 }

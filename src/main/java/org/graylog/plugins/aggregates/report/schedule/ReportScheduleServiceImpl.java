@@ -4,12 +4,12 @@ import com.google.common.collect.Lists;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBCollection;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.bson.types.ObjectId;
 import org.drools.core.time.impl.CronExpression;
 import org.graylog.plugins.aggregates.report.schedule.rest.models.requests.AddReportScheduleRequest;
 import org.graylog.plugins.aggregates.report.schedule.rest.models.requests.UpdateReportScheduleRequest;
-import org.graylog.plugins.aggregates.rule.rest.models.requests.AddRuleRequest;
-import org.graylog.plugins.aggregates.rule.rest.models.requests.UpdateRuleRequest;
+import org.graylog.plugins.aggregates.rule.RuleImpl;
 import org.graylog2.bindings.providers.MongoJackObjectMapperProvider;
 import org.graylog2.database.CollectionName;
 import org.graylog2.database.MongoConnection;
@@ -25,7 +25,8 @@ import javax.validation.ConstraintViolation;
 import javax.validation.Validator;
 
 import java.text.ParseException;
-import java.util.Calendar;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
@@ -33,31 +34,47 @@ import java.util.Set;
 public class ReportScheduleServiceImpl implements ReportScheduleService {
 
 	private final JacksonDBCollection<ReportScheduleImpl, String> coll;
+	private final JacksonDBCollection<RuleImpl, String> ruleColl;
 	private final Validator validator;
 	private static final Logger LOG = LoggerFactory.getLogger(ReportScheduleServiceImpl.class);
 
 	@Inject
 	public ReportScheduleServiceImpl(MongoConnection mongoConnection, MongoJackObjectMapperProvider mapperProvider,
 			Validator validator) {
+		
 		this.validator = validator;
+
 		final String collectionName = ReportScheduleImpl.class.getAnnotation(CollectionName.class).value();
 		final DBCollection dbCollection = mongoConnection.getDatabase().getCollection(collectionName);
 		this.coll = JacksonDBCollection.wrap(dbCollection, ReportScheduleImpl.class, String.class, mapperProvider.get());
 		this.coll.createIndex(new BasicDBObject("name", 1), new BasicDBObject("unique", true));
 
-		ReportSchedule defaultSchedule = coll.find(DBQuery.is("name", "Every Saturday, 23:59")).next();
+		final String ruleCollectionName = RuleImpl.class.getAnnotation(CollectionName.class).value();
+		final DBCollection ruleDbCollection = mongoConnection.getDatabase().getCollection(ruleCollectionName);
+		this.ruleColl = JacksonDBCollection.wrap(ruleDbCollection, RuleImpl.class, String.class, mapperProvider.get());
 		
-		if (defaultSchedule == null){
+		
+		ReportSchedule defaultSchedule = null;
+		
+		try {
+			defaultSchedule = coll.find(DBQuery.is("name", "Every Saturday, 23:59")).next();	
+		} catch (Exception e) {
+			LOG.debug("Default weekly ReportSchedule does not exist yet");
 			defaultSchedule = coll.insert(ReportScheduleImpl.create(null, "Every Saturday, 23:59", "0 59 23 ? * SAT *", "P7D", true, null)).getSavedObject();
 			LOG.debug("Created default weekly ReportSchedule with ID " + defaultSchedule.getId());
 		}
+				
 		
-		defaultSchedule = coll.find(DBQuery.is("name", "First day of month, 00:00")).next();
+		defaultSchedule = null;
 		
-		if (defaultSchedule == null){
+		try {
+			defaultSchedule = coll.find(DBQuery.is("name", "First day of month, 00:00")).next();	
+		} catch (Exception e) {
+			LOG.debug("Default monthly ReportSchedule does not exist yet");
 			defaultSchedule = coll.insert(ReportScheduleImpl.create(null, "First day of month, 00:00", "0 0 0 1 1/1 ? *", "P1M", true, null)).getSavedObject();
 			LOG.debug("Created default monthly ReportSchedule with ID " + defaultSchedule.getId());
-		}				
+		}
+
 	}
 
 	@Override
@@ -149,8 +166,20 @@ public class ReportScheduleServiceImpl implements ReportScheduleService {
 	}
 	
 	@Override
-	public int destroy(String ruleName) {
-		return coll.remove(DBQuery.is("name", ruleName)).getN();
+	public int destroy(String id) {
+		//Collection<String> idList = new ArrayList<String>();
+		//idList.add(id);
+		BasicDBObject query = new BasicDBObject();
+	    query.put("reportSchedules", id);
+		
+		if (ruleColl.find(query).count() == 0){
+			query = new BasicDBObject();
+		    query.put("_id", new ObjectId(id));		    
+			return coll.remove(query).getN();
+		}
+		throw new IllegalArgumentException(
+				"There are still rules associated with schedule " + id );
+		
 	}
 
 	private List<ReportSchedule> toAbstractListType(DBCursor<ReportScheduleImpl> rules) {
