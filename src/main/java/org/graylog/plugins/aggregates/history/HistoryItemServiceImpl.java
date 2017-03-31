@@ -11,6 +11,8 @@ import com.thoughtworks.xstream.converters.extended.ISO8601DateConverter;
 import org.graylog2.bindings.providers.MongoJackObjectMapperProvider;
 import org.graylog2.database.CollectionName;
 import org.graylog2.database.MongoConnection;
+import org.joda.time.DateTime;
+import org.joda.time.Duration;
 import org.joda.time.LocalDateTime;
 import org.joda.time.Period;
 import org.joda.time.format.DateTimeFormatter;
@@ -93,12 +95,9 @@ public class HistoryItemServiceImpl implements HistoryItemService {
 	
 	@Override
 	public List<HistoryAggregateItem> getForRuleName(String ruleName, String timespan) {
-		java.time.Duration duration = java.time.Duration.parse(timespan);
-		long seconds = duration.get(java.time.temporal.ChronoUnit.SECONDS);
-		
-		if (seconds > Integer.MAX_VALUE) {
-			throw new IllegalArgumentException("timespan " + timespan + "is not supported, please enter something useful.");
-		}
+		Period period = Period.parse(timespan);
+		Duration duration = period.toDurationFrom(new DateTime());		
+		int seconds = duration.toStandardSeconds().getSeconds();
 		
 		Calendar c = Calendar.getInstance();
 		c.add(Calendar.SECOND, (int) seconds * -1);
