@@ -36,7 +36,7 @@ const AggregatesPage = React.createClass({
           <span>
             <IfPermitted permissions="aggregate_rules:create">
               <LinkContainer to='/aggregates/schedules'>
-                <Button bsStyle="info">Manage Reporting Schedules</Button>
+                <Button bsStyle="info">Manage Report Schedules</Button>
               </LinkContainer>
           	</IfPermitted>
           </span>

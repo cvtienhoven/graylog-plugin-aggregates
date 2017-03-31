@@ -9,6 +9,8 @@ import java.util.Map;
 
 import javax.inject.Inject;
 import org.apache.commons.mail.EmailException;
+import org.apache.lucene.queryparser.classic.QueryParser;
+import org.elasticsearch.common.lucene.Lucene;
 import org.graylog.plugins.aggregates.history.HistoryItem;
 import org.graylog.plugins.aggregates.history.HistoryItemImpl;
 import org.graylog.plugins.aggregates.history.HistoryItemService;
@@ -115,7 +117,10 @@ public class Aggregates extends Periodical {
 					if (streamId != null && streamId != ""){
 						query = query + " AND streams:" + streamId;
 					}
-
+					
+					
+					
+					
 					final TimeRange timeRange = buildRelativeTimeRange(60 * interval_minutes);
 					if (null != timeRange) {
 						TermsResult result = searches.terms(field, limit, query, /*filter,*/ timeRange);						
