@@ -72,11 +72,11 @@ const EditRuleModal = React.createClass({
   },
   
   componentDidMount() {
-       
+  	
   },
   openModal() {    
-    this.refs.modal.open();
     this.setState(this.getInitialState());
+
     StreamsStore.listStreams().then(list => {
       list.sort(function (a, b) {
   	  	if (a.title.toLowerCase() > b.title.toLowerCase()) {
@@ -106,6 +106,7 @@ const EditRuleModal = React.createClass({
     SchedulesActions.list().then(newReportSchedules => {
   	  this.setState({reportSchedules : newReportSchedules});
     })
+    this.refs.modal.open();
   },
 
   _closeModal() {
@@ -118,7 +119,7 @@ const EditRuleModal = React.createClass({
 
   _saved() {
     this._closeModal();
-    this.setState(this.getInitialState());
+    //this.setState(this.getInitialState());
   },
 
   _save() {

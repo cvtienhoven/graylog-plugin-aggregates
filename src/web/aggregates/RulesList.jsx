@@ -208,7 +208,7 @@ const RulesList = React.createClass({
   },
   render() {
     const filterKeys = ['name', 'query', 'field', 'stream'];
-    const headers = ['Rule name', 'Query', 'Alert condition', 'Alert receivers', 'Stream', 'In report', 'Schedules'];
+    const headers = ['Rule name', 'Query', 'Alert condition', 'Alert receivers', 'Stream', 'In report', 'Report schedule(s)'];
     
     if (this.state.rules) {
       return (

@@ -95,7 +95,7 @@ const SchedulesList = React.createClass({
   },
   render () {
     const filterKeys = ['name'];
-    const headers = ['Schedule name', 'Cron Expression', 'Timespan', 'Next Fire Time'];
+    const headers = ['Schedule name', 'Cron expression', 'Timespan', 'Next fire time'];
     
     console.log('state: ' + JSON.stringify(this.state));
     

@@ -100,7 +100,7 @@ public class HistoryItemServiceImpl implements HistoryItemService {
 		int seconds = duration.toStandardSeconds().getSeconds();
 		
 		Calendar c = Calendar.getInstance();
-		c.add(Calendar.SECOND, (int) seconds * -1);
+		c.add(Calendar.SECOND, seconds * -1);
 		DBObject project = null;
 		BasicDBObject additionalOperation = null;
 		

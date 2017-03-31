@@ -1,11 +1,17 @@
 package org.graylog.plugins.aggregates.maintenance;
 
 import java.util.Calendar;
+import java.util.List;
 
 import javax.inject.Inject;
 
 import org.graylog.plugins.aggregates.history.HistoryItemService;
+import org.graylog.plugins.aggregates.report.schedule.ReportSchedule;
+import org.graylog.plugins.aggregates.report.schedule.ReportScheduleService;
+import org.graylog.plugins.aggregates.util.AggregatesUtil;
 import org.graylog2.plugin.periodical.Periodical;
+import org.joda.time.Duration;
+import org.joda.time.Period;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -14,18 +20,31 @@ public class AggregatesMaintenance extends Periodical {
 	private static final Logger LOG = LoggerFactory.getLogger(AggregatesMaintenance.class);
 
 	private final HistoryItemService historyItemService;
-	private final int retentionDays = 31;
+	private final ReportScheduleService reportScheduleService;
 
 	
 	@Inject
-	public AggregatesMaintenance(HistoryItemService historyItemService) {
+	public AggregatesMaintenance(HistoryItemService historyItemService, ReportScheduleService reportScheduleService) {
 		this.historyItemService = historyItemService;
+		this.reportScheduleService = reportScheduleService;
 	}
 
 	@Override
-	public void doRun() {		
+	public void doRun() {
 		Calendar cal = Calendar.getInstance();
-		cal.add(Calendar.DATE, -1*retentionDays);
+		
+		List<ReportSchedule> reportSchedules = reportScheduleService.all();
+		int retention=-1;
+		for (ReportSchedule reportSchedule : reportSchedules){
+			int timespan = AggregatesUtil.timespanToSeconds(reportSchedule.getTimespan(), cal);
+			if (timespan > retention){
+				retention = timespan;
+			}
+		}
+		
+		LOG.info("Retention is set to " + retention + " seconds (" + new Duration(retention) + ")");
+		
+		cal.add(Calendar.SECOND, -1*retention);
 		
 		//remove all items before the current date - retention time
 		long initialCount = historyItemService.count();

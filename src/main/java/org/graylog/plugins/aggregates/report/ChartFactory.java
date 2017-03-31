@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.TimeZone;
 
 import org.graylog.plugins.aggregates.history.HistoryAggregateItem;
+import org.graylog.plugins.aggregates.util.AggregatesUtil;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.plot.XYPlot;
@@ -37,16 +38,13 @@ public class ChartFactory {
 	private final static int SECONDS_IN_HOUR = 3600;
 	
 	
-	private static TimeSeries initializeSeries(String timespan, Calendar cal, List<HistoryAggregateItem> history) throws ParseException{
-		Period period = Period.parse(timespan);
-		Duration duration = period.toDurationFrom(new DateTime(cal.getTime()));
-		int seconds = duration.toStandardSeconds().getSeconds();
-		
+	private static TimeSeries initializeSeries(String timespan, Calendar cal, List<HistoryAggregateItem> history) throws ParseException{		
+		int seconds = AggregatesUtil.timespanToSeconds(timespan, cal);		
 		
 		DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
 		df.setTimeZone(TimeZone.getTimeZone("UTC"));
 		
-		cal.setTimeZone(Calendar.getInstance().getTimeZone());
+		//cal.setTimeZone(Calendar.getInstance().getTimeZone());
 		
 		TimeSeries series;
 		int count = 0;
@@ -107,16 +105,9 @@ public class ChartFactory {
 	}
 	
 	public static JFreeChart generateTimeSeriesChart(String title, List<HistoryAggregateItem> history, String timespan, Calendar cal) throws ParseException {
-		
-		//TimeSeries series = new TimeSeries("Aggregate rule hits", Day.class);
+				
 		TimeSeries series = initializeSeries(timespan, cal, history);
-		
-		series.getTimePeriodClass();
-		
-		
-		
-		
-		  
+			  
 		TimeSeriesCollection dataset = new TimeSeriesCollection();  
 		dataset.addSeries(series);
 		IntervalXYDataset idataset = new XYBarDataset(dataset, 1);
@@ -124,7 +115,7 @@ public class ChartFactory {
 		
 		JFreeChart chart = org.jfree.chart.ChartFactory.createXYBarChart(  
 				title, // Title  
-				"Date",         // X-axis Label
+				"Date/time",         // X-axis Label
 				true,
 				"Hits",       // Y-axis Label  
 				idataset,        // Dataset
