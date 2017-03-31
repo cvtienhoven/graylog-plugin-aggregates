@@ -91,7 +91,7 @@ protected final EmailConfiguration configuration;
 
         email.addTo(receipient);
                 	
-       	LOG.info("sending report to " + email.getToAddresses().toString());
+       	LOG.debug("sending report to " + email.getToAddresses().toString());
         	
        	email.send();
         

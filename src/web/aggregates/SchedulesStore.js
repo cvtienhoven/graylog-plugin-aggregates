@@ -20,7 +20,6 @@ const SchedulesStore = Reflux.createStore({
         response => {
           this.reportSchedules = response.report_schedules;
           this.trigger({ reportSchedules: this.reportSchedules });
-          console.log('response: ' + JSON.stringify(response));
           return this.reportSchedules;
         },
         error => {
@@ -40,7 +39,7 @@ const SchedulesStore = Reflux.createStore({
 				timespan: newSchedule.timespan
 			}	
 	};
-    console.log('request: ' + JSON.stringify(request));
+
 	const promise = fetch(method, url, request)
 	  .then(() => {
 	    UserNotification.success('Schedule successfully created');
@@ -56,9 +55,6 @@ const SchedulesStore = Reflux.createStore({
   update(name, updatedSchedule) {
 		const url = URLUtils.qualifyUrl(this.sourceUrl+'/' + encodeURIComponent(name));
 		const method = 'POST';
-		
-		console.log('schedule: ' + JSON.stringify(updatedSchedule));
-		
 		const request = {
 				reportSchedule: {
 					name: updatedSchedule.name,

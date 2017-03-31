@@ -61,7 +61,6 @@ public class AggregatesReport extends Periodical {
 	}
 
 	private void setNewFireTime(ReportSchedule reportSchedule, Calendar cal) {
-		LOG.info("Updating nextFireTime");
 		CronExpression c;
 		try {
 			c = new CronExpression(reportSchedule.getExpression());
@@ -114,7 +113,7 @@ public class AggregatesReport extends Periodical {
 				ReportSchedule matchingSchedule = getMatchingSchedule(rule, applicableReportSchedules);
 				if (matchingSchedule != null) {
 					ruleScheduleMapping.put(rule, matchingSchedule);
-					LOG.info("Rule \"" + rule.getName() + "\" should be added to report");
+					LOG.info("Rule \"" + rule.getName() + "\" will be added to report");
 					
 					for (String receipient : rule.getAlertReceivers()) {
 						if (!receipientsSeries.containsKey(receipient)) {
@@ -158,8 +157,7 @@ public class AggregatesReport extends Periodical {
 				} catch (Exception ex) {
 				}
 			}
-		}
-		LOG.info("finished generating report");
+		}		
 	}
 
 	@Override

@@ -22,6 +22,7 @@ public class AggregatesMaintenance extends Periodical {
 	private final HistoryItemService historyItemService;
 	private final ReportScheduleService reportScheduleService;
 
+	private static final int DEFAULT_RETENTION = 31*24*3600; // a month
 	
 	@Inject
 	public AggregatesMaintenance(HistoryItemService historyItemService, ReportScheduleService reportScheduleService) {
@@ -34,7 +35,7 @@ public class AggregatesMaintenance extends Periodical {
 		Calendar cal = Calendar.getInstance();
 		
 		List<ReportSchedule> reportSchedules = reportScheduleService.all();
-		int retention=-1;
+		int retention = DEFAULT_RETENTION;
 		for (ReportSchedule reportSchedule : reportSchedules){
 			int timespan = AggregatesUtil.timespanToSeconds(reportSchedule.getTimespan(), cal);
 			if (timespan > retention){
@@ -42,7 +43,7 @@ public class AggregatesMaintenance extends Periodical {
 			}
 		}
 		
-		LOG.info("Retention is set to " + retention + " seconds (" + new Duration(retention) + ")");
+		LOG.debug("Retention is set to " + retention + " seconds (" + new Duration(retention) + ")");
 		
 		cal.add(Calendar.SECOND, -1*retention);
 		

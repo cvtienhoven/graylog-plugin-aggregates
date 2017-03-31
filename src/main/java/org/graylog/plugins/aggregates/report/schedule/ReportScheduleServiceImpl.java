@@ -84,7 +84,7 @@ public class ReportScheduleServiceImpl implements ReportScheduleService {
 
 	@Override
 	public ReportSchedule updateNextFireTime(String id, Date nextFireTime){
-		LOG.info("updateNextFireTime() - _id=" + id + ", date=" +nextFireTime);
+		LOG.debug("updateNextFireTime() - _id=" + id + ", date=" +nextFireTime);
 		DBUpdate.Builder update = new DBUpdate.Builder();
 		update.set("nextFireTime", nextFireTime.getTime());
 		BasicDBObject query = new BasicDBObject();
@@ -108,7 +108,7 @@ public class ReportScheduleServiceImpl implements ReportScheduleService {
 				
 				ReportSchedule reportSchedule = coll.insert(scheduleImpl).getSavedObject();
 				
-				LOG.info("created schedule with ID " + reportSchedule.getId());
+				LOG.debug("created schedule with ID " + reportSchedule.getId());
 				
 				return reportSchedule;
 			} else {
@@ -167,8 +167,7 @@ public class ReportScheduleServiceImpl implements ReportScheduleService {
 	
 	@Override
 	public int destroy(String id) {
-		//Collection<String> idList = new ArrayList<String>();
-		//idList.add(id);
+
 		BasicDBObject query = new BasicDBObject();
 	    query.put("reportSchedules", id);
 		

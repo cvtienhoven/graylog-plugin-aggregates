@@ -93,7 +93,6 @@ const EditScheduleModal = React.createClass({
     }
     
     if (parameter == "timespan") {
-      console.log('value: ' + value);
       const timespanField = this.refs.timespan.getInputDOMNode();
       const timespanValid = value > 0;
     	
@@ -106,7 +105,6 @@ const EditScheduleModal = React.createClass({
     
   },
   _setTimespan(timespan){
-    console.log('timespan: ' + JSON.stringify(timespan));
     const reportSchedule = this.state.reportSchedule;
     reportSchedule.timespan = timespan.period;
     this.setState({reportSchedule: reportSchedule});

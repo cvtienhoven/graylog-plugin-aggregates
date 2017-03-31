@@ -57,7 +57,6 @@ public class HistoryItemServiceImpl implements HistoryItemService {
 	@Inject
 	public HistoryItemServiceImpl(MongoConnection mongoConnection, MongoJackObjectMapperProvider mapperProvider,
 			Validator validator) {
-		LOG.info("constructor");
 		this.validator = validator;
 		final String collectionName = HistoryItemImpl.class.getAnnotation(CollectionName.class).value();
 		final DBCollection dbCollection = mongoConnection.getDatabase().getCollection(collectionName);
@@ -139,7 +138,7 @@ public class HistoryItemServiceImpl implements HistoryItemService {
 		
 		AggregationResult<? extends HistoryAggregateItem> aggregationResult = coll.aggregate(aggregation);
 
-		LOG.info("Aggregation result: " + aggregationResult.results().toString());
+		LOG.debug("Aggregation result: " + aggregationResult.results().toString());
 		
 		return (List<HistoryAggregateItem>) aggregationResult.results();
 				

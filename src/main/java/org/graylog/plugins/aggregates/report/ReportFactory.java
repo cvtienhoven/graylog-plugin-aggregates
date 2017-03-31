@@ -35,7 +35,7 @@ public class ReportFactory {
 		
 		for (Map.Entry<Rule, List<HistoryAggregateItem>> serie : series.entrySet()){			
 			charts.add(ChartFactory.generateTimeSeriesChart(serie.getKey().getName(), serie.getValue(), ruleScheduleMapping.get(serie.getKey()).getTimespan(), cal));
-			LOG.info("Adding chart \"" + serie.getKey() + "\"");
+			LOG.debug("Adding chart \"" + serie.getKey() + "\"");
 		}
 				
 		writeChartsToPDF(charts, 500, 200, outputStream, hostname, cal.getTime());
@@ -72,7 +72,7 @@ public class ReportFactory {
 			
 			
 			for (JFreeChart chart : charts){
-				LOG.info("Writing chart to PDF");
+				LOG.debug("Writing chart to PDF");
 				if (writer.getVerticalPosition(true)-height+(height*position) < 0){
 					position = 0;
 					document.newPage();

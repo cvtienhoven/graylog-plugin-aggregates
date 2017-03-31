@@ -26,7 +26,6 @@ const SchedulesList = React.createClass({
   list () {
     SchedulesActions.list().then(newSchedules => {
       this.setState({reportSchedules: newSchedules})
-      console.log('list() state.reportSchedules: ' + JSON.stringify(this.state.reportSchedules));
     })
   },
   delete (id) {
@@ -96,9 +95,7 @@ const SchedulesList = React.createClass({
   render () {
     const filterKeys = ['name'];
     const headers = ['Schedule name', 'Cron expression', 'Timespan', 'Next fire time'];
-    
-    console.log('state: ' + JSON.stringify(this.state));
-    
+       
     if (this.state.reportSchedules) {
       return (
         <div>

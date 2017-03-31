@@ -44,8 +44,6 @@ public class ChartFactory {
 		DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
 		df.setTimeZone(TimeZone.getTimeZone("UTC"));
 		
-		//cal.setTimeZone(Calendar.getInstance().getTimeZone());
-		
 		TimeSeries series;
 		int count = 0;
 		
@@ -69,8 +67,7 @@ public class ChartFactory {
 				cal.add(Calendar.DATE, -1);				
 			}
 			for(HistoryAggregateItem historyItem : history){
-				Day day = new Day(df.parse(historyItem.getMoment()+"T00:00:00Z"));				
-				LOG.info("day: " + day.getDayOfMonth());
+				Day day = new Day(df.parse(historyItem.getMoment()+"T00:00:00Z"));
 				series.addOrUpdate(day, historyItem.getNumberOfHits() );
 			}
 		} else if (seconds <= SECONDS_IN_YEAR) {
@@ -92,11 +89,7 @@ public class ChartFactory {
 				series.add(new Year(cal.getTime()), null);
 			}
 			for(HistoryAggregateItem historyItem : history){
-				LOG.info("moment: " + historyItem.getMoment());
 				Year year = new Year(df.parse(historyItem.getMoment()+"-01-01T00:00:00Z"));
-				
-				
-				LOG.info("day: " + year.getYear());
 				series.addOrUpdate(year, historyItem.getNumberOfHits() );
 			}
 		}
