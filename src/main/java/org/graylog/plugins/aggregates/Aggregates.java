@@ -92,14 +92,17 @@ public class Aggregates extends Periodical {
 					LOG.debug("Rule '" + rule.getName() + "' is disabled, skipping.");
 					continue;
 				}
+				
 				int interval_minutes = rule.getInterval();
+				
 						
 				if (interval_minutes > maxInterval) {
 					maxInterval = rule.getInterval();
 				}
 				
-				if (sequence % interval_minutes == 0) {
-
+				//always evaluate when isSliding()
+				if (rule.isSliding() || sequence % interval_minutes == 0) {
+				
 					String field = rule.getField();
 
 					List<String> unique_field_list = new ArrayList<String>();

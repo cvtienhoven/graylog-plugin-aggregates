@@ -151,7 +151,7 @@ public class HistoryItemServiceImpl implements HistoryItemService {
 	private List<HistoryItem> toAbstractListType(List<HistoryItemImpl> historyItems) {
 		final List<HistoryItem> result = Lists.newArrayListWithCapacity(historyItems.size());
 		result.addAll(historyItems);
-		LOG.info("Number of history items returned: " + result.size());
+		LOG.debug("Number of history items returned: " + result.size());
 		return result;
 	}
 

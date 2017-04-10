@@ -1,26 +1,26 @@
-import React from 'react';
-import Reflux from 'reflux'
-import { Row, Col, Button } from 'react-bootstrap';
-import { LinkContainer } from 'react-router-bootstrap';
-import Routes from 'routing/Routes';
+import React from 'react'
+// import Reflux from 'reflux'
+import { Row, Col, Button } from 'react-bootstrap'
+import { LinkContainer } from 'react-router-bootstrap'
+// import Routes from 'routing/Routes'
 
-import DocsHelper from 'util/DocsHelper';
+import DocsHelper from 'util/DocsHelper'
 
 import AggregatesActions from './AggregatesActions'
-import RulesList from './RulesList';
-import EditRuleModal from './EditRuleModal';
-import DocumentationLink from 'components/support/DocumentationLink';
-import { IfPermitted, PageHeader } from 'components/common';
+import RulesList from './RulesList'
+import EditRuleModal from './EditRuleModal'
+import DocumentationLink from 'components/support/DocumentationLink'
+import { IfPermitted, PageHeader } from 'components/common'
 
 const AggregatesPage = React.createClass({
   mixins: [],
-  _createRule(rule, callback) {
+  _createRule (rule, callback) {
     AggregatesActions.create.triggerPromise(rule)
       .then(() => {
-        callback();
-      });
-  },  
-  render() {
+        callback()
+      })
+  },
+  render () {
     return (
       <span>
         <PageHeader title="Aggregate Rules">
@@ -30,15 +30,15 @@ const AggregatesPage = React.createClass({
 
           <span>
             <IfPermitted permissions="aggregate_rules:create">
-          	  <EditRuleModal create createRule={this._createRule}/>
-          	</IfPermitted>
+              <EditRuleModal create createRule={this._createRule}/>
+            </IfPermitted>
           </span>
           <span>
             <IfPermitted permissions="aggregate_rules:create">
               <LinkContainer to='/aggregates/schedules'>
                 <Button bsStyle="info">Manage Report Schedules</Button>
               </LinkContainer>
-          	</IfPermitted>
+            </IfPermitted>
           </span>
         </PageHeader>
 
@@ -48,8 +48,8 @@ const AggregatesPage = React.createClass({
           </Col>
         </Row>
       </span>
-    );
-  },
-});
+    )
+  }
+})
 
-export default AggregatesPage;
+export default AggregatesPage

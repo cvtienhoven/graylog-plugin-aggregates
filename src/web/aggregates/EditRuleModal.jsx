@@ -1,5 +1,5 @@
 import React from 'react';
-import { Button, Input, Alert, Row, Col } from 'react-bootstrap';
+import { Button, Input, Label, Alert, Row, Col } from 'react-bootstrap';
 import MultiSelect from 'components/common/MultiSelect';
 
 import BootstrapModalForm from 'components/bootstrap/BootstrapModalForm';
@@ -154,7 +154,7 @@ const EditRuleModal = React.createClass({
     const rule = this.state.rule;
     
     const parameter = event.target.name;
-    const value = event.target.value;    
+    const value = event.target.type === 'checkbox' ? event.target.checked : event.target.value;    
     
     if (parameter == "name"){
     	if (!this.props.create && name != this.state.originalName){
@@ -165,7 +165,7 @@ const EditRuleModal = React.createClass({
     }
     
     if (parameter == "interval"){
-    	const intervalField = this.refs.interval.getInputDOMNode();    	
+    	const intervalField = this.refs.interval.getInputDOMNode();
     	const intervalValue = value < 1;
     	ValidationsUtils.setFieldValidity(intervalField, intervalValue, 'Interval should be at least 1');    	
     }
@@ -176,6 +176,7 @@ const EditRuleModal = React.createClass({
     	ValidationsUtils.setFieldValidity(numberOfMatchesField, numberOfMatchesValue, 'Number of matches should be at least 1');    	
     }
     
+        
     if (parameter == "email"){
       const emailField = this.refs.email.getInputDOMNode();      
       var emailArray = [];      
@@ -193,6 +194,8 @@ const EditRuleModal = React.createClass({
         ValidationsUtils.setFieldValidity(emailField, invalidEmail, 'Email address ' + emailArray[i] + ' is invalid');     	    	
       }      
       rule.alertReceivers = emailArray;
+    } else if (parameter == "sliding") {
+      rule[parameter] = value;
     } else {
       rule[parameter] = value.trim();
     }
@@ -243,7 +246,7 @@ const EditRuleModal = React.createClass({
             
               <Input ref="streamId" name="streamId" id="streamId" type="select" value={this.state.rule.streamId}
                     labelClassName="col-sm-2" wrapperClassName="col-sm-10"
-               	    label="Stream" help="Select a stream" required
+               	    label="Stream" help="Select a stream." required
                	    onChange={this._onValueChanged} >
                	    	{this._createStreamSelectItems()}
 			  </Input>
@@ -277,6 +280,12 @@ const EditRuleModal = React.createClass({
                		labelClassName="col-sm-2" wrapperClassName="col-sm-10"
                		label="Interval (minutes)" help="...minute interval." required
                		onChange={this._onValueChanged} />
+              
+              <Input key="sliding" ref="sliding" name="sliding" id="sliding" type="checkbox" checked={this.state.rule.sliding}
+                	label="Evaluate every minute" labelClassName="col-sm-12" wrapperClassName="col-sm-offset-2 col-sm-10"
+                	help="When checked, the rule will be evaluated every minute, else it will be evaluated every <interval> minute(s). Enabling could result in more alerts."
+              		onChange={this._onValueChanged} />
+               		
                		
 			  <Input ref="email" name="email" id="email" type="text" maxLength={500} defaultValue={this.state.alertReceivers}
                		labelClassName="col-sm-2" wrapperClassName="col-sm-10"
@@ -294,6 +303,9 @@ const EditRuleModal = React.createClass({
                   placeholder="Choose report schedules..."
                 />
               </Input>
+              
+              
+              
 			  
 			  
           </fieldset>

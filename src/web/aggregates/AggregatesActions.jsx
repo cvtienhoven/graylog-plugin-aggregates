@@ -1,4 +1,4 @@
-import Reflux from 'reflux';
+import Reflux from 'reflux'
 
 const AggregatesActions = Reflux.createActions({
   list: { asyncResult: true },
@@ -8,7 +8,7 @@ const AggregatesActions = Reflux.createActions({
   createSchedule: { asyncResult: true },
   listSchedules: { asyncResult: true },
   deleteScheduleByName: { asyncResult: true },
-  updateSchedule: { asyncResult: true },
-});
+  updateSchedule: { asyncResult: true }
+})
 
-export default AggregatesActions;
+export default AggregatesActions

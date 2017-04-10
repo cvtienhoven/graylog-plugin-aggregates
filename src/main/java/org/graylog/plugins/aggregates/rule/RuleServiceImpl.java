@@ -94,7 +94,8 @@ public class RuleServiceImpl implements RuleService {
 				request.getRule().isEnabled(),
 				request.getRule().getStreamId(),
 				request.getRule().isInReport(),
-				request.getRule().getReportSchedules());
+				request.getRule().getReportSchedules(),
+				request.getRule().isSliding());
 	}
 
 	@Override
@@ -110,7 +111,8 @@ public class RuleServiceImpl implements RuleService {
 				request.getRule().isEnabled(),
 				request.getRule().getStreamId(),
 				request.getRule().isInReport(),
-				request.getRule().getReportSchedules());
+				request.getRule().getReportSchedules(),
+				request.getRule().isSliding());
 	}
 	
 	@Override

@@ -76,6 +76,10 @@ public abstract class RuleImpl implements Rule{
     @Nullable
     public abstract List<String> getReportSchedules();
     
+    @JsonProperty("sliding")
+    @Override
+    @Nullable
+    public abstract boolean isSliding();
     
 	@JsonCreator
     public static RuleImpl create(@JsonProperty("_id") String objectId,
@@ -89,9 +93,10 @@ public abstract class RuleImpl implements Rule{
                                        @JsonProperty("enabled") boolean enabled,
                                        @JsonProperty("streamId") String streamId,
                                        @JsonProperty("inReport") boolean inReport,
-                                       @JsonProperty("reportSchedules") List<String> reportSchedules
+                                       @JsonProperty("reportSchedules") List<String> reportSchedules,
+                                       @JsonProperty("sliding") boolean sliding
                                        ) {		
-        return new AutoValue_RuleImpl(query, field, numberOfMatches, matchMoreOrEqual, interval, name, alertReceivers, enabled, streamId, inReport, reportSchedules);
+        return new AutoValue_RuleImpl(query, field, numberOfMatches, matchMoreOrEqual, interval, name, alertReceivers, enabled, streamId, inReport, reportSchedules, sliding);
     }
 	
 	public static RuleImpl create(
@@ -105,8 +110,9 @@ public abstract class RuleImpl implements Rule{
             boolean enabled,
             String streamId,
             boolean inReport,
-            List<String> reportSchedules) {
-		return new AutoValue_RuleImpl(query, field, numberOfMatches, matchMoreOrEqual, interval, name, alertReceivers, enabled, streamId, inReport, reportSchedules);
+            List<String> reportSchedules,
+            boolean sliding) {
+		return new AutoValue_RuleImpl(query, field, numberOfMatches, matchMoreOrEqual, interval, name, alertReceivers, enabled, streamId, inReport, reportSchedules, sliding);
 	
 	}
 }

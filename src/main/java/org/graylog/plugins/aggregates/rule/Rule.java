@@ -28,4 +28,6 @@ public interface Rule {
 	public boolean isInReport();
 
 	public List<String> getReportSchedules();
+
+	public boolean isSliding();
 }
