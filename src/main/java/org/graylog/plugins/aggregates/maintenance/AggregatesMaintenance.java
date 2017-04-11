@@ -11,7 +11,6 @@ import org.graylog.plugins.aggregates.report.schedule.ReportScheduleService;
 import org.graylog.plugins.aggregates.util.AggregatesUtil;
 import org.graylog2.plugin.periodical.Periodical;
 import org.joda.time.Duration;
-import org.joda.time.Period;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

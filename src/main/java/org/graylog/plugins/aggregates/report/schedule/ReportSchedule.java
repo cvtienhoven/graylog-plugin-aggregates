@@ -1,7 +1,5 @@
 package org.graylog.plugins.aggregates.report.schedule;
 
-import java.util.Date;
-
 public interface ReportSchedule {
 	
 	public String getId();

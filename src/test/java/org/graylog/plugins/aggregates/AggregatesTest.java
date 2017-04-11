@@ -150,6 +150,7 @@ public class AggregatesTest {
 		verify(searches, Mockito.never()).terms(Mockito.any(String.class), Mockito.anyInt(), Mockito.any(String.class), Mockito.any(TimeRange.class));
 	}
 	
+	@SuppressWarnings("unchecked")
 	@Test
 	public void testDoRunIndexerRunningOneRuleEnabledNoMatch() throws EmailException, TransportConfigurationException{
 		long occurrences = 5;
@@ -192,6 +193,7 @@ public class AggregatesTest {
 		verify(alertSender, Mockito.never()).sendEmails(Mockito.any(Rule.class),Mockito.any(Map.class),Mockito.any(TimeRange.class),Mockito.any(Date.class));
 	}
 	
+	@SuppressWarnings("unchecked")
 	@Test
 	public void testDoRunIndexerRunningOneRuleEnabledMatch() throws EmailException, TransportConfigurationException{
 		long occurrences = 5;

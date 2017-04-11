@@ -2,7 +2,6 @@ package org.graylog.plugins.aggregates.report;
 
 import java.awt.Graphics2D;
 import java.awt.geom.Rectangle2D;
-
 import java.io.OutputStream;
 import java.text.ParseException;
 import java.util.ArrayList;
@@ -10,15 +9,12 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-
-import org.graylog.plugins.aggregates.Aggregates;
 import org.graylog.plugins.aggregates.history.HistoryAggregateItem;
 import org.graylog.plugins.aggregates.report.schedule.ReportSchedule;
 import org.graylog.plugins.aggregates.rule.Rule;
 import org.jfree.chart.JFreeChart;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import com.itextpdf.awt.DefaultFontMapper;
 import com.itextpdf.text.Document;
 import com.itextpdf.text.PageSize;
@@ -42,6 +38,7 @@ public class ReportFactory {
 
 	}
 
+	@SuppressWarnings("deprecation")
 	public static void writeChartsToPDF(List<JFreeChart> charts, int width, int height, OutputStream outputStream, String hostname, Date date) {
 		PdfWriter writer = null;
 

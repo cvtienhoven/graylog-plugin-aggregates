@@ -7,23 +7,18 @@ import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import javax.inject.Inject;
 import org.apache.commons.mail.EmailException;
-import org.apache.lucene.queryparser.classic.QueryParser;
-import org.elasticsearch.common.lucene.Lucene;
 import org.graylog.plugins.aggregates.history.HistoryItem;
 import org.graylog.plugins.aggregates.history.HistoryItemImpl;
 import org.graylog.plugins.aggregates.history.HistoryItemService;
 import org.graylog.plugins.aggregates.rule.Rule;
-import org.graylog.plugins.aggregates.rule.RuleImpl;
 import org.graylog.plugins.aggregates.rule.RuleService;
 import org.graylog.plugins.aggregates.rule.alert.RuleAlertSender;
 import org.graylog2.indexer.results.TermsResult;
 import org.graylog2.indexer.searches.Searches;
 import org.graylog2.indexer.searches.SearchesClusterConfig;
 import org.graylog2.initializers.IndexerSetupService;
-
 import org.graylog2.plugin.alarms.transports.TransportConfigurationException;
 import org.graylog2.plugin.cluster.ClusterConfigService;
 import org.graylog2.plugin.indexer.searches.timeranges.AbsoluteRange;
@@ -31,12 +26,10 @@ import org.graylog2.plugin.indexer.searches.timeranges.InvalidRangeParametersExc
 import org.graylog2.plugin.indexer.searches.timeranges.RelativeRange;
 import org.graylog2.plugin.indexer.searches.timeranges.TimeRange;
 import org.graylog2.plugin.periodical.Periodical;
-
 import org.joda.time.DateTime;
 import org.joda.time.Period;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import com.google.common.annotations.VisibleForTesting;
 
 /**

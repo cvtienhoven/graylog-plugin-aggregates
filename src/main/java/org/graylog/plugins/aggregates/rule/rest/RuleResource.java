@@ -1,11 +1,7 @@
 package org.graylog.plugins.aggregates.rule.rest;
 
 import com.codahale.metrics.annotation.Timed;
-import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Function;
-import com.google.common.base.Supplier;
 import com.mongodb.MongoException;
-
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -15,26 +11,18 @@ import org.apache.shiro.authz.annotation.RequiresAuthentication;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.graylog.plugins.aggregates.permissions.RuleRestPermissions;
 import org.graylog.plugins.aggregates.rule.Rule;
-import org.graylog.plugins.aggregates.rule.RuleImpl;
 import org.graylog.plugins.aggregates.rule.RuleService;
 import org.graylog.plugins.aggregates.rule.rest.models.requests.AddRuleRequest;
 import org.graylog.plugins.aggregates.rule.rest.models.requests.UpdateRuleRequest;
 import org.graylog.plugins.aggregates.rule.rest.models.responses.RulesList;
 import org.graylog2.plugin.rest.PluginRestResource;
 import org.graylog2.shared.rest.resources.RestResource;
-import org.hibernate.validator.constraints.NotEmpty;
-import org.joda.time.DateTime;
-import org.joda.time.Period;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import javax.inject.Inject;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
-import javax.ws.rs.HeaderParam;
 import javax.ws.rs.NotFoundException;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
@@ -43,7 +31,6 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-
 import java.io.UnsupportedEncodingException;
 import java.util.List;
 
@@ -52,8 +39,7 @@ import java.util.List;
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
 public class RuleResource extends RestResource implements PluginRestResource {
-    private final RuleService ruleService;
-    private static final Logger LOG = LoggerFactory.getLogger(RuleResource.class);    
+    private final RuleService ruleService;  
     
     @Inject
     public RuleResource(RuleService ruleService) {

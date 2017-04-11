@@ -3,8 +3,6 @@ package org.graylog.plugins.aggregates.report.schedule;
 import com.google.common.collect.Lists;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBCollection;
-
-import org.apache.commons.collections.CollectionUtils;
 import org.bson.types.ObjectId;
 import org.drools.core.time.impl.CronExpression;
 import org.graylog.plugins.aggregates.report.schedule.rest.models.requests.AddReportScheduleRequest;
@@ -19,14 +17,10 @@ import org.mongojack.DBUpdate;
 import org.mongojack.JacksonDBCollection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import javax.inject.Inject;
 import javax.validation.ConstraintViolation;
 import javax.validation.Validator;
-
 import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;

@@ -22,22 +22,15 @@ import org.jfree.data.time.TimeSeriesCollection;
 import org.jfree.data.time.Year;
 import org.jfree.data.xy.IntervalXYDataset;
 import org.jfree.data.xy.XYBarDataset;
-import org.joda.time.DateTime;
-import org.joda.time.Duration;
-import org.joda.time.Period;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-
 
 public class ChartFactory {
-	private static final Logger LOG = LoggerFactory.getLogger(ChartFactory.class);
 	private final static int SECONDS_IN_YEAR = 3600*24*366;
 	private final static int SECONDS_IN_MONTH = 3600*24*31;
 	private final static int SECONDS_IN_DAY = 3600*24;
 	private final static int SECONDS_IN_HOUR = 3600;
 	
 	
+	@SuppressWarnings("deprecation")
 	private static TimeSeries initializeSeries(String timespan, Calendar cal, List<HistoryAggregateItem> history) throws ParseException{		
 		int seconds = AggregatesUtil.timespanToSeconds(timespan, cal);		
 		

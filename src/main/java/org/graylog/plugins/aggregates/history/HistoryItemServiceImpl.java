@@ -6,49 +6,32 @@ import com.mongodb.DBCollection;
 import com.mongodb.DBObject;
 import com.mongodb.util.JSON;
 import com.mongodb.BasicDBObject;
-import com.thoughtworks.xstream.converters.extended.ISO8601DateConverter;
-
 import org.graylog2.bindings.providers.MongoJackObjectMapperProvider;
 import org.graylog2.database.CollectionName;
 import org.graylog2.database.MongoConnection;
 import org.joda.time.DateTime;
 import org.joda.time.Duration;
-import org.joda.time.LocalDateTime;
 import org.joda.time.Period;
-import org.joda.time.format.DateTimeFormatter;
-import org.joda.time.format.ISODateTimeFormat;
 import org.mongojack.Aggregation;
-import org.mongojack.Aggregation.Project;
 import org.mongojack.AggregationResult;
 import org.mongojack.DBCursor;
-import org.mongojack.DBProjection;
-import org.mongojack.DBProjection.ProjectionBuilder;
-import org.mongojack.DBQuery;
-import org.mongojack.DBSort;
 import org.mongojack.JacksonDBCollection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import javax.inject.Inject;
 import javax.validation.ConstraintViolation;
 import javax.validation.Validator;
-
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.TimeUnit.*;
 
 public class HistoryItemServiceImpl implements HistoryItemService {
 	private final static int SECONDS_IN_YEAR = 3600*24*366;
 	private final static int SECONDS_IN_MONTH = 3600*24*31;
 	private final static int SECONDS_IN_DAY = 3600*24;
-	private final static int SECONDS_IN_HOUR = 3600;
-	
 	
 	private final JacksonDBCollection<HistoryItemImpl, String> coll;
 	private final Validator validator;
@@ -92,6 +75,7 @@ public class HistoryItemServiceImpl implements HistoryItemService {
 	}
 	
 	
+	@SuppressWarnings("unchecked")
 	@Override
 	public List<HistoryAggregateItem> getForRuleName(String ruleName, String timespan) {
 		Period period = Period.parse(timespan);
