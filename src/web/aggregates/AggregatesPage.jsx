@@ -1,26 +1,20 @@
-import React from 'react'
-// import Reflux from 'reflux'
-import { Row, Col, Button } from 'react-bootstrap'
-import { LinkContainer } from 'react-router-bootstrap'
-// import Routes from 'routing/Routes'
-
-import DocsHelper from 'util/DocsHelper'
-
-import AggregatesActions from './AggregatesActions'
-import RulesList from './RulesList'
-import EditRuleModal from './EditRuleModal'
-import DocumentationLink from 'components/support/DocumentationLink'
-import { IfPermitted, PageHeader } from 'components/common'
+import React from 'react';
+import { Row, Col, Button } from 'react-bootstrap';
+import { LinkContainer } from 'react-router-bootstrap';
+import AggregatesActions from './AggregatesActions';
+import RulesList from './RulesList';
+import EditRuleModal from './EditRuleModal';
+import { IfPermitted, PageHeader } from 'components/common';
 
 const AggregatesPage = React.createClass({
   mixins: [],
-  _createRule (rule, callback) {
+  _createRule(rule, callback) {
     AggregatesActions.create.triggerPromise(rule)
       .then(() => {
-        callback()
-      })
+        callback();
+      });
   },
-  render () {
+  render() {
     return (
       <span>
         <PageHeader title="Aggregate Rules">
@@ -35,7 +29,7 @@ const AggregatesPage = React.createClass({
           </span>
           <span>
             <IfPermitted permissions="aggregate_rules:create">
-              <LinkContainer to='/aggregates/schedules'>
+              <LinkContainer to="/aggregates/schedules">
                 <Button bsStyle="info">Manage Report Schedules</Button>
               </LinkContainer>
             </IfPermitted>
@@ -48,8 +42,8 @@ const AggregatesPage = React.createClass({
           </Col>
         </Row>
       </span>
-    )
-  }
-})
+    );
+  },
+});
 
-export default AggregatesPage
+export default AggregatesPage;

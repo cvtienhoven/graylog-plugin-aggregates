@@ -1,7 +1,8 @@
 {
-    "extends": "standard",
+    "extends": "graylog",
     "plugins": [
-        "standard",
-        "promise"
+        "react",
+        "jsx-a11y",
+        "import"
     ]
 }

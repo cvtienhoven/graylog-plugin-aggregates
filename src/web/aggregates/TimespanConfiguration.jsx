@@ -5,7 +5,6 @@ import moment from 'moment';
 const TimespanConfiguration = React.createClass({
   propTypes: {
     config: React.PropTypes.object.isRequired,
-    //jsonSchema: React.PropTypes.object.isRequired,
     updateConfig: React.PropTypes.func.isRequired,
   },
 
@@ -14,7 +13,6 @@ const TimespanConfiguration = React.createClass({
       period: this.props.config.period,
     };
   },
-
   _onPeriodUpdate(field) {
     return () => {
       const update = {};
@@ -34,20 +32,16 @@ const TimespanConfiguration = React.createClass({
       }
     };
   },
-
   _isValidPeriod(duration) {
     const check = duration || this.state.period;
     return moment.duration(check).asMilliseconds() >= 3600000;
   },
-
   _validationState() {
     if (this._isValidPeriod()) {
       return undefined;
-    } else {
-      return 'error';
     }
+    return 'error';
   },
-
   _formatDuration() {
     return this._isValidPeriod() ? moment.duration(this.state.period).humanize() : 'invalid (min 1 hour)';
   },
