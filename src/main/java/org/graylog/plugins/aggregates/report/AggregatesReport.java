@@ -8,10 +8,8 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import javax.inject.Inject;
 import javax.mail.MessagingException;
@@ -21,17 +19,13 @@ import org.drools.core.time.impl.CronExpression;
 import org.graylog.plugins.aggregates.history.HistoryAggregateItem;
 import org.graylog.plugins.aggregates.history.HistoryItemService;
 import org.graylog.plugins.aggregates.report.schedule.ReportSchedule;
-import org.graylog.plugins.aggregates.report.schedule.ReportScheduleImpl;
 import org.graylog.plugins.aggregates.report.schedule.ReportScheduleService;
-import org.graylog.plugins.aggregates.report.schedule.rest.models.requests.UpdateReportScheduleRequest;
 import org.graylog.plugins.aggregates.rule.Rule;
 import org.graylog.plugins.aggregates.rule.RuleService;
 import org.graylog2.plugin.alarms.transports.TransportConfigurationException;
 import org.graylog2.plugin.periodical.Periodical;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.google.common.collect.Lists;
 
 public class AggregatesReport extends Periodical {
 	private static final Logger LOG = LoggerFactory.getLogger(AggregatesReport.class);
@@ -84,7 +78,6 @@ public class AggregatesReport extends Periodical {
 	public void doRun() {
 		Calendar cal = Calendar.getInstance();
 		
-		int days = 0;
 		String description = "";
 
 		List<ReportSchedule> reportSchedules = reportScheduleService.all();

@@ -6,6 +6,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -188,7 +189,7 @@ public class AggregatesTest {
 		verify(ruleList.get(0)).getInterval();
 		verify(ruleList.get(0)).getQuery();
 		verify(ruleList.get(0)).getStreamId();
-		verify(alertSender, Mockito.never()).sendEmails(Mockito.any(Rule.class),Mockito.any(Map.class),Mockito.any(TimeRange.class));
+		verify(alertSender, Mockito.never()).sendEmails(Mockito.any(Rule.class),Mockito.any(Map.class),Mockito.any(TimeRange.class),Mockito.any(Date.class));
 	}
 	
 	@Test
@@ -230,7 +231,7 @@ public class AggregatesTest {
 		verify(ruleList.get(0)).getInterval();
 		verify(ruleList.get(0)).getQuery();
 		verify(ruleList.get(0)).getStreamId();
-		verify(alertSender).sendEmails(Mockito.any(Rule.class),Mockito.any(Map.class),Mockito.any(TimeRange.class));
+		verify(alertSender).sendEmails(Mockito.any(Rule.class),Mockito.any(Map.class),Mockito.any(TimeRange.class), Mockito.any(Date.class));
 	}
 	
 	private TermsResult mockTermsResult(String termsValue, Long termsOccurrences ){

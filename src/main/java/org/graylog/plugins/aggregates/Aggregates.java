@@ -3,6 +3,7 @@ package org.graylog.plugins.aggregates;
 
 import java.util.Date;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -160,7 +161,7 @@ public class Aggregates extends Periodical {
 
 							
 							try {
-								alertSender.sendEmails(rule, matchedTerms, timeRange);
+								alertSender.sendEmails(rule, matchedTerms, timeRange, Calendar.getInstance().getTime());
 							} catch (EmailException e) {
 								LOG.error("failed to send email: " + e.getMessage());
 							} catch (TransportConfigurationException e) {

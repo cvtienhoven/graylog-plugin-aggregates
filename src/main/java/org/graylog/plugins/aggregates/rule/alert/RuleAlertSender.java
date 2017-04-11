@@ -3,6 +3,8 @@ package org.graylog.plugins.aggregates.rule.alert;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Map;
 
 import javax.inject.Inject;
@@ -47,7 +49,7 @@ public class RuleAlertSender {
 	}
 	
 	
-	public void sendEmails(Rule rule, Map<String, Long> matchedTerms, TimeRange timeRange) throws EmailException, TransportConfigurationException{
+	public void sendEmails(Rule rule, Map<String, Long> matchedTerms, TimeRange timeRange, Date date) throws EmailException, TransportConfigurationException{
         if(!configuration.isEnabled()) {
             throw new TransportConfigurationException("Email transport is not enabled in server configuration file!");
         }
@@ -83,7 +85,7 @@ public class RuleAlertSender {
         
         
         email.setSubject("Aggregate Rule [ " + rule.getName() + " ] triggered an alert");
-        email.setMsg(buildBody(rule, matchedTerms, timeRange));
+        email.setMsg(buildBody(rule, matchedTerms, timeRange, date));
         
         for (String receiver : rule.getAlertReceivers()){
         	email.addTo(receiver);
@@ -92,7 +94,8 @@ public class RuleAlertSender {
         email.send();
 	}
 
-	private String buildBody(Rule rule, Map<String, Long> matchedTerms, TimeRange timeRange) {
+	private String buildBody(Rule rule, Map<String, Long> matchedTerms, TimeRange timeRange, Date date) {
+		SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         StringBuilder sb = new StringBuilder();
         String matchDescriptor = rule.getNumberOfMatches() + " or more";
         if (!rule.isMatchMoreOrEqual()){
@@ -106,7 +109,7 @@ public class RuleAlertSender {
         sb.append("<h1 style=\"font-size: 20px;\">" + rule.getName() + "</h1>");
         
         sb.append("<table " + TABLE_STYLE + ">");        
-        sb.append("<tr " + TD_TR_STYLE + "><td " + TD_TR_STYLE + ">").append("<b>Date</b>: ").append("</td><td " + TD_TR_STYLE + ">").append(Tools.nowUTC().toString()).append("</td></tr>");
+        sb.append("<tr " + TD_TR_STYLE + "><td " + TD_TR_STYLE + ">").append("<b>Date</b>: ").append("</td><td " + TD_TR_STYLE + ">").append(df.format(date)).append("</td></tr>");
         sb.append("<tr " + TD_TR_STYLE + "><td " + TD_TR_STYLE + ">").append("<b>Query</b>: ").append("</td><td " + TD_TR_STYLE + ">").append(rule.getQuery()).append("</td></tr>");                
         sb.append("<tr " + TD_TR_STYLE + "><td " + TD_TR_STYLE + ">").append("<b>Alert condition</b>: ").append("</td><td " + TD_TR_STYLE + ">").append("The same value of field '" + rule.getField() + "' occurs " + matchDescriptor + " times in a " + rule.getInterval() + " minute interval").append("</td></tr>");                
         sb.append("</table>");
