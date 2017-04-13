@@ -12,7 +12,7 @@
 
     <groupId>org.graylog.plugins.aggregates</groupId>
     <artifactId>graylog-plugin-aggregates</artifactId>
-    <version>1.0.0-SNAPSHOT</version>
+    <version>1.0.0</version>
     <packaging>jar</packaging>
 
     <name>${project.artifactId}</name>
@@ -30,7 +30,7 @@
         <connection>scm:git:git@github.com:cvtienhoven/graylog-plugin-aggregates.git</connection>
         <developerConnection>scm:git:git@github.com:cvtienhoven/graylog-plugin-aggregates.git</developerConnection>
         <url>https://github.com/cvtienhoven/graylog-plugin-aggregates</url>
-        <tag>HEAD</tag>
+        <tag>1.0.0</tag>
     </scm>
 
     <properties>
