@@ -31,6 +31,11 @@ This scenario is actually very useful in a security context, but with the built-
 ![](https://github.com/cvtienhoven/graylog-plugin-aggregates/blob/master/images/aggregates_alert.png)
 
 
+**Schedule overview**
+
+![](https://github.com/cvtienhoven/graylog-plugin-aggregates/blob/master/images/schedule_list.png)
+
+
 **Create / edit a report schedule**
 
 ![](https://github.com/cvtienhoven/graylog-plugin-aggregates/blob/master/images/edit_schedule.png)
