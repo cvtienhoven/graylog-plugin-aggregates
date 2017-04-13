@@ -28,7 +28,7 @@ const AggregatesPage = React.createClass({
             </IfPermitted>
           </span>
           <span>
-            <IfPermitted permissions="aggregate_rules:create">
+            <IfPermitted permissions="aggregate_report_schedules:read">
               <LinkContainer to="/aggregates/schedules">
                 <Button bsStyle="info">Manage Report Schedules</Button>
               </LinkContainer>
@@ -36,9 +36,12 @@ const AggregatesPage = React.createClass({
           </span>
         </PageHeader>
 
+        
         <Row className="content">
           <Col md={12}>
-            <RulesList />
+            <IfPermitted permissions={['aggregate_rules:read', 'aggregate_report_schedules:read']}>
+              <RulesList />
+            </IfPermitted>
           </Col>
         </Row>
       </span>

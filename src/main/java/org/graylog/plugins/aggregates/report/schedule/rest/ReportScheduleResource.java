@@ -9,7 +9,7 @@ import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import org.apache.shiro.authz.annotation.RequiresAuthentication;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
-import org.graylog.plugins.aggregates.permissions.RuleRestPermissions;
+import org.graylog.plugins.aggregates.permissions.ReportScheduleRestPermissions;
 import org.graylog.plugins.aggregates.report.schedule.ReportSchedule;
 import org.graylog.plugins.aggregates.report.schedule.ReportScheduleService;
 import org.graylog.plugins.aggregates.report.schedule.rest.models.requests.AddReportScheduleRequest;
@@ -50,7 +50,7 @@ public class ReportScheduleResource extends RestResource implements PluginRestRe
     @Timed
     @ApiOperation(value = "Lists all existing report schedules")
     @RequiresAuthentication
-    @RequiresPermissions(RuleRestPermissions.AGGREGATE_RULES_READ)
+    @RequiresPermissions(ReportScheduleRestPermissions.AGGREGATE_REPORT_SCHEDULES_READ)
     public ReportSchedulesList list() {
         final List<ReportSchedule> reportSchedules = reportScheduleService.all();   
         return ReportSchedulesList.create(reportSchedules);
@@ -59,6 +59,8 @@ public class ReportScheduleResource extends RestResource implements PluginRestRe
     @PUT
     @Timed    
     @ApiOperation(value = "Create a report schedule")
+    @RequiresAuthentication
+    @RequiresPermissions(ReportScheduleRestPermissions.AGGREGATE_REPORT_SCHEDULES_CREATE)
     @ApiResponses(value = {
             @ApiResponse(code = 400, message = "The supplied request is not valid.")
     })
@@ -74,8 +76,10 @@ public class ReportScheduleResource extends RestResource implements PluginRestRe
 
     @POST
     @Path("/{name}")
-    @Timed    
-    @ApiOperation(value = "Update a schedule")
+    @Timed
+    @RequiresAuthentication
+    @RequiresPermissions(ReportScheduleRestPermissions.AGGREGATE_REPORT_SCHEDULES_UPDATE)
+    @ApiOperation(value = "Update a report schedule")
     @ApiResponses(value = {
             @ApiResponse(code = 400, message = "The supplied request is not valid.")
     })
@@ -93,7 +97,7 @@ public class ReportScheduleResource extends RestResource implements PluginRestRe
     @DELETE
     @Path("/{id}")
     @RequiresAuthentication
-    @RequiresPermissions(RuleRestPermissions.AGGREGATE_RULES_DELETE)
+    @RequiresPermissions(ReportScheduleRestPermissions.AGGREGATE_REPORT_SCHEDULES_DELETE)
     @ApiOperation(value = "Delete a report schedule")
     @ApiResponses(value = {
             @ApiResponse(code = 404, message = "Schedule not found."),

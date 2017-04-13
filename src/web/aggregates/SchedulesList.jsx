@@ -54,7 +54,7 @@ const SchedulesList = React.createClass({
   },
   _scheduleInfoFormatter(reportSchedule) {
     const deleteAction = (
-      <IfPermitted permissions="aggregate_rules:delete">
+      <IfPermitted permissions="aggregate_report_schedules:delete">
         <button id="delete-reportSchedule" type="button" className="btn btn-xs btn-primary" title="Delete schedule"
               onClick={this._deleteScheduleFunction(reportSchedule._id, reportSchedule.name)} disabled={reportSchedule.default}>
           Delete
@@ -63,7 +63,7 @@ const SchedulesList = React.createClass({
     );
 
     const editAction = (
-      <IfPermitted permissions="aggregate_rules:update">
+      <IfPermitted permissions="aggregate_report_schedules:update">
         <EditScheduleModal create={false} createReportSchedule={this._editSchedule} reportSchedule={reportSchedule}/>
       </IfPermitted>
     );

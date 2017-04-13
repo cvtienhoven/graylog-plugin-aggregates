@@ -7,11 +7,13 @@ import EditRuleModal from './EditRuleModal';
 
 import StoreProvider from 'injection/StoreProvider';
 const StreamsStore = StoreProvider.getStore('Streams');
+const CurrentUserStore = StoreProvider.getStore('CurrentUser');
 
 import { DataTable, Spinner, IfPermitted } from 'components/common';
+import PermissionsMixin from 'util/PermissionsMixin';
 
 const RulesList = React.createClass({
-  mixins: [Reflux.connect(AggregatesStore)],
+  mixins: [Reflux.connect(CurrentUserStore), Reflux.connect(AggregatesStore), PermissionsMixin],
 
   getInitialState() {
     return {
@@ -131,8 +133,11 @@ const RulesList = React.createClass({
       rule.matchMoreOrEqual === true ? `${rule.numberOfMatches} or more` : `less than ${rule.numberOfMatches}`
     );
 
-    const inReport = (
-      <input id="toggle-in-report" type="checkbox" checked={rule.inReport} onClick={this._toggleRuleInReportFunction(rule)} ></input>
+    const inReportEnabled = this.state.currentUser && this.isPermitted(this.state.currentUser.permissions, 'aggregate_rules:update');
+
+    const inReport = (            
+      <input id="toggle-in-report" type="checkbox" checked={rule.inReport} onClick={this._toggleRuleInReportFunction(rule)} disabled={!inReportEnabled} ></input>
+
     );
 
     const deleteAction = (

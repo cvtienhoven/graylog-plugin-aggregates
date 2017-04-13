@@ -61,23 +61,6 @@ public class AggregatesTest {
 	@Spy
 	Aggregates aggregates;
 	
-	
-	
-	
-	
-	
-	/*
-	@Before
-	public void setUp() {
-		alertSender = mock(RuleAlertSender.class);
-		searches = mock(Searches.class);
-		clusterConfigService = mock(ClusterConfigService.class);
-		indexerSetupService = mock(IndexerSetupService.class);		
-		ruleService = mock(RuleService.class);
-		aggregates = new Aggregates(alertSender, searches, clusterConfigService, indexerSetupService, ruleService);
-	
-	}*/
-	
 	@Test
 	public void testBuildRelativeTimeRange() {
 		

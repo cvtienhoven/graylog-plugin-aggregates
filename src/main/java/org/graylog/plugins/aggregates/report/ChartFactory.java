@@ -23,6 +23,8 @@ import org.jfree.data.time.Year;
 import org.jfree.data.xy.IntervalXYDataset;
 import org.jfree.data.xy.XYBarDataset;
 
+import autovalue.shaded.com.google.common.common.annotations.VisibleForTesting;
+
 public class ChartFactory {
 	private final static int SECONDS_IN_YEAR = 3600*24*366;
 	private final static int SECONDS_IN_MONTH = 3600*24*31;
@@ -31,6 +33,7 @@ public class ChartFactory {
 	
 	
 	@SuppressWarnings("deprecation")
+	@VisibleForTesting
 	private static TimeSeries initializeSeries(String timespan, Calendar cal, List<HistoryAggregateItem> history) throws ParseException{		
 		int seconds = AggregatesUtil.timespanToSeconds(timespan, cal);		
 		

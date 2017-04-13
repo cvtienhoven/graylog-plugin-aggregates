@@ -92,11 +92,11 @@ public class ReportScheduleServiceImpl implements ReportScheduleService {
 			final ReportScheduleImpl scheduleImpl = (ReportScheduleImpl) schedule;
 			final Set<ConstraintViolation<ReportScheduleImpl>> violations = validator.validate(scheduleImpl);
 						
-			if (violations.isEmpty()) {
-				CronExpression c;
+			if (violations.isEmpty()) {				
 				try {				
-					c = new CronExpression(scheduleImpl.getExpression());
+					new CronExpression(scheduleImpl.getExpression());
 				} catch (ParseException e) {
+					LOG.error("Schedule " + scheduleImpl.getName() + " has invalid Cron Expression " + scheduleImpl.getExpression());
 					throw new IllegalArgumentException("Schedule " + scheduleImpl.getName() + " has invalid Cron Expression " + scheduleImpl.getExpression());
 				}
 				

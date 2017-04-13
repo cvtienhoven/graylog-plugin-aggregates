@@ -59,6 +59,8 @@ public class RuleResource extends RestResource implements PluginRestResource {
     @PUT
     @Timed    
     @ApiOperation(value = "Create a rule")
+    @RequiresAuthentication
+    @RequiresPermissions(RuleRestPermissions.AGGREGATE_RULES_CREATE)
     @ApiResponses(value = {
             @ApiResponse(code = 400, message = "The supplied request is not valid.")
     })
@@ -74,7 +76,9 @@ public class RuleResource extends RestResource implements PluginRestResource {
 
     @POST
     @Path("/{name}")
-    @Timed    
+    @Timed
+    @RequiresAuthentication
+    @RequiresPermissions(RuleRestPermissions.AGGREGATE_RULES_UPDATE)
     @ApiOperation(value = "Update a rule")
     @ApiResponses(value = {
             @ApiResponse(code = 400, message = "The supplied request is not valid.")

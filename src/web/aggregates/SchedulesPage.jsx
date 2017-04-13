@@ -23,7 +23,7 @@ const SchedulesPage = React.createClass({
           </span>
 
           <span>
-            <IfPermitted permissions="aggregate_rules:create">
+            <IfPermitted permissions="aggregate_report_schedules:create">
               <EditScheduleModal create createReportSchedule={this._createReportSchedule}/>
             </IfPermitted>
           </span>

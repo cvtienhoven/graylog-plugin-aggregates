@@ -17,7 +17,7 @@ const EditScheduleModal = React.createClass({
     return {
       reportSchedule: {
         name: '',
-        expression: '* * * * * *',
+        expression: '* * * ? * *',
         timespan: 'P1D',
       },
     };
