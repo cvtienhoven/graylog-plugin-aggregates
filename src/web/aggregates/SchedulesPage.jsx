@@ -17,7 +17,7 @@ const SchedulesPage = React.createClass({
   render() {
     return (
       <span>
-        <PageHeader title="Aggregate Reporting Schedules">
+        <PageHeader title="Aggregate Report Schedules">
           <span>
             Define your reporting schedules here. The moment of reporting is configured using Cron expressions. The amount of historical data to be incorporated in the report is configured by setting the timespan.
           </span>

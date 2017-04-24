@@ -34,7 +34,9 @@ public class ChartFactory {
 	
 	@SuppressWarnings("deprecation")
 	@VisibleForTesting
-	private static TimeSeries initializeSeries(String timespan, Calendar cal, List<HistoryAggregateItem> history) throws ParseException{		
+	private static TimeSeries initializeSeries(String timespan, Calendar calParam, List<HistoryAggregateItem> history) throws ParseException{
+		Calendar cal = (Calendar) calParam.clone();
+		
 		int seconds = AggregatesUtil.timespanToSeconds(timespan, cal);		
 		
 		DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
