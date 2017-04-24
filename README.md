@@ -83,7 +83,7 @@ Use the Aggregates tab in the web interface of Graylog to define rules with aler
 * aggregate_report_schedules:update
 * aggregate_report_schedules:delete
 
-**_Note_**: To be able to view the list of rules, non-admin users need both the `aggregate_rules:read` and the `aggregate_report_schedules:create` permissions.
+**_Note_**: To be able to view the list of rules, non-admin users need both the `aggregate_rules:read` and the `aggregate_report_schedules:read` permissions.
 
 Each rule can be configured to be executed on a particular stream, or on "No Stream", e.g. a global search. For the latter option to be present, the user needs to be able to have at least the following permissions:
 
