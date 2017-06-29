@@ -52,6 +52,7 @@ const AggregatesStore = Reflux.createStore({
       .then(() => {
         UserNotification.success('Rule successfully created');
         this.list();
+        return null;
       }, (error) => {
         UserNotification.error(`Creating rule failed with status: ${error.message}`,
           'Could not create rule');
@@ -84,6 +85,7 @@ const AggregatesStore = Reflux.createStore({
       .then(() => {
         UserNotification.success('Rule successfully updated');
         this.list();
+        return null;
       }, (error) => {
         UserNotification.error(`Updating rule failed with status: ${error.message}`,
           'Could not update rule');
@@ -99,6 +101,7 @@ const AggregatesStore = Reflux.createStore({
       .then(() => {
         UserNotification.success('Rule successfully deleted');
         this.list();
+        return null;
       }, (error) => {
         UserNotification.error(`Deleting rule failed with status: ${error.message}`,
         'Could not delete rule');

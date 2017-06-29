@@ -12,7 +12,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.mail.EmailException;
-import org.elasticsearch.common.unit.TimeValue;
 
 import org.graylog.plugins.aggregates.history.HistoryItemService;
 import org.graylog.plugins.aggregates.rule.Rule;
@@ -21,7 +20,7 @@ import org.graylog.plugins.aggregates.rule.RuleService;
 import org.graylog.plugins.aggregates.rule.alert.RuleAlertSender;
 import org.graylog2.indexer.results.TermsResult;
 import org.graylog2.indexer.searches.Searches;
-import org.graylog2.initializers.IndexerSetupService;
+import org.graylog2.indexer.cluster.Cluster;
 import org.graylog2.plugin.alarms.transports.TransportConfigurationException;
 import org.graylog2.plugin.cluster.ClusterConfigService;
 import org.graylog2.plugin.indexer.searches.timeranges.AbsoluteRange;
@@ -49,7 +48,7 @@ public class AggregatesTest {
 	ClusterConfigService clusterConfigService;
 	
 	@Mock
-	IndexerSetupService indexerSetupService;
+	Cluster cluster;
 	
 	@Mock
 	RuleService ruleService;
@@ -229,7 +228,7 @@ public class AggregatesTest {
 		
 		when(result.getTerms()).thenReturn(terms);
 		when(result.getBuiltQuery()).thenReturn("builtQuery");
-		when(result.took()).thenReturn(new TimeValue(123L));
+		when(result.tookMs()).thenReturn(123L);
 		return result;
 	}
 	

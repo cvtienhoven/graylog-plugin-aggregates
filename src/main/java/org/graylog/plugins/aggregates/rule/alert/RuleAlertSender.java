@@ -13,7 +13,6 @@ import org.apache.commons.mail.EmailConstants;
 import org.apache.commons.mail.EmailException;
 import org.apache.commons.mail.HtmlEmail;
 import org.graylog.plugins.aggregates.rule.Rule;
-import org.graylog2.alerts.StaticEmailAlertSender;
 import org.graylog2.configuration.EmailConfiguration;
 import org.graylog2.plugin.alarms.transports.TransportConfigurationException;
 import org.graylog2.plugin.configuration.Configuration;
@@ -29,7 +28,7 @@ public class RuleAlertSender {
     protected final EmailConfiguration configuration;
     
     private Configuration pluginConfig;
-    private static final Logger LOG = LoggerFactory.getLogger(StaticEmailAlertSender.class);
+    private static final Logger LOG = LoggerFactory.getLogger(RuleAlertSender.class);
     
 	@Inject
 	public RuleAlertSender(EmailConfiguration configuration) {

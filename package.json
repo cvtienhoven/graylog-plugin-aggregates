@@ -16,32 +16,9 @@
   "author": "Christiaan van Tienhoven <c_van_tienhoven@hotmail.com>",
   "license": "MIT",
   "dependencies": {
-    "history": "^1.17.0",
-    "react": "0.14.x",
-    "react-bootstrap": "^0.28.1",
-    "react-dom": "^0.14.5",
-    "react-router": "~1.0.0",
-    "react-router-bootstrap": "^0.19.0",
-    "reflux": "^0.2.12",
-    "moment": "^2.14.1",
-    "moment-duration-format": "^1.3.0",
-    "moment-timezone": "^0.5.5"
+    "graylog-web-plugin": "file:../graylog2-server/graylog2-web-interface/packages/graylog-web-plugin"
   },
   "devDependencies": {
-    "babel-core": "^5.8.25",
-    "babel-loader": "^5.3.2",
-    "css-loader": "^0.23.0",
-    "eslint-config-graylog": "^1.0.2",
-    "file-loader": "^0.8.4",
-    "graylog-web-manifests": "*",
-    "graylog-web-plugin": "~0.0.17",
-    "json-loader": "^0.5.4",
-    "less": "^2.5.3",
-    "less-loader": "^2.2.1",
-    "react-hot-loader": "^1.3.0",
-    "react-proxy-loader": "^0.3.4",
-    "style-loader": "^0.13.0",
-    "url-loader": "^0.5.6",
-    "webpack": "^1.12.2"
+    "graylog-web-plugin": "file:../graylog2-server/graylog2-web-interface/packages/graylog-web-plugin"
   }
 }

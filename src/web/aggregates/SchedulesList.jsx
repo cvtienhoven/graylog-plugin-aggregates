@@ -19,6 +19,7 @@ const SchedulesList = React.createClass({
     SchedulesActions.update.triggerPromise(originalName, reportSchedules)
       .then(() => {
         callback();
+        return null;
       });
   },
   list() {

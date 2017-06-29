@@ -1,5 +1,6 @@
 import React from 'react';
-import { Button, Input } from 'react-bootstrap';
+import { Button } from 'react-bootstrap';
+import Input from 'components/bootstrap/Input';
 import MultiSelect from 'components/common/MultiSelect';
 import BootstrapModalForm from 'components/bootstrap/BootstrapModalForm';
 import ObjectUtils from 'util/ObjectUtils';
@@ -208,7 +209,8 @@ const EditRuleModal = React.createClass({
       <span>
         <Button onClick={this.openModal}
                 bsStyle={this.props.create ? 'success' : 'info'}
-                bsSize={this.props.create ? null : 'xs'}>
+                bsSize={this.props.create ? null : 'xs'}
+                type="submit">
           {this.props.create ? 'Create rule' : 'Edit'}
         </Button>
         <BootstrapModalForm ref="modal"

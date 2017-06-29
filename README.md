@@ -2,7 +2,7 @@
 
 [![Build Status](https://travis-ci.org/cvtienhoven/graylog-plugin-aggregates.svg?branch=master)](https://travis-ci.org/cvtienhoven/graylog-plugin-aggregates)
 
-**Required Graylog version:** 2.0 and later
+**Required Graylog version:** 2.3.0 and later **NOT BACKWARDS COMPATIBLE**
 
 The Aggregates Plugin for Graylog enables users to execute term searches and get notified when the given criteria are met. Currently, there are the following alert conditions in Graylog:
 

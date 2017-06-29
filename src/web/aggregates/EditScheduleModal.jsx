@@ -1,5 +1,6 @@
 import React from 'react';
-import { Button, Input } from 'react-bootstrap';
+import { Button } from 'react-bootstrap';
+import Input from 'components/bootstrap/Input';
 import BootstrapModalForm from 'components/bootstrap/BootstrapModalForm';
 import ObjectUtils from 'util/ObjectUtils';
 import TimespanConfiguration from './TimespanConfiguration';
