@@ -18,7 +18,8 @@ import org.graylog.plugins.aggregates.rule.alert.RuleAlertSender;
 import org.graylog2.indexer.results.TermsResult;
 import org.graylog2.indexer.searches.Searches;
 import org.graylog2.indexer.searches.SearchesClusterConfig;
-import org.graylog2.initializers.IndexerSetupService;
+//import org.graylog2.initializers.IndexerSetupService;
+import org.graylog2.indexer.cluster.Cluster;
 import org.graylog2.plugin.alarms.transports.TransportConfigurationException;
 import org.graylog2.plugin.cluster.ClusterConfigService;
 import org.graylog2.plugin.indexer.searches.timeranges.AbsoluteRange;
@@ -42,7 +43,7 @@ public class Aggregates extends Periodical {
 
 	private final ClusterConfigService clusterConfigService;
 	private final Searches searches;
-	private final IndexerSetupService indexerSetupService;
+	private final Cluster cluster;
 	private final RuleService ruleService;
 	private final HistoryItemService historyItemService;
 	private final RuleAlertSender alertSender;
@@ -51,19 +52,18 @@ public class Aggregates extends Periodical {
 
 	@Inject
 	public Aggregates(RuleAlertSender alertSender, Searches searches, ClusterConfigService clusterConfigService,
-			IndexerSetupService indexerSetupService, RuleService ruleService, HistoryItemService historyItemService) {		
+			Cluster cluster, RuleService ruleService, HistoryItemService historyItemService) {		
 		this.searches = searches;
 		this.clusterConfigService = clusterConfigService;
 		this.alertSender = alertSender;
-		this.indexerSetupService = indexerSetupService;
+		this.cluster = cluster;
 		this.ruleService = ruleService;
 		this.historyItemService = historyItemService;
 	}
 	
 	@VisibleForTesting
-	boolean shouldRun(){
-	  return indexerSetupService.isRunning();
-	  
+	boolean shouldRun(){		
+		return cluster.isHealthy();
 	}
 	
 
@@ -125,7 +125,7 @@ public class Aggregates extends Periodical {
 						
 						LOG.debug("built query: " + result.getBuiltQuery());
 						
-						LOG.debug("query took " + result.took().format());
+						LOG.debug("query took " + result.tookMs() + "ms");
 						
 						Map<String, Long> matchedTerms = new HashMap<String, Long>();
 						long ruleCount = 0;
