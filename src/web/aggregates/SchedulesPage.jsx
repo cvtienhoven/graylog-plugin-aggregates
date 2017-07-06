@@ -12,6 +12,7 @@ const SchedulesPage = React.createClass({
     SchedulesActions.create.triggerPromise(reportSchedule)
       .then(() => {
         callback();
+        return null;
       });
   },
   render() {
@@ -29,7 +30,7 @@ const SchedulesPage = React.createClass({
           </span>
           <span>
             <LinkContainer to="/aggregates">
-              <Button bsStyle="info">Back to rules</Button>
+              <Button bsStyle="info" type="submit">Back to rules</Button>
             </LinkContainer>
           </span>
         </PageHeader>

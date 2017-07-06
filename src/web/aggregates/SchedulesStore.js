@@ -42,6 +42,7 @@ const SchedulesStore = Reflux.createStore({
     const promise = fetch(method, url, request).then(() => {
       UserNotification.success('Schedule successfully created');
       this.list();
+      return null;
     }, (error) => {
       UserNotification.error(`Creating schedule failed with status: ${error.message}`,
         'Could not create schedule');
@@ -63,6 +64,7 @@ const SchedulesStore = Reflux.createStore({
     const promise = fetch(method, url, request).then(() => {
       UserNotification.success('Schedule successfully updated');
       this.list();
+      return null;
     }, (error) => {
       UserNotification.error(`Updating schedule failed with status: ${error.message}`,
         'Could not update schedule');
@@ -77,6 +79,7 @@ const SchedulesStore = Reflux.createStore({
     const promise = fetch(method, url).then(() => {
       UserNotification.success('Schedule successfully deleted');
       this.list();
+      return null;
     }, (error) => {
       UserNotification.error(`Deleting schedule failed with status: ${error.message}`,
         'Could not delete schedule, there might be rules associated with it.');

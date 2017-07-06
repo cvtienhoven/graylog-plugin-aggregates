@@ -12,6 +12,7 @@ const AggregatesPage = React.createClass({
     AggregatesActions.create.triggerPromise(rule)
       .then(() => {
         callback();
+        return null
       });
   },
   render() {
@@ -30,7 +31,7 @@ const AggregatesPage = React.createClass({
           <span>
             <IfPermitted permissions="aggregate_report_schedules:read">
               <LinkContainer to="/aggregates/schedules">
-                <Button bsStyle="info">Manage Report Schedules</Button>
+                <Button bsStyle="info" type="submit">Manage Report Schedules</Button>
               </LinkContainer>
             </IfPermitted>
           </span>

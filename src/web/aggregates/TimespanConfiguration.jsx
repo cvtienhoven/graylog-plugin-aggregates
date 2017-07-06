@@ -1,5 +1,5 @@
 import React from 'react';
-import { Input } from 'react-bootstrap';
+import Input from 'components/bootstrap/Input';
 import moment from 'moment';
 
 const TimespanConfiguration = React.createClass({

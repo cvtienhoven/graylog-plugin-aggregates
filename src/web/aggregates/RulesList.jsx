@@ -28,6 +28,7 @@ const RulesList = React.createClass({
     AggregatesActions.update.triggerPromise(originalName, rule)
       .then(() => {
         callback();
+        return
       });
   },
   list() {
