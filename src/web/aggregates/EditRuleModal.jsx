@@ -9,6 +9,10 @@ import AggregatesActions from './AggregatesActions';
 import SchedulesActions from './SchedulesActions';
 import { IfPermitted } from 'components/common';
 import StoreProvider from 'injection/StoreProvider';
+import CombinedProvider from 'injection/CombinedProvider';
+
+const { AlarmCallbacksActions } = CombinedProvider.get('AlarmCallbacks');
+const { AlertNotificationsActions } = CombinedProvider.get('AlertNotifications');
 
 const StreamsStore = StoreProvider.getStore('Streams');
 
@@ -29,6 +33,7 @@ const EditRuleModal = React.createClass({
         numberOfMatches: 1,
         interval: 1,
         streamId: '',
+        notificationId: '',
         inReport: true,
         reportSchedules: [],
       },
@@ -42,33 +47,18 @@ const EditRuleModal = React.createClass({
       create: ObjectUtils.clone(this.props.create),
       rules: [],
       streams: [],
+      alerts: [],
       reportSchedules: [],
       selectedReportSchedules: [],
     };
   },
   componentDidMount() {
-
-  },
-  _alertReceiversToString(alertReceivers) {
-    let alertReceiversString = '';
-
-    if (!alertReceivers || alertReceivers.length === 0) {
-      return '';
-    }
-
-    for (let i = 0; i < alertReceivers.length; i++) {
-      if (alertReceivers[i]) {
-        alertReceiversString += alertReceivers[i].trim();
-
-        if (i < alertReceivers.length - 1) {
-          alertReceiversString += ',';
-        }
-      }
-    }
-    return alertReceiversString;
-  },
-  openModal() {
     this.setState(this.getInitialState());
+  },
+
+
+  openModal() {
+
 
     StreamsStore.listStreams().then(list => {
       list.sort(function (a, b) {
@@ -82,10 +72,8 @@ const EditRuleModal = React.createClass({
         return 0;
       });
       this.setState({ streams: list });
+      this._loadNotificationsForStream();
     });
-
-    const alertReceivers = this._alertReceiversToString(this.state.rule.alertReceivers);
-    this.setState({ alertReceivers: alertReceivers });
 
     const selectedReportSchedules = (this.state.rule.reportSchedules === null ? [] : this.state.rule.reportSchedules);
 
@@ -98,6 +86,9 @@ const EditRuleModal = React.createClass({
     SchedulesActions.list().then(newReportSchedules => {
       this.setState({ reportSchedules: newReportSchedules });
     });
+
+
+
     this.refs.modal.open();
   },
   _closeModal() {
@@ -124,17 +115,34 @@ const EditRuleModal = React.createClass({
       this.props.createRule(rule, this._saved);
     }
   },
-  _createStreamSelectItems() {
+  _loadNotificationsForStream(){
+    AlarmCallbacksActions.list(this.state.rule.streamId)
+      .then(callbacks => this.setState({ alerts: callbacks }));
+  },
+  _createNotificationSelectItems() {
     const items = [];
     items.push(
-      <IfPermitted permissions={['searches:absolute', 'searches:relative', 'searches:keyword']}>
-        <option key={-1} value=" ">--No Stream (global search)--</option>
-      </IfPermitted>
+      <option key={-1} value=" ">--No Notification--</option>
     );
+
+    if (this.state.rule.streamId.trim() !== ''){
+      console.log('fetching notifications for streamId ' + this.state.rule.streamId);
+
+
+      for (let i = 0; i < this.state.alerts.length; i++) {
+        items.push(<option key={i} value={this.state.alerts[i].id}>{this.state.alerts[i].title}</option>);
+      }
+    }
+
+    return items;
+  },
+  _createStreamSelectItems() {
+    const items = [];
 
     for (let i = 0; i < this.state.streams.length; i++) {
       items.push(<option key={i} value={this.state.streams[i].id}>{this.state.streams[i].title}</option>);
     }
+
     return items;
   },
   _onValueChanged(event) {
@@ -163,29 +171,20 @@ const EditRuleModal = React.createClass({
       ValidationsUtils.setFieldValidity(numberOfMatchesField, numberOfMatchesValue, 'Number of matches should be at least 1');
     }
 
-    if (parameter === 'email') {
-      const emailField = this.refs.email.getInputDOMNode();
-      const emailArray = [];
 
-      value.split(',').forEach(function (obj) {
-        if (emailArray.indexOf(obj) === -1) emailArray.push(obj);
-      });
 
-      for (let i = 0; i < emailArray.length; i++) {
-        if (emailArray[i]) {
-          emailArray[i] = emailArray[i].trim();
-        }
-        const invalidEmail = !/^.+@.+\..+$/.test(emailArray[i]);
-        ValidationsUtils.setFieldValidity(emailField, invalidEmail, `Email address ${emailArray[i]} is invalid`);
-      }
-      rule.alertReceivers = emailArray;
-    } else if (parameter === 'sliding') {
+    if (parameter === 'sliding') {
       rule[parameter] = value;
     } else {
       rule[parameter] = value.trim();
     }
 
     this.setState({ rule: rule });
+
+    if (parameter === 'streamId'){
+      this._loadNotificationsForStream();
+      rule['alertId'] = ' ';
+    }
   },
   formatMultiselectOptions(collection) {
     return collection.map((item) => {
@@ -263,22 +262,26 @@ const EditRuleModal = React.createClass({
               help="When checked, the rule will be evaluated every minute, else it will be evaluated every <interval> minute(s). Enabling could result in more alerts."
               onChange={this._onValueChanged} />
 
-            <Input ref="email" name="email" id="email" type="text" maxLength={500} defaultValue={this.state.alertReceivers}
-              labelClassName="col-sm-2" wrapperClassName="col-sm-10"
-              label="Email Receivers" help="Comma separated list of email addresses. Send a message to the addresses above when the alert condition was met."
-              onChange={this._onValueChanged} />
+
+
+
+            <Input ref="notificationId" name="notificationId" id="notificationId" type="select" value={this.state.rule.notificationId}
+                          labelClassName="col-sm-2" wrapperClassName="col-sm-10"
+                          label="Notification" help="Select a notification." required
+                          onChange={this._onValueChanged} > {this._createNotificationSelectItems()}
+                        </Input>
 
             <Input id="schedules" labelClassName="col-sm-2"
-              wrapperClassName="col-sm-10" label="Report Schedule(s)">
+                          wrapperClassName="col-sm-10" label="Report Schedule(s)">
 
-              <MultiSelect
-                ref="select"
-                options={reportScheduleOptions}
-                value={this.state.selectedReportSchedules.join(',')}
-                onChange={this._setReportSchedules}
-                placeholder="Choose report schedules..."
-              />
-            </Input>
+                          <MultiSelect
+                            ref="select"
+                            options={reportScheduleOptions}
+                            value={this.state.selectedReportSchedules.join(',')}
+                            onChange={this._setReportSchedules}
+                            placeholder="Choose report schedules..."
+                          />
+                        </Input>
           </fieldset>
         </BootstrapModalForm>
       </span>

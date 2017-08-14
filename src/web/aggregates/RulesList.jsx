@@ -9,16 +9,19 @@ import StoreProvider from 'injection/StoreProvider';
 const StreamsStore = StoreProvider.getStore('Streams');
 const CurrentUserStore = StoreProvider.getStore('CurrentUser');
 
+import CombinedProvider from 'injection/CombinedProvider';
+const { AlertNotificationsStore } = CombinedProvider.get('AlertNotifications');
+
 import { DataTable, Spinner, IfPermitted } from 'components/common';
 import PermissionsMixin from 'util/PermissionsMixin';
 
 const RulesList = React.createClass({
-  mixins: [Reflux.connect(CurrentUserStore), Reflux.connect(AggregatesStore), PermissionsMixin],
+  mixins: [Reflux.connect(CurrentUserStore), Reflux.connect(AggregatesStore), Reflux.connect(AlertNotificationsStore),  PermissionsMixin],
 
   getInitialState() {
     return {
       rules: undefined,
-      streams: [],
+      streams: []
     };
   },
   componentDidMount() {
@@ -41,6 +44,7 @@ const RulesList = React.createClass({
     SchedulesActions.list().then(newSchedules => {
       this.setState({ reportSchedules: newSchedules });
     });
+    AlertNotificationsStore.listAll();
   },
   deleteRule(name) {
     AggregatesActions.deleteByName(name);
@@ -188,12 +192,25 @@ const RulesList = React.createClass({
       }
     }
 
+    let notificationTitle = '--No Notification--';
+    if (this.state.allNotifications && this.state.allNotifications != [] && rule.notificationId !== '') {
+      const notifications = this.state.allNotifications;
+      for (let i = 0; i < notifications.length; i++){
+        if (notifications[i].id === rule.notificationId) {
+          notificationTitle = notifications[i].title;
+          break;
+        }
+      }
+
+    }
+
+
     return (
       <tr key={rule.name}>
         <td className="limited">{rule.name}</td>
         <td className="limited">{rule.query}</td>
         <td className="limited">The same value of field '{rule.field}' occurs {match} times in a {rule.interval} minute interval</td>
-        <td className="limited">{this._alertReceiversFormatter(rule)}</td>
+        <td className="limited">{notificationTitle}</td>
         <td className="limited">{streamTitle}</td>
         <td>{inReport}</td>
         <td>{this._reportScheduleFormatter(rule)}</td>
@@ -203,7 +220,7 @@ const RulesList = React.createClass({
   },
   render() {
     const filterKeys = ['name', 'query', 'field', 'stream'];
-    const headers = ['Rule name', 'Query', 'Alert condition', 'Alert receivers', 'Stream', 'In report', 'Report schedule(s)'];
+    const headers = ['Rule name', 'Query', 'Alert condition', 'Notification', 'Stream', 'In report', 'Report schedule(s)'];
 
     if (this.state.rules) {
       return (

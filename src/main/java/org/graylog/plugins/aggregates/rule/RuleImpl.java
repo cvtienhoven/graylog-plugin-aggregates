@@ -26,6 +26,7 @@ import com.google.auto.value.AutoValue;
 @CollectionName("aggregate_rules")
 public abstract class RuleImpl implements Rule{
 
+
 	@JsonProperty("query")
     @Override
     @NotNull
@@ -35,6 +36,11 @@ public abstract class RuleImpl implements Rule{
     @Override
     @NotNull
     public abstract String getField();
+
+    @JsonProperty("alertReceivers")
+    @Override
+    @Nullable
+    public abstract List<String> getAlertReceivers();
 
     @JsonProperty("numberOfMatches")
     @Override
@@ -54,11 +60,7 @@ public abstract class RuleImpl implements Rule{
     @Override
     @NotNull
     public abstract String getName();
-    	
-    @JsonProperty("alertReceivers") 
-    @Override
-    public abstract List<String> getAlertReceivers();
-    
+
     @JsonProperty("enabled")
     @Override
     public abstract boolean isEnabled();
@@ -66,7 +68,12 @@ public abstract class RuleImpl implements Rule{
     @JsonProperty("streamId")
     @Override
     public abstract String getStreamId();
-       
+
+    @JsonProperty("notificationId")
+    @Override
+    @Nullable
+    public abstract String getNotificationId();
+
     @JsonProperty("inReport")
     @Override
     public abstract boolean isInReport();
@@ -80,39 +87,40 @@ public abstract class RuleImpl implements Rule{
     @Override
     @Nullable
     public abstract boolean isSliding();
-    
+
 	@JsonCreator
     public static RuleImpl create(@JsonProperty("_id") String objectId,
                                        @JsonProperty("query") String query,
                                        @JsonProperty("field") String field,
+                                       @JsonProperty("alertReceivers") List<String> alertReceivers,
                                        @JsonProperty("numberOfMatches") long numberOfMatches,
                                        @JsonProperty("matchMoreOrEqual") boolean matchMoreOrEqual,
                                        @JsonProperty("interval") int interval,
                                        @JsonProperty("name") String name,
-                                       @JsonProperty("alertReceivers") List<String> alertReceivers,
                                        @JsonProperty("enabled") boolean enabled,
                                        @JsonProperty("streamId") String streamId,
+                                       @JsonProperty("notificationId") String notificationId,
                                        @JsonProperty("inReport") boolean inReport,
                                        @JsonProperty("reportSchedules") List<String> reportSchedules,
-                                       @JsonProperty("sliding") boolean sliding
-                                       ) {		
-        return new AutoValue_RuleImpl(query, field, numberOfMatches, matchMoreOrEqual, interval, name, alertReceivers, enabled, streamId, inReport, reportSchedules, sliding);
+                                       @JsonProperty("sliding") boolean sliding) {
+        return new AutoValue_RuleImpl(query, field, alertReceivers, numberOfMatches, matchMoreOrEqual, interval, name, enabled, streamId, notificationId, inReport, reportSchedules, sliding);
     }
 	
 	public static RuleImpl create(
             String query,
             String field,
+            List<String> alertReceivers,
             long numberOfMatches,
             boolean matchMoreOrEqual,
             int interval,
             String name,
-            List<String> alertReceivers,
             boolean enabled,
             String streamId,
+            String notificationId,
             boolean inReport,
             List<String> reportSchedules,
             boolean sliding) {
-		return new AutoValue_RuleImpl(query, field, numberOfMatches, matchMoreOrEqual, interval, name, alertReceivers, enabled, streamId, inReport, reportSchedules, sliding);
+		return new AutoValue_RuleImpl(query, field, alertReceivers, numberOfMatches, matchMoreOrEqual, interval, name, enabled, streamId, notificationId, inReport, reportSchedules, sliding);
 	
 	}
 }

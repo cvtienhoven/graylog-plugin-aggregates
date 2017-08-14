@@ -12,6 +12,8 @@ import org.graylog.plugins.aggregates.rule.rest.RuleResource;
 import org.graylog.plugins.aggregates.report.schedule.ReportScheduleService;
 import org.graylog.plugins.aggregates.report.schedule.ReportScheduleServiceImpl;
 import org.graylog.plugins.aggregates.report.schedule.rest.ReportScheduleResource;
+import org.graylog2.alerts.AlertService;
+import org.graylog2.alerts.AlertServiceImpl;
 import org.graylog2.plugin.PluginConfigBean;
 import org.graylog2.plugin.PluginModule;
 
@@ -34,6 +36,7 @@ public class AggregatesModule extends PluginModule {
 
     @Override
     protected void configure() {
+        bind(AlertService.class).to(AlertServiceImpl.class);
     	bind(RuleService.class).to(RuleServiceImpl.class);
     	bind(ReportScheduleService.class).to(ReportScheduleServiceImpl.class);
     	bind(HistoryItemService.class).to(HistoryItemServiceImpl.class);

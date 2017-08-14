@@ -36,6 +36,7 @@ const SchedulesStore = Reflux.createStore({
         name: newSchedule.name,
         expression: newSchedule.expression,
         timespan: newSchedule.timespan,
+        reportReceivers: newSchedule.reportReceivers,
       },
     };
 
@@ -58,6 +59,7 @@ const SchedulesStore = Reflux.createStore({
         name: updatedSchedule.name,
         expression: updatedSchedule.expression,
         timespan: updatedSchedule.timespan,
+        reportReceivers: updatedSchedule.reportReceivers,
       },
     };
 

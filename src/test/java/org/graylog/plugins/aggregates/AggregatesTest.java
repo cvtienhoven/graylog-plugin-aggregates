@@ -5,6 +5,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -17,10 +18,13 @@ import org.graylog.plugins.aggregates.history.HistoryItemService;
 import org.graylog.plugins.aggregates.rule.Rule;
 import org.graylog.plugins.aggregates.rule.RuleImpl;
 import org.graylog.plugins.aggregates.rule.RuleService;
-import org.graylog.plugins.aggregates.rule.alert.RuleAlertSender;
+import org.graylog.plugins.aggregates.alert.RuleAlertSender;
+import org.graylog2.database.NotFoundException;
 import org.graylog2.indexer.results.TermsResult;
 import org.graylog2.indexer.searches.Searches;
 import org.graylog2.indexer.cluster.Cluster;
+import org.graylog2.plugin.alarms.callbacks.AlarmCallbackConfigurationException;
+import org.graylog2.plugin.alarms.callbacks.AlarmCallbackException;
 import org.graylog2.plugin.alarms.transports.TransportConfigurationException;
 import org.graylog2.plugin.cluster.ClusterConfigService;
 import org.graylog2.plugin.indexer.searches.timeranges.AbsoluteRange;
@@ -105,7 +109,7 @@ public class AggregatesTest {
 	@Test
 	public void testDoRunIndexerRunningOneRuleDisabled(){		
 		Mockito.doReturn(true).when(aggregates).shouldRun();
-		List<Rule> ruleList = mockRuleList("query","field",1,true,1,"name",new ArrayList<String>(),false,"streamId");;
+		List<Rule> ruleList = mockRuleList("query","field",1,true,1,"name",new ArrayList<String>(),false,"streamId", "notificationId");
 		when(ruleService.all()).thenReturn(ruleList);
 		
 		Mockito.doCallRealMethod().when(aggregates).doRun();
@@ -119,7 +123,7 @@ public class AggregatesTest {
 	@Test
 	public void testDoRunIndexerRunningOneRuleEnabledNullTimerange(){		
 		Mockito.doReturn(true).when(aggregates).shouldRun();
-		List<Rule> ruleList = mockRuleList("query","field",1,true,1,"name",new ArrayList<String>(),true,"streamId");
+		List<Rule> ruleList = mockRuleList("query","field",1,true,1,"name",new ArrayList<String>(),true,"streamId", "notificationId");
 		when(ruleService.all()).thenReturn(ruleList);
 		Mockito.doReturn(null).when(aggregates).buildRelativeTimeRange(60);
 		
@@ -134,12 +138,12 @@ public class AggregatesTest {
 	
 	@SuppressWarnings("unchecked")
 	@Test
-	public void testDoRunIndexerRunningOneRuleEnabledNoMatch() throws EmailException, TransportConfigurationException{
+	public void testDoRunIndexerRunningOneRuleEnabledNoMatch() throws EmailException, TransportConfigurationException, ClassNotFoundException, AlarmCallbackException, AlarmCallbackConfigurationException, NotFoundException, UnsupportedEncodingException {
 		long occurrences = 5;
 		boolean matchMoreOrEqual = true;
 		
 		Mockito.doReturn(true).when(aggregates).shouldRun();
-		List<Rule> ruleList = mockRuleList("query","field",occurrences,matchMoreOrEqual,1,"name",new ArrayList<String>(),true,"streamId");
+		List<Rule> ruleList = mockRuleList("query","field",occurrences,matchMoreOrEqual,1,"name",new ArrayList<String>(),true,"streamId", "notificationId");
 		when(ruleService.all()).thenReturn(ruleList);
 		Mockito.doReturn(new AbsoluteRange() {
 			
@@ -172,17 +176,29 @@ public class AggregatesTest {
 		verify(ruleList.get(0)).getInterval();
 		verify(ruleList.get(0)).getQuery();
 		verify(ruleList.get(0)).getStreamId();
-		verify(alertSender, Mockito.never()).sendEmails(Mockito.any(Rule.class),Mockito.any(Map.class),Mockito.any(TimeRange.class),Mockito.any(Date.class));
+		try {
+			verify(alertSender, Mockito.never()).send(Mockito.any(Rule.class),Mockito.any(Map.class),Mockito.any(TimeRange.class));
+		} catch (NotFoundException e) {
+			e.printStackTrace();
+		} catch (AlarmCallbackConfigurationException e) {
+			e.printStackTrace();
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+		} catch (AlarmCallbackException e) {
+			e.printStackTrace();
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+		}
 	}
 	
 	@SuppressWarnings("unchecked")
 	@Test
-	public void testDoRunIndexerRunningOneRuleEnabledMatch() throws EmailException, TransportConfigurationException{
+	public void testDoRunIndexerRunningOneRuleEnabledMatch() throws EmailException, TransportConfigurationException, ClassNotFoundException, AlarmCallbackException, AlarmCallbackConfigurationException, NotFoundException, UnsupportedEncodingException {
 		long occurrences = 5;
 		boolean matchMoreOrEqual = true;
 		
 		Mockito.doReturn(true).when(aggregates).shouldRun();
-		List<Rule> ruleList = mockRuleList("query","field",occurrences,matchMoreOrEqual,1,"name",new ArrayList<String>(),true,"streamId");
+		List<Rule> ruleList = mockRuleList("query","field",occurrences,matchMoreOrEqual,1,"name",new ArrayList<String>(),true,"streamId", "notificationId");
 		when(ruleService.all()).thenReturn(ruleList);
 		Mockito.doReturn(new AbsoluteRange() {
 			
@@ -215,7 +231,19 @@ public class AggregatesTest {
 		verify(ruleList.get(0)).getInterval();
 		verify(ruleList.get(0)).getQuery();
 		verify(ruleList.get(0)).getStreamId();
-		verify(alertSender).sendEmails(Mockito.any(Rule.class),Mockito.any(Map.class),Mockito.any(TimeRange.class), Mockito.any(Date.class));
+		try {
+			verify(alertSender).send(Mockito.any(Rule.class),Mockito.any(Map.class),Mockito.any(TimeRange.class));
+		} catch (NotFoundException e) {
+			e.printStackTrace();
+		} catch (AlarmCallbackConfigurationException e) {
+			e.printStackTrace();
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+		} catch (AlarmCallbackException e) {
+			e.printStackTrace();
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+		}
 	}
 	
 	private TermsResult mockTermsResult(String termsValue, Long termsOccurrences ){
@@ -240,7 +268,8 @@ public class AggregatesTest {
             String name,
             List<String> alertReceivers,
             boolean enabled,
-            String streamId) {
+            String streamId,
+			String notificationId) {
 
 		Rule rule = mock(RuleImpl.class);
 		when(rule.getQuery()).thenReturn(query);
@@ -249,9 +278,9 @@ public class AggregatesTest {
 		when(rule.isMatchMoreOrEqual()).thenReturn(matchMoreOrEqual);
 		when(rule.getInterval()).thenReturn(interval);
 		when(rule.getName()).thenReturn(name);
-		when(rule.getAlertReceivers()).thenReturn(alertReceivers);
 		when(rule.isEnabled()).thenReturn(enabled);		
 		when(rule.getStreamId()).thenReturn(streamId);
+		when(rule.getNotificationId()).thenReturn(notificationId);
 		
 		List<Rule> ruleList = new ArrayList<Rule>();
 		ruleList.add(rule);

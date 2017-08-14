@@ -20,6 +20,7 @@ const EditScheduleModal = React.createClass({
         name: '',
         expression: '* * * ? * *',
         timespan: 'P1D',
+        reportReceivers: ''
       },
     };
   },
@@ -41,6 +42,9 @@ const EditScheduleModal = React.createClass({
     SchedulesActions.list().then(newReportSchedules => {
       this.setState({ reportSchedules: newReportSchedules });
     });
+
+    const reportReceivers = this._reportReceiversToString(this.state.reportSchedule.reportReceivers);
+    this.setState({ reportReceivers: reportReceivers });
   },
 
   _closeModal() {
@@ -50,7 +54,24 @@ const EditScheduleModal = React.createClass({
   _getId(prefixIdName) {
     return prefixIdName + this.state.reportSchedule.name;
   },
+  _reportReceiversToString(reportReceivers) {
+    let reportReceiversString = '';
 
+    if (!reportReceivers || reportReceivers.length === 0) {
+      return '';
+    }
+
+    for (let i = 0; i < reportReceivers.length; i++) {
+      if (reportReceivers[i]) {
+        reportReceiversString += reportReceivers[i].trim();
+
+        if (i < reportReceivers.length - 1) {
+          reportReceiversString += ',';
+        }
+      }
+    }
+    return reportReceiversString;
+  },
   _saved() {
     this._closeModal();
     this.setState(this.getInitialState());
@@ -83,6 +104,24 @@ const EditScheduleModal = React.createClass({
       const timespanValid = value > 0;
 
       ValidationsUtils.setFieldValidity(timespanField, timespanValid, 'Timespan should be greater than 0 days');
+    }
+
+    if (parameter === 'email') {
+      const emailField = this.refs.email.getInputDOMNode();
+      const emailArray = [];
+
+      value.split(',').forEach(function (obj) {
+        if (emailArray.indexOf(obj) === -1) emailArray.push(obj);
+      });
+
+      for (let i = 0; i < emailArray.length; i++) {
+        if (emailArray[i]) {
+          emailArray[i] = emailArray[i].trim();
+        }
+        const invalidEmail = !/^.+@.+\..+$/.test(emailArray[i]);
+        ValidationsUtils.setFieldValidity(emailField, invalidEmail, `Email address ${emailArray[i]} is invalid`);
+      }
+      reportSchedule.reportReceivers = emailArray;
     }
 
     reportSchedule[parameter] = value.trim();
@@ -121,6 +160,12 @@ const EditScheduleModal = React.createClass({
               onChange={this._onValueChanged} autoFocus />
 
             <TimespanConfiguration ref="timespan" name="timespan" id="timespan" config={this.state.reportSchedule ? { period: this.state.reportSchedule.timespan } : { period: 'P1D' }} updateConfig={this._setTimespan} />
+
+            <Input ref="email" name="email" id="email" type="text" maxLength={500} defaultValue={this.state.reportReceivers}
+                          labelClassName="col-sm-2" wrapperClassName="col-sm-10"
+                          label="Email Receivers" help="Comma separated list of email addresses. Send a message to the addresses above when the alert condition was met."
+                          onChange={this._onValueChanged} />
+
           </fieldset>
         </BootstrapModalForm>
       </span>

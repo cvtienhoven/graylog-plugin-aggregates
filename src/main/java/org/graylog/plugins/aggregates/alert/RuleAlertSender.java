@@ -1,10 +1,11 @@
-package org.graylog.plugins.aggregates.rule.alert;
+package org.graylog.plugins.aggregates.alert;
 
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Map;
 import javax.inject.Inject;
 import org.apache.commons.mail.DefaultAuthenticator;
@@ -13,10 +14,21 @@ import org.apache.commons.mail.EmailConstants;
 import org.apache.commons.mail.EmailException;
 import org.apache.commons.mail.HtmlEmail;
 import org.graylog.plugins.aggregates.rule.Rule;
+import org.graylog.plugins.aggregates.util.AggregatesUtil;
+import org.graylog2.alarmcallbacks.AlarmCallbackConfiguration;
+import org.graylog2.alarmcallbacks.AlarmCallbackConfigurationService;
+import org.graylog2.alarmcallbacks.AlarmCallbackFactory;
 import org.graylog2.configuration.EmailConfiguration;
+import org.graylog2.database.NotFoundException;
+import org.graylog2.plugin.Tools;
+import org.graylog2.plugin.alarms.callbacks.AlarmCallback;
+import org.graylog2.plugin.alarms.callbacks.AlarmCallbackConfigurationException;
+import org.graylog2.plugin.alarms.callbacks.AlarmCallbackException;
 import org.graylog2.plugin.alarms.transports.TransportConfigurationException;
 import org.graylog2.plugin.configuration.Configuration;
 import org.graylog2.plugin.indexer.searches.timeranges.TimeRange;
+import org.graylog2.plugin.streams.Stream;
+import org.graylog2.streams.StreamService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.google.common.base.Strings;
@@ -26,13 +38,19 @@ public class RuleAlertSender {
 	private final static String TD_TR_STYLE = "style=\"padding: 3px;text-align:left;\"";
 	
     protected final EmailConfiguration configuration;
-    
+    protected final AlarmCallbackConfigurationService alarmCallbackConfigurationService;
+    protected final AlarmCallbackFactory alarmCallbackFactory;
+    protected final StreamService streamService;
     private Configuration pluginConfig;
     private static final Logger LOG = LoggerFactory.getLogger(RuleAlertSender.class);
     
 	@Inject
-	public RuleAlertSender(EmailConfiguration configuration) {
+	public RuleAlertSender(EmailConfiguration configuration, AlarmCallbackConfigurationService alarmCallbackConfigurationService, AlarmCallbackFactory alarmCallbackFactory, StreamService streamService
+    ) {
 		this.configuration = configuration;
+		this.alarmCallbackConfigurationService = alarmCallbackConfigurationService;
+		this.alarmCallbackFactory = alarmCallbackFactory;
+		this.streamService = streamService;
 	}
 
 	
@@ -40,7 +58,23 @@ public class RuleAlertSender {
 		// TODO Auto-generated method stub
 		
 	}
-	
+
+	public void send(Rule rule, Map<String, Long> matchedTerms, TimeRange timeRange) throws NotFoundException, AlarmCallbackConfigurationException, ClassNotFoundException, AlarmCallbackException, UnsupportedEncodingException {
+        AlarmCallbackConfiguration alarmCallbackConfiguration = alarmCallbackConfigurationService.load(rule.getNotificationId());
+        Stream triggeredStream = streamService.load(rule.getStreamId());
+        Map<String, Object> parameters = new HashMap<String, Object>();
+        parameters.put("time", rule.getInterval());
+        String title = "Aggregate rule [" + rule.getName() + "] triggered an alert.";
+
+        String description = AggregatesUtil.buildSummary(rule, configuration, matchedTerms, timeRange);
+        AggregatesAlertCondition alertCondition = new AggregatesAlertCondition(rule, description, triggeredStream, "", "", timeRange.getFrom(), "", new HashMap<String, Object>(), title);
+
+        AlarmCallback callback = alarmCallbackFactory.create(alarmCallbackConfiguration);
+        LOG.info("callback to be invoked: " + callback.getName());
+        callback.call(streamService.load(rule.getStreamId()), alertCondition.runCheck());
+
+    }
+
 	
 	public void sendEmails(Rule rule, Map<String, Long> matchedTerms, TimeRange timeRange, Date date) throws EmailException, TransportConfigurationException{
         if(!configuration.isEnabled()) {
@@ -80,9 +114,9 @@ public class RuleAlertSender {
         email.setSubject("Aggregate Rule [ " + rule.getName() + " ] triggered an alert");
         email.setMsg(buildBody(rule, matchedTerms, timeRange, date));
         
-        for (String receiver : rule.getAlertReceivers()){
-        	email.addTo(receiver);
-        }
+        //for (String receiver : rule.getAlertReceivers()){
+        //	email.addTo(receiver);
+        //}
         LOG.info("sending alert to " + email.getToAddresses().toString());
         email.send();
 	}

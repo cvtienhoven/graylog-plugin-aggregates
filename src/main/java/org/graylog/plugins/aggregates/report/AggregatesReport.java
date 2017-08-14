@@ -108,7 +108,7 @@ public class AggregatesReport extends Periodical {
 					ruleScheduleMapping.put(rule, matchingSchedule);
 					LOG.info("Rule \"" + rule.getName() + "\" will be added to report");
 					
-					for (String receipient : rule.getAlertReceivers()) {
+					for (String receipient : matchingSchedule.getReportReceivers()) {
 						if (!receipientsSeries.containsKey(receipient)) {
 							receipientsSeries.put(receipient, new HashMap<Rule, List<HistoryAggregateItem>>());
 						}

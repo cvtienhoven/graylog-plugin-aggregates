@@ -56,6 +56,11 @@ public abstract class ReportScheduleImpl implements ReportSchedule{
     @Override
     @Nullable
     public abstract Long getNextFireTime();
+
+    @JsonProperty("reportReceivers")
+    @Override
+    @Nullable
+    public abstract List<String> getReportReceivers();
     
     
 	@JsonCreator
@@ -64,8 +69,9 @@ public abstract class ReportScheduleImpl implements ReportSchedule{
                                        @JsonProperty("expression") String expression,
                                        @JsonProperty("timespan") String timespan,
                                        @JsonProperty("default") boolean defaultSchedule,
-                                       @JsonProperty("nextFireTime") Long nextFireTime) {		
-        return new AutoValue_ReportScheduleImpl(id, name, expression, timespan, defaultSchedule, nextFireTime);
+                                       @JsonProperty("nextFireTime") Long nextFireTime,
+                                       @JsonProperty("reportReceivers") List<String> reportReceivers) {
+        return new AutoValue_ReportScheduleImpl(id, name, expression, timespan, defaultSchedule, nextFireTime, reportReceivers);
     }
 	
 }

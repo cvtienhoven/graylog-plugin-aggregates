@@ -53,6 +53,27 @@ const SchedulesList = React.createClass({
 
     return formattedHeaderCell;
   },
+  _alertReceiversFormatter(reportSchedule) {
+    if (reportSchedule.reportReceivers !== null) {
+      const emailReceivers = reportSchedule.reportReceivers.map((receiver) => {
+        return (
+          <li key={receiver}>
+            <i className="fa fa-envelope"/> {receiver}
+          </li>
+        );
+      });
+      return (
+        <ul className="alert-receivers">
+          {emailReceivers}
+        </ul>
+      );
+    } else {
+      return (
+        <ul className="alert-receivers">
+        </ul>
+      )
+    }
+  },
   _scheduleInfoFormatter(reportSchedule) {
     const deleteAction = (
       <IfPermitted permissions="aggregate_report_schedules:delete">
@@ -83,13 +104,14 @@ const SchedulesList = React.createClass({
         <td className="limited">{reportSchedule.expression}</td>
         <td className="limited">{reportSchedule.timespan}</td>
         <td className="limited">{reportSchedule.nextFireTime != null ? new Date(reportSchedule.nextFireTime).toString() : 'unknown'}</td>
+        <td className="limited">{this._alertReceiversFormatter(reportSchedule)}</td>
         <td>{actions}</td>
       </tr>
     );
   },
   render() {
     const filterKeys = ['name'];
-    const headers = ['Schedule name', 'Cron expression', 'Timespan', 'Next fire time'];
+    const headers = ['Schedule name', 'Cron expression', 'Timespan', 'Next fire time', "Report receiver(s)"];
 
     if (this.state.reportSchedules) {
       return (

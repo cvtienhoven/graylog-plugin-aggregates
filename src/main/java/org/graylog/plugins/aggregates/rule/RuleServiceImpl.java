@@ -35,6 +35,8 @@ public class RuleServiceImpl implements RuleService {
 		final DBCollection dbCollection = mongoConnection.getDatabase().getCollection(collectionName);
 		this.coll = JacksonDBCollection.wrap(dbCollection, RuleImpl.class, String.class, mapperProvider.get());
 		this.coll.createIndex(new BasicDBObject("name", 1), new BasicDBObject("unique", true));
+
+
 	}
 
 	@Override
@@ -86,13 +88,14 @@ public class RuleServiceImpl implements RuleService {
 		return RuleImpl.create(
 				request.getRule().getQuery(), 
 				request.getRule().getField(),
+				null,
 				request.getRule().getNumberOfMatches(), 
 				request.getRule().isMatchMoreOrEqual(),
 				request.getRule().getInterval(), 
 				request.getRule().getName(),
-				request.getRule().getAlertReceivers(),
 				request.getRule().isEnabled(),
 				request.getRule().getStreamId(),
+				request.getRule().getNotificationId(),
 				request.getRule().isInReport(),
 				request.getRule().getReportSchedules(),
 				request.getRule().isSliding());
@@ -103,13 +106,14 @@ public class RuleServiceImpl implements RuleService {
 		return RuleImpl.create(
 				request.getRule().getQuery(), 
 				request.getRule().getField(),
+                null,
 				request.getRule().getNumberOfMatches(), 
 				request.getRule().isMatchMoreOrEqual(),
 				request.getRule().getInterval(), 
 				request.getRule().getName(),
-				request.getRule().getAlertReceivers(),
 				request.getRule().isEnabled(),
 				request.getRule().getStreamId(),
+				request.getRule().getNotificationId(),
 				request.getRule().isInReport(),
 				request.getRule().getReportSchedules(),
 				request.getRule().isSliding());

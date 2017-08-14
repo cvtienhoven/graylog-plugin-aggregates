@@ -54,7 +54,7 @@ public class ReportScheduleServiceImpl implements ReportScheduleService {
 			defaultSchedule = coll.find(DBQuery.is("name", "Every Saturday, 23:59")).next();	
 		} catch (Exception e) {
 			LOG.debug("Default weekly ReportSchedule does not exist yet");
-			defaultSchedule = coll.insert(ReportScheduleImpl.create(null, "Every Saturday, 23:59", "0 59 23 ? * SAT *", "P7D", true, null)).getSavedObject();
+			defaultSchedule = coll.insert(ReportScheduleImpl.create(null, "Every Saturday, 23:59", "0 59 23 ? * SAT *", "P7D", true, null, null)).getSavedObject();
 			LOG.debug("Created default weekly ReportSchedule with ID " + defaultSchedule.getId());
 		}
 				
@@ -65,7 +65,7 @@ public class ReportScheduleServiceImpl implements ReportScheduleService {
 			defaultSchedule = coll.find(DBQuery.is("name", "First day of month, 00:00")).next();	
 		} catch (Exception e) {
 			LOG.debug("Default monthly ReportSchedule does not exist yet");
-			defaultSchedule = coll.insert(ReportScheduleImpl.create(null, "First day of month, 00:00", "0 0 0 1 1/1 ? *", "P1M", true, null)).getSavedObject();
+			defaultSchedule = coll.insert(ReportScheduleImpl.create(null, "First day of month, 00:00", "0 0 0 1 1/1 ? *", "P1M", true, null, null)).getSavedObject();
 			LOG.debug("Created default monthly ReportSchedule with ID " + defaultSchedule.getId());
 		}
 
@@ -145,7 +145,8 @@ public class ReportScheduleServiceImpl implements ReportScheduleService {
 				request.getReportSchedule().getExpression(),
 				request.getReportSchedule().getTimespan(),
 				false,
-				null);
+				null,
+				request.getReportSchedule().getReportReceivers());
 	}
 
 	@Override
@@ -156,7 +157,8 @@ public class ReportScheduleServiceImpl implements ReportScheduleService {
 				request.getReportSchedule().getExpression(),
 				request.getReportSchedule().getTimespan(),
 				false,
-				null);
+				null,
+				request.getReportSchedule().getReportReceivers());
 	}
 	
 	@Override
