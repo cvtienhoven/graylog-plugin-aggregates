@@ -116,8 +116,10 @@ const EditRuleModal = React.createClass({
     }
   },
   _loadNotificationsForStream(){
-    AlarmCallbacksActions.list(this.state.rule.streamId)
-      .then(callbacks => this.setState({ alerts: callbacks }));
+    if (this.state.rule.streamId !== '') {
+      AlarmCallbacksActions.list(this.state.rule.streamId)
+        .then(callbacks => this.setState({ alerts: callbacks }));
+    }
   },
   _createNotificationSelectItems() {
     const items = [];
