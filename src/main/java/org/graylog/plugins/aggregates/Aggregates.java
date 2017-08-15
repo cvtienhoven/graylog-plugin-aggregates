@@ -1,44 +1,28 @@
 package org.graylog.plugins.aggregates;
 
 
-import java.io.UnsupportedEncodingException;
 import java.util.Date;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import javax.inject.Inject;
-import org.apache.commons.mail.EmailException;
 import org.graylog.plugins.aggregates.history.HistoryItem;
 import org.graylog.plugins.aggregates.history.HistoryItemImpl;
 import org.graylog.plugins.aggregates.history.HistoryItemService;
 import org.graylog.plugins.aggregates.rule.Rule;
 import org.graylog.plugins.aggregates.rule.RuleService;
 import org.graylog.plugins.aggregates.alert.RuleAlertSender;
-import org.graylog.plugins.aggregates.alert.AggregatesAlertCondition;
-import org.graylog2.alarmcallbacks.AlarmCallbackConfiguration;
-import org.graylog2.alarmcallbacks.AlarmCallbackConfigurationService;
-import org.graylog2.alarmcallbacks.AlarmCallbackFactory;
-import org.graylog2.database.NotFoundException;
 import org.graylog2.indexer.results.TermsResult;
 import org.graylog2.indexer.searches.Searches;
 import org.graylog2.indexer.searches.SearchesClusterConfig;
-//import org.graylog2.initializers.IndexerSetupService;
 import org.graylog2.indexer.cluster.Cluster;
-import org.graylog2.plugin.Tools;
-import org.graylog2.plugin.alarms.callbacks.AlarmCallback;
-import org.graylog2.plugin.alarms.callbacks.AlarmCallbackConfigurationException;
-import org.graylog2.plugin.alarms.callbacks.AlarmCallbackException;
-import org.graylog2.plugin.alarms.transports.TransportConfigurationException;
 import org.graylog2.plugin.cluster.ClusterConfigService;
 import org.graylog2.plugin.indexer.searches.timeranges.AbsoluteRange;
 import org.graylog2.plugin.indexer.searches.timeranges.InvalidRangeParametersException;
 import org.graylog2.plugin.indexer.searches.timeranges.RelativeRange;
 import org.graylog2.plugin.indexer.searches.timeranges.TimeRange;
 import org.graylog2.plugin.periodical.Periodical;
-import org.graylog2.plugin.streams.Stream;
-import org.graylog2.streams.StreamService;
 import org.joda.time.DateTime;
 import org.joda.time.Period;
 import org.slf4j.Logger;
@@ -59,25 +43,20 @@ public class Aggregates extends Periodical {
 	private final RuleService ruleService;
 	private final HistoryItemService historyItemService;
 	private final RuleAlertSender alertSender;
-	private final AlarmCallbackConfigurationService alarmCallbackConfigurationService;
-	private final AlarmCallbackFactory alarmCallbackFactory;
-	private final StreamService streamService;
+	
 
 	private static final Logger LOG = LoggerFactory.getLogger(Aggregates.class);
 	private List<Rule> list;
 
 	@Inject
-	public Aggregates(StreamService streamService, AlarmCallbackConfigurationService alarmCallbackConfigurationService, AlarmCallbackFactory alarmCallbackFactory, RuleAlertSender alertSender, Searches searches, ClusterConfigService clusterConfigService,
+	public Aggregates(RuleAlertSender alertSender, Searches searches, ClusterConfigService clusterConfigService,
 					  Cluster cluster, RuleService ruleService, HistoryItemService historyItemService) {
-		this.streamService = streamService;
-		this.alarmCallbackConfigurationService = alarmCallbackConfigurationService;
 		this.searches = searches;
 		this.clusterConfigService = clusterConfigService;
 		this.alertSender = alertSender;
 		this.cluster = cluster;
 		this.ruleService = ruleService;
 		this.historyItemService = historyItemService;
-		this.alarmCallbackFactory = alarmCallbackFactory;
 	}
 
 	@VisibleForTesting

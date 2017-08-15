@@ -30,7 +30,7 @@ public class AggregatesUtil {
 		return "The same value of field '" + rule.getField() + "' occurs " + matchDescriptor + " times in a " + rule.getInterval() + " minute interval";
 	}
 
-	public static String buildSummaryHTML(Rule rule, EmailConfiguration emailConfiguration, Map<String, Long> matchedTerms, TimeRange timeRange) throws UnsupportedEncodingException {
+	public String buildSummaryHTML(Rule rule, EmailConfiguration emailConfiguration, Map<String, Long> matchedTerms, TimeRange timeRange) throws UnsupportedEncodingException {
 
         final StringBuilder sb = new StringBuilder();
 
@@ -79,7 +79,7 @@ public class AggregatesUtil {
 
     }
 	
-	public static String buildSummary(Rule rule, EmailConfiguration emailConfiguration, Map<String, Long> matchedTerms, TimeRange timeRange) throws UnsupportedEncodingException {
+	public String buildSummary(Rule rule, EmailConfiguration emailConfiguration, Map<String, Long> matchedTerms, TimeRange timeRange) throws UnsupportedEncodingException {
 
         final StringBuilder sb = new StringBuilder();
 
