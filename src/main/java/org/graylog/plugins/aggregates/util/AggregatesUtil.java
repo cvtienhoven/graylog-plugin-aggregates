@@ -30,6 +30,55 @@ public class AggregatesUtil {
 		return "The same value of field '" + rule.getField() + "' occurs " + matchDescriptor + " times in a " + rule.getInterval() + " minute interval";
 	}
 
+	public static String buildSummaryHTML(Rule rule, EmailConfiguration emailConfiguration, Map<String, Long> matchedTerms, TimeRange timeRange) throws UnsupportedEncodingException {
+
+        final StringBuilder sb = new StringBuilder();
+
+        sb.append("Matched values for field [ " + rule.getField() + " ]\n\n");
+
+        int nameLength = 4;
+        int occurrencesLength = 11;
+
+        for (Map.Entry<String, Long> entry : matchedTerms.entrySet()) {
+            if (entry.getKey().length() > nameLength) {
+                nameLength = entry.getKey().length();
+            }
+            if (entry.getValue().toString().length() > occurrencesLength) {
+                occurrencesLength = entry.getValue().toString().length();
+            }
+        }
+        
+        sb.append("<table><tr>");        
+        sb.append("<th>Field</th><th>#Occurrences</th><th></th>");
+        sb.append("</tr>");
+        
+        for (Map.Entry<String, Long> entry : matchedTerms.entrySet()) {
+        	sb.append("<tr>");
+            sb.append("<td>" + entry.getKey() + "</td>");
+            sb.append("<td>" + entry.getValue() + "</td>");
+            
+
+            if (!emailConfiguration.isEnabled()) {
+                sb.append("<td></td>");
+            } else {
+                String streamId = rule.getStreamId();
+                String search_uri = "";
+
+                if (streamId != null && streamId != "") {
+                    search_uri += "/streams/" + streamId;
+                }
+                search_uri += "/search?rangetype=absolute&fields=message%2Csource%2C" + rule.getField() + "&from=" + timeRange.getFrom() + "&to=" + timeRange.getTo() + "&q=" + URLEncoder.encode(rule.getQuery() + " AND " + rule.getField() + ":\"" + entry.getKey() + "\"", "UTF-8");
+                sb.append("<td>" + emailConfiguration.getWebInterfaceUri() + search_uri + "</td>");
+
+            }
+            
+            sb.append("</tr>");
+        }
+        sb.append("</table>");
+        return sb.toString();
+
+    }
+	
 	public static String buildSummary(Rule rule, EmailConfiguration emailConfiguration, Map<String, Long> matchedTerms, TimeRange timeRange) throws UnsupportedEncodingException {
 
         final StringBuilder sb = new StringBuilder();

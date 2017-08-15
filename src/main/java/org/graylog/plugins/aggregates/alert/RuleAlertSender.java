@@ -18,6 +18,7 @@ import org.graylog.plugins.aggregates.util.AggregatesUtil;
 import org.graylog2.alarmcallbacks.AlarmCallbackConfiguration;
 import org.graylog2.alarmcallbacks.AlarmCallbackConfigurationService;
 import org.graylog2.alarmcallbacks.AlarmCallbackFactory;
+import org.graylog2.alarmcallbacks.EmailAlarmCallback;
 import org.graylog2.configuration.EmailConfiguration;
 import org.graylog2.database.NotFoundException;
 import org.graylog2.plugin.Tools;
@@ -61,15 +62,27 @@ public class RuleAlertSender {
 
 	public void send(Rule rule, Map<String, Long> matchedTerms, TimeRange timeRange) throws NotFoundException, AlarmCallbackConfigurationException, ClassNotFoundException, AlarmCallbackException, UnsupportedEncodingException {
         AlarmCallbackConfiguration alarmCallbackConfiguration = alarmCallbackConfigurationService.load(rule.getNotificationId());
+                
+        AlarmCallback callback = alarmCallbackFactory.create(alarmCallbackConfiguration);
+        
         Stream triggeredStream = streamService.load(rule.getStreamId());
         Map<String, Object> parameters = new HashMap<String, Object>();
         parameters.put("time", rule.getInterval());
         String title = "Aggregate rule [" + rule.getName() + "] triggered an alert.";
 
-        String description = AggregatesUtil.buildSummary(rule, configuration, matchedTerms, timeRange);
+        String description = "";
+        
+        if (callback instanceof EmailAlarmCallback){
+        	//format a bit for reading in email clients.
+        	description = AggregatesUtil.buildSummaryHTML(rule, configuration, matchedTerms, timeRange);
+        } else {
+        	//plain text (not that pretty, I know)
+        	description = AggregatesUtil.buildSummary(rule, configuration, matchedTerms, timeRange);
+        }        	
+                        
         AggregatesAlertCondition alertCondition = new AggregatesAlertCondition(rule, description, triggeredStream, "", "", timeRange.getFrom(), "", new HashMap<String, Object>(), title);
 
-        AlarmCallback callback = alarmCallbackFactory.create(alarmCallbackConfiguration);
+        
         LOG.info("callback to be invoked: " + callback.getName());
         callback.call(streamService.load(rule.getStreamId()), alertCondition.runCheck());
 

@@ -13,11 +13,12 @@ import java.util.Map;
 
 public class AggregatesAlertCondition extends AbstractAlertCondition {
     private String description = "Dummy alert to test notifications";
-
+    private Rule rule;
 
     public AggregatesAlertCondition(Rule rule, String description, Stream stream, String id, String type, DateTime createdAt, String creatorUserId, Map<String, Object> parameters, String title) {
         super(stream, id, AggregatesUtil.getAlertConditionType(rule), createdAt, creatorUserId, parameters, title);
         this.description = description;
+        this.rule = rule;
     }
 
     protected AggregatesAlertCondition(Stream stream, String id, String type, DateTime createdAt, String creatorUserId, Map<String, Object> parameters, String title) {
@@ -31,6 +32,6 @@ public class AggregatesAlertCondition extends AbstractAlertCondition {
 
     @Override
     public CheckResult runCheck() {
-        return new CheckResult(true, this, this.description, Tools.nowUTC(), null);
+        return new CheckResult(true, this, "Aggregates rule [" + this.rule.getName() + "] triggered an alert.", this.getCreatedAt(), null);
     }
 }
