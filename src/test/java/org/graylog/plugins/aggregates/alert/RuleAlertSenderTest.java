@@ -69,12 +69,12 @@ public class RuleAlertSenderTest {
 		TimeRange range = AbsoluteRange.create(DateTime.now(), DateTime.now());
 		
 		when(alarmCallbackFactory.create(alarmCallbackConfiguration)).thenReturn(callback);
-		when(aggregatesUtil.buildSummaryHTML(rule,configuration,map,range)).thenReturn("");
+		when(aggregatesUtil.buildSummary(rule,configuration,map,range)).thenReturn("");
 		
 		ruleAlertSender.send(rule, map, range);
 		
-		verify(aggregatesUtil).buildSummaryHTML(rule, configuration, map, range);
-		verify(aggregatesUtil, Mockito.never()).buildSummary(rule, configuration, map, range);
+		verify(aggregatesUtil).buildSummary(rule, configuration, map, range);
+		//verify(aggregatesUtil, Mockito.never()).buildSummary(rule, configuration, map, range);
 		verify(callback).call(Mockito.any(Stream.class), Mockito.any(CheckResult.class));
 		
 	}
@@ -92,12 +92,12 @@ public class RuleAlertSenderTest {
 		TimeRange range = AbsoluteRange.create(DateTime.now(), DateTime.now());
 		
 		when(alarmCallbackFactory.create(alarmCallbackConfiguration)).thenReturn(callback);
-		when(aggregatesUtil.buildSummaryHTML(rule,configuration,map,range)).thenReturn("");
+		when(aggregatesUtil.buildSummary(rule,configuration,map,range)).thenReturn("");
 		
 		ruleAlertSender.send(rule, map, range);
 		
 		verify(aggregatesUtil).buildSummary(rule, configuration, map, range);
-		verify(aggregatesUtil, Mockito.never()).buildSummaryHTML(rule, configuration, map, range);
+		//verify(aggregatesUtil, Mockito.never()).buildSummaryHTML(rule, configuration, map, range);
 		verify(callback).call(Mockito.any(Stream.class), Mockito.any(CheckResult.class));
 		
 	}

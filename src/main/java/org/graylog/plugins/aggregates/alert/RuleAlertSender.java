@@ -79,13 +79,13 @@ public class RuleAlertSender {
 
         String description = "";
         
-        if (callback instanceof EmailAlarmCallback){
+        /*if (callback instanceof EmailAlarmCallback){
         	//format a bit for reading in email clients.
         	description = this.aggregatesUtil.buildSummaryHTML(rule, configuration, matchedTerms, timeRange);
-        } else {
+        } else {*/
         	//plain text (not that pretty, I know)
         	description = aggregatesUtil.buildSummary(rule, configuration, matchedTerms, timeRange);
-        }        	
+        //}        	
                         
         AggregatesAlertCondition alertCondition = new AggregatesAlertCondition(rule, description, triggeredStream, "", "", timeRange.getFrom(), "", new HashMap<String, Object>(), title);
 
