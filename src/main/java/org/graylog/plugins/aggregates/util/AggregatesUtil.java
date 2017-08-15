@@ -68,7 +68,7 @@ public class AggregatesUtil {
                     search_uri += "/streams/" + streamId;
                 }
                 search_uri += "/search?rangetype=absolute&fields=message%2Csource%2C" + rule.getField() + "&from=" + timeRange.getFrom() + "&to=" + timeRange.getTo() + "&q=" + URLEncoder.encode(rule.getQuery() + " AND " + rule.getField() + ":\"" + entry.getKey() + "\"", "UTF-8");
-                sb.append("<td>" + emailConfiguration.getWebInterfaceUri() + search_uri + "</td>");
+                sb.append("<td><a href=\"" + emailConfiguration.getWebInterfaceUri() + search_uri + "\">Search</a></td>");
 
             }
             
