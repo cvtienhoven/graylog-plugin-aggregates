@@ -29,8 +29,8 @@ public class AggregatesUtil {
 		}
 		return "The same value of field '" + rule.getField() + "' occurs " + matchDescriptor + " times in a " + rule.getInterval() + " minute interval";
 	}
-
-	public static String buildSummary(Rule rule, EmailConfiguration emailConfiguration, Map<String, Long> matchedTerms, TimeRange timeRange) throws UnsupportedEncodingException {
+	
+	public String buildSummary(Rule rule, EmailConfiguration emailConfiguration, Map<String, Long> matchedTerms, TimeRange timeRange) throws UnsupportedEncodingException {
 
         final StringBuilder sb = new StringBuilder();
 
@@ -48,8 +48,8 @@ public class AggregatesUtil {
             }
         }
 
-        sb.append(String.format("%-" + (nameLength + 4) + "s", "FIELD"));
-        sb.append(String.format("%-" + (occurrencesLength + 4) + "s", "#OCCURRENCES") + "\n");
+        sb.append(String.format("%-" + (nameLength + 4) + "s", "FIELD").replace(' ', '_'));
+        sb.append(String.format("%-" + (occurrencesLength + 4) + "s", "#OCCURRENCES").replace(' ', '_'));
         if (!emailConfiguration.isEnabled()) {
             sb.append("\n");
         } else {
