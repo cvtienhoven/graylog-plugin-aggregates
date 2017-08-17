@@ -39,9 +39,7 @@ public class AggregatesUtil {
         for (Map.Entry<String, Long> entry : matchedTerms.entrySet()) {
         	
         	sb.append("\nValue: " + entry.getKey() + "\n");
-            sb.append("Occurrences: " + entry.getValue() + "\n");
-            
-            
+            sb.append("Occurrences: " + entry.getValue() + "\n");                        
 
             if (!emailConfiguration.isEnabled()) {
                 sb.append("\n");

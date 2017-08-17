@@ -76,23 +76,13 @@ public class RuleAlertSender {
         Map<String, Object> parameters = new HashMap<String, Object>();
         parameters.put("time", rule.getInterval());
         String title = "Aggregate rule [" + rule.getName() + "] triggered an alert.";
-
-        String description = "";
         
-        /*if (callback instanceof EmailAlarmCallback){
-        	//format a bit for reading in email clients.
-        	description = this.aggregatesUtil.buildSummaryHTML(rule, configuration, matchedTerms, timeRange);
-        } else {*/
-        	//plain text (not that pretty, I know)
-        	description = aggregatesUtil.buildSummary(rule, configuration, matchedTerms, timeRange);
-        //}        	
-                        
+        String description = aggregatesUtil.buildSummary(rule, configuration, matchedTerms, timeRange);
+                                        
         AggregatesAlertCondition alertCondition = new AggregatesAlertCondition(rule, description, triggeredStream, "", "", timeRange.getFrom(), "", new HashMap<String, Object>(), title);
-
         
         LOG.info("callback to be invoked: " + callback.getName());
-        LOG.info("Callback class: " + callback.getClass().getName());
-        
+                
         callback.call(streamService.load(rule.getStreamId()), alertCondition.runCheck());
 
     }
