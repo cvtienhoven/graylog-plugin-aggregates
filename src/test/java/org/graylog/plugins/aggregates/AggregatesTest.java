@@ -182,9 +182,7 @@ public class AggregatesTest {
 		} catch (AlarmCallbackConfigurationException e) {
 			e.printStackTrace();
 		} catch (ClassNotFoundException e) {
-			e.printStackTrace();
-		} catch (AlarmCallbackException e) {
-			e.printStackTrace();
+			e.printStackTrace();		
 		} catch (UnsupportedEncodingException e) {
 			e.printStackTrace();
 		}
@@ -237,8 +235,6 @@ public class AggregatesTest {
 		} catch (AlarmCallbackConfigurationException e) {
 			e.printStackTrace();
 		} catch (ClassNotFoundException e) {
-			e.printStackTrace();
-		} catch (AlarmCallbackException e) {
 			e.printStackTrace();
 		} catch (UnsupportedEncodingException e) {
 			e.printStackTrace();
