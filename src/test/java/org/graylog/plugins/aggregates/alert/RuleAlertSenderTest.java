@@ -6,15 +6,19 @@ import static org.mockito.Mockito.when;
 
 import java.io.UnsupportedEncodingException;
 import java.text.ParseException;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.bson.types.ObjectId;
 import org.graylog.plugins.aggregates.rule.Rule;
 import org.graylog.plugins.aggregates.rule.RuleImpl;
 import org.graylog.plugins.aggregates.util.AggregatesUtil;
 import org.graylog2.alarmcallbacks.AlarmCallbackConfiguration;
+import org.graylog2.alarmcallbacks.AlarmCallbackConfigurationImpl;
 import org.graylog2.alarmcallbacks.AlarmCallbackConfigurationService;
 import org.graylog2.alarmcallbacks.AlarmCallbackFactory;
+import org.graylog2.alarmcallbacks.AlarmCallbackHistoryService;
 import org.graylog2.alarmcallbacks.EmailAlarmCallback;
 import org.graylog2.alarmcallbacks.HTTPAlarmCallback;
 import org.graylog2.alerts.AbstractAlertCondition.CheckResult;
@@ -25,6 +29,7 @@ import org.graylog2.plugin.alarms.callbacks.AlarmCallbackException;
 import org.graylog2.plugin.indexer.searches.timeranges.AbsoluteRange;
 import org.graylog2.plugin.indexer.searches.timeranges.TimeRange;
 import org.graylog2.plugin.streams.Stream;
+import org.graylog2.streams.StreamImpl;
 import org.graylog2.streams.StreamService;
 import org.joda.time.DateTime;
 import org.junit.Test;
@@ -51,15 +56,20 @@ public class RuleAlertSenderTest {
 	@Mock
 	StreamService streamService;
 	
+	@Mock
+	AlarmCallbackHistoryService alarmCallbackHistoryService;
+	
 	@InjectMocks
 	@Spy
 	RuleAlertSender ruleAlertSender;
 	
+	
 	@Test
 	public void testEmailAlarmCallback() throws ParseException, ClassNotFoundException, AlarmCallbackConfigurationException, UnsupportedEncodingException, NotFoundException, AlarmCallbackException{
-		AlarmCallbackConfiguration alarmCallbackConfiguration = null;
-		when(alarmCallbackConfigurationService.load(Mockito.any(String.class))).thenReturn(alarmCallbackConfiguration);
+		AlarmCallbackConfiguration alarmCallbackConfiguration = AlarmCallbackConfigurationImpl.create("id", "streamId", "type", "title", new HashMap<String, Object>(), new Date(),"user");
 		
+		when(alarmCallbackConfigurationService.load(Mockito.any(String.class))).thenReturn(alarmCallbackConfiguration);
+		when(streamService.load(Mockito.anyString())).thenReturn(getStream());
 		
 		EmailAlarmCallback callback = getMockEmailAlarmCallback();
 		Rule rule = getMockRule();
@@ -67,6 +77,7 @@ public class RuleAlertSenderTest {
 		AggregatesUtil aggregatesUtil = mock(AggregatesUtil.class);
 		ruleAlertSender.setAggregatesUtil(aggregatesUtil);
 		TimeRange range = AbsoluteRange.create(DateTime.now(), DateTime.now());
+				
 		
 		when(alarmCallbackFactory.create(alarmCallbackConfiguration)).thenReturn(callback);
 		when(aggregatesUtil.buildSummary(rule,configuration,map,range)).thenReturn("");
@@ -74,7 +85,7 @@ public class RuleAlertSenderTest {
 		ruleAlertSender.send(rule, map, range);
 		
 		verify(aggregatesUtil).buildSummary(rule, configuration, map, range);
-		//verify(aggregatesUtil, Mockito.never()).buildSummary(rule, configuration, map, range);
+
 		verify(callback).call(Mockito.any(Stream.class), Mockito.any(CheckResult.class));
 		
 	}
@@ -82,8 +93,10 @@ public class RuleAlertSenderTest {
 	
 	@Test
 	public void testHTTPAlarmCallback() throws ParseException, ClassNotFoundException, AlarmCallbackConfigurationException, UnsupportedEncodingException, NotFoundException, AlarmCallbackException{
-		AlarmCallbackConfiguration alarmCallbackConfiguration = null;
+		AlarmCallbackConfiguration alarmCallbackConfiguration = AlarmCallbackConfigurationImpl.create("id", "streamId", "type", "title", new HashMap<String, Object>(), new Date(),"user");
 		when(alarmCallbackConfigurationService.load(Mockito.any(String.class))).thenReturn(alarmCallbackConfiguration);
+		when(streamService.load(Mockito.anyString())).thenReturn(getStream());
+		
 		HTTPAlarmCallback callback = getMockHTTPAlarmCallback();
 		Rule rule = getMockRule();
 		AggregatesUtil aggregatesUtil = mock(AggregatesUtil.class);
@@ -117,6 +130,11 @@ public class RuleAlertSenderTest {
 		return rule;
 	}
 	
+	private Stream getStream() {
+		Stream stream = new StreamImpl(new HashMap<String, Object>()); 				
+
+		return stream;
+	}
 	
 	private EmailAlarmCallback getMockEmailAlarmCallback(){
 		EmailAlarmCallback callback = mock(EmailAlarmCallback.class);
