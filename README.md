@@ -96,7 +96,7 @@ Each rule can be configured to be executed on a particular stream. For the latte
 
 Since version 2.0.0, the plugin integrates tightly with the `Notifications` within Graylog. You can define a notification on a stream as you would normally do, and from within the plugin, you can refer to that notification as well, as long as you use the same stream for the aggregate rule. In previous versions, you could only send emails, but now you can also use the HTTP Alarm Callback for instance. If you still want to use emails, you'll have to use the Email Alarm Callback. Unfortunately the HTML markup in emails had to be discarded since the Email Alarm Callback sends emails in plain text.
 
-**_Note_**: Notifications are only available on streams, you you're required to define a rule using an existing stream. The option "--No stream (global search)--" has been removed from the Stream pulldown menu.
+**_Note_**: Notifications are only available on streams, so you're required to define a rule using an existing stream. The option "--No stream (global search)--" has been removed from the Stream pulldown menu.
 
 
 **Reporting**
