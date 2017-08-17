@@ -118,7 +118,7 @@ public class AggregatesReport extends Periodical {
 									historyItemService.getForRuleName(rule.getName(), matchingSchedule.getTimespan()));
 						}
 					} else {
-						LOG.warn("No receivers found in Report Schedule \"" + matchingSchedule.getName() + "\", not adding .");
+						LOG.warn("No receivers found in Report Schedule \"" + matchingSchedule.getName() + "\", not using this schedule.");
 					}
 				
 				}
