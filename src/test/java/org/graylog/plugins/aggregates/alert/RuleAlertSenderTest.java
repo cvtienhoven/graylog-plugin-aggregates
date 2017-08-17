@@ -22,10 +22,12 @@ import org.graylog2.alarmcallbacks.AlarmCallbackHistoryService;
 import org.graylog2.alarmcallbacks.EmailAlarmCallback;
 import org.graylog2.alarmcallbacks.HTTPAlarmCallback;
 import org.graylog2.alerts.AbstractAlertCondition.CheckResult;
+import org.graylog2.alerts.AlertService;
 import org.graylog2.configuration.EmailConfiguration;
 import org.graylog2.database.NotFoundException;
 import org.graylog2.plugin.alarms.callbacks.AlarmCallbackConfigurationException;
 import org.graylog2.plugin.alarms.callbacks.AlarmCallbackException;
+import org.graylog2.plugin.database.ValidationException;
 import org.graylog2.plugin.indexer.searches.timeranges.AbsoluteRange;
 import org.graylog2.plugin.indexer.searches.timeranges.TimeRange;
 import org.graylog2.plugin.streams.Stream;
@@ -59,13 +61,16 @@ public class RuleAlertSenderTest {
 	@Mock
 	AlarmCallbackHistoryService alarmCallbackHistoryService;
 	
+	@Mock
+	AlertService alertService;
+	
 	@InjectMocks
 	@Spy
 	RuleAlertSender ruleAlertSender;
 	
 	
 	@Test
-	public void testEmailAlarmCallback() throws ParseException, ClassNotFoundException, AlarmCallbackConfigurationException, UnsupportedEncodingException, NotFoundException, AlarmCallbackException{
+	public void testEmailAlarmCallback() throws ParseException, ClassNotFoundException, AlarmCallbackConfigurationException, UnsupportedEncodingException, NotFoundException, AlarmCallbackException, ValidationException{
 		AlarmCallbackConfiguration alarmCallbackConfiguration = AlarmCallbackConfigurationImpl.create("id", "streamId", "type", "title", new HashMap<String, Object>(), new Date(),"user");
 		
 		when(alarmCallbackConfigurationService.load(Mockito.any(String.class))).thenReturn(alarmCallbackConfiguration);
@@ -92,7 +97,7 @@ public class RuleAlertSenderTest {
 	
 	
 	@Test
-	public void testHTTPAlarmCallback() throws ParseException, ClassNotFoundException, AlarmCallbackConfigurationException, UnsupportedEncodingException, NotFoundException, AlarmCallbackException{
+	public void testHTTPAlarmCallback() throws ParseException, ClassNotFoundException, AlarmCallbackConfigurationException, UnsupportedEncodingException, NotFoundException, AlarmCallbackException, ValidationException{
 		AlarmCallbackConfiguration alarmCallbackConfiguration = AlarmCallbackConfigurationImpl.create("id", "streamId", "type", "title", new HashMap<String, Object>(), new Date(),"user");
 		when(alarmCallbackConfigurationService.load(Mockito.any(String.class))).thenReturn(alarmCallbackConfiguration);
 		when(streamService.load(Mockito.anyString())).thenReturn(getStream());

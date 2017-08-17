@@ -15,6 +15,7 @@ import org.graylog2.alarmcallbacks.AlarmCallbackHistory;
 import org.graylog2.alarmcallbacks.AlarmCallbackHistoryImpl;
 import org.graylog2.alarmcallbacks.AlarmCallbackHistoryService;
 import org.graylog2.alerts.AlertImpl;
+import org.graylog2.alerts.AlertService;
 import org.graylog2.configuration.EmailConfiguration;
 import org.graylog2.database.NotFoundException;
 
@@ -22,6 +23,7 @@ import org.graylog2.plugin.alarms.callbacks.AlarmCallback;
 import org.graylog2.plugin.alarms.callbacks.AlarmCallbackConfigurationException;
 import org.graylog2.plugin.alarms.callbacks.AlarmCallbackException;
 import org.graylog2.plugin.configuration.Configuration;
+import org.graylog2.plugin.database.ValidationException;
 import org.graylog2.plugin.indexer.searches.timeranges.TimeRange;
 import org.graylog2.plugin.streams.Stream;
 import org.graylog2.rest.models.alarmcallbacks.AlarmCallbackError;
@@ -40,17 +42,19 @@ public class RuleAlertSender {
     protected final AlarmCallbackFactory alarmCallbackFactory;
     protected final AlarmCallbackHistoryService alarmCallbackHistoryService;
     protected final StreamService streamService;
+    protected final AlertService alertService;
     private static final Logger LOG = LoggerFactory.getLogger(RuleAlertSender.class);
     private AggregatesUtil aggregatesUtil;
     
 	@Inject
-	public RuleAlertSender(EmailConfiguration configuration, AlarmCallbackConfigurationService alarmCallbackConfigurationService, AlarmCallbackFactory alarmCallbackFactory, StreamService streamService, AlarmCallbackHistoryService alarmCallbackHistoryService 
+	public RuleAlertSender(EmailConfiguration configuration, AlarmCallbackConfigurationService alarmCallbackConfigurationService, AlarmCallbackFactory alarmCallbackFactory, StreamService streamService, AlarmCallbackHistoryService alarmCallbackHistoryService, AlertService alertService 
     ) {
 		this.configuration = configuration;
 		this.alarmCallbackConfigurationService = alarmCallbackConfigurationService;
 		this.alarmCallbackFactory = alarmCallbackFactory;
 		this.streamService = streamService;
 		this.alarmCallbackHistoryService = alarmCallbackHistoryService;
+		this.alertService = alertService;
 		setAggregatesUtil(new AggregatesUtil());
 	}
 
@@ -63,7 +67,7 @@ public class RuleAlertSender {
 		
 	}
 
-	public void send(Rule rule, Map<String, Long> matchedTerms, TimeRange timeRange) throws NotFoundException, AlarmCallbackConfigurationException, ClassNotFoundException, UnsupportedEncodingException {
+	public void send(Rule rule, Map<String, Long> matchedTerms, TimeRange timeRange) throws NotFoundException, AlarmCallbackConfigurationException, ClassNotFoundException, UnsupportedEncodingException, ValidationException {
         AlarmCallbackConfiguration alarmCallbackConfiguration = alarmCallbackConfigurationService.load(rule.getNotificationId());
         
         AlarmCallback callback = alarmCallbackFactory.create(alarmCallbackConfiguration);
@@ -86,9 +90,12 @@ public class RuleAlertSender {
 			LOG.error("Error while invokingcallback " + callback.getName() + ": " + e.getMessage());			
 			callbackResult = AlarmCallbackError.create(e.getMessage());
 		}
-
-        AlarmCallbackHistory history = AlarmCallbackHistoryImpl.create(new ObjectId().toHexString(), alarmCallbackConfiguration, AlertImpl.fromCheckResult(alertCondition.runCheck()), alertCondition, callbackResult);
-        alarmCallbackHistoryService.save(history);
+        
+        //AlarmCallbackHistory history = AlarmCallbackHistoryImpl.create(new ObjectId().toHexString(), alarmCallbackConfiguration, AlertImpl.fromCheckResult(alertCondition.runCheck()), alertCondition, callbackResult);
+        alertService.save(AlertImpl.fromCheckResult(alertCondition.runCheck()));
+        //alarmCallbackHistoryService.save(history);
+        
+        
         
 
     }

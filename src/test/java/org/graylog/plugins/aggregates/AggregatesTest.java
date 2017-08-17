@@ -18,6 +18,7 @@ import org.graylog.plugins.aggregates.rule.Rule;
 import org.graylog.plugins.aggregates.rule.RuleImpl;
 import org.graylog.plugins.aggregates.rule.RuleService;
 import org.graylog.plugins.aggregates.alert.RuleAlertSender;
+import org.graylog2.alerts.AlertService;
 import org.graylog2.database.NotFoundException;
 import org.graylog2.indexer.results.TermsResult;
 import org.graylog2.indexer.searches.Searches;
@@ -58,6 +59,9 @@ public class AggregatesTest {
 	
 	@Mock
 	HistoryItemService historyItemService;
+	
+	@Mock
+	AlertService alertService;
 	
 	@InjectMocks
 	@Spy
@@ -177,13 +181,7 @@ public class AggregatesTest {
 		verify(ruleList.get(0)).getStreamId();
 		try {
 			verify(alertSender, Mockito.never()).send(Mockito.any(Rule.class),Mockito.any(Map.class),Mockito.any(TimeRange.class));
-		} catch (NotFoundException e) {
-			e.printStackTrace();
-		} catch (AlarmCallbackConfigurationException e) {
-			e.printStackTrace();
-		} catch (ClassNotFoundException e) {
-			e.printStackTrace();		
-		} catch (UnsupportedEncodingException e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
@@ -230,13 +228,7 @@ public class AggregatesTest {
 		verify(ruleList.get(0)).getStreamId();
 		try {
 			verify(alertSender).send(Mockito.any(Rule.class),Mockito.any(Map.class),Mockito.any(TimeRange.class));
-		} catch (NotFoundException e) {
-			e.printStackTrace();
-		} catch (AlarmCallbackConfigurationException e) {
-			e.printStackTrace();
-		} catch (ClassNotFoundException e) {
-			e.printStackTrace();
-		} catch (UnsupportedEncodingException e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
