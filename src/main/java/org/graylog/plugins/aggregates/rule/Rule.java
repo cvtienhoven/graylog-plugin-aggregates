@@ -33,4 +33,6 @@ public interface Rule {
 
 	public boolean isSliding();
 
+	public String getCurrentAlertId();
+
 }

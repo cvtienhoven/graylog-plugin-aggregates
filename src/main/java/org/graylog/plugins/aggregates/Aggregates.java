@@ -13,6 +13,7 @@ import org.graylog.plugins.aggregates.history.HistoryItemService;
 import org.graylog.plugins.aggregates.rule.Rule;
 import org.graylog.plugins.aggregates.rule.RuleService;
 import org.graylog.plugins.aggregates.alert.RuleAlertSender;
+import org.graylog2.database.NotFoundException;
 import org.graylog2.indexer.results.TermsResult;
 import org.graylog2.indexer.searches.Searches;
 import org.graylog2.indexer.searches.SearchesClusterConfig;
@@ -158,6 +159,16 @@ public class Aggregates extends Periodical {
 								}
 							} catch (Exception e) {
 								LOG.error("failed to call Alarm Callback: " + e.getMessage());
+							}
+						} else {
+							if (rule.getCurrentAlertId() != null){
+								try {
+									alertSender.resolveCurrentAlert(rule);
+								} catch (NotFoundException e) {
+									LOG.error("failed to resolve alert for rule " + rule + ": " + e.getMessage());
+								}
+							} else {
+								LOG.info("currentAlertId is null for rule " + rule);
 							}
 						}
 

@@ -80,6 +80,7 @@ const AggregatesStore = Reflux.createStore({
         inReport: updatedRule.inReport,
         reportSchedules: updatedRule.reportSchedules,
         sliding: updatedRule.sliding,
+        currentAlertId: updatedRule.currentAlertId
       },
     };
 

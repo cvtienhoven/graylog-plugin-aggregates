@@ -11,6 +11,7 @@ import org.graylog2.database.CollectionName;
 import org.graylog2.database.MongoConnection;
 import org.mongojack.DBCursor;
 import org.mongojack.DBQuery;
+import org.mongojack.DBUpdate;
 import org.mongojack.JacksonDBCollection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -78,6 +79,22 @@ public class RuleServiceImpl implements RuleService {
 					"Specified object is not of correct implementation type (" + rule.getClass() + ")!");
 	}
 
+	public Rule setCurrentAlertId(Rule rule, String currentAlertId){
+		if (rule instanceof RuleImpl) {
+			final RuleImpl ruleImpl = (RuleImpl) rule;
+			LOG.debug("set current alert id for rule: " + ruleImpl);
+			final Set<ConstraintViolation<RuleImpl>> violations = validator.validate(ruleImpl);
+			if (violations.isEmpty()) {
+				return coll.findAndModify(DBQuery.is("name", ruleImpl.getName()), DBUpdate.set("currentAlertId", currentAlertId));
+			} else {
+				throw new IllegalArgumentException("Specified object failed validation: " + violations);
+			}
+		} else
+			throw new IllegalArgumentException(
+					"Specified object is not of correct implementation type (" + rule.getClass() + ")!");
+	}
+
+
 	@Override
 	public List<Rule> all() {		
 		return toAbstractListType(coll.find());
@@ -98,7 +115,8 @@ public class RuleServiceImpl implements RuleService {
 				request.getRule().getNotificationId(),
 				request.getRule().isInReport(),
 				request.getRule().getReportSchedules(),
-				request.getRule().isSliding());
+				request.getRule().isSliding(),
+				null);
 	}
 
 	@Override
@@ -116,7 +134,8 @@ public class RuleServiceImpl implements RuleService {
 				request.getRule().getNotificationId(),
 				request.getRule().isInReport(),
 				request.getRule().getReportSchedules(),
-				request.getRule().isSliding());
+				request.getRule().isSliding(),
+				request.getRule().getCurrentAlertId());
 	}
 	
 	@Override

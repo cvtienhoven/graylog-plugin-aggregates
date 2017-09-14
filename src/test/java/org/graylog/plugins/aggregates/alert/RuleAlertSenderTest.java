@@ -13,6 +13,7 @@ import java.util.Map;
 import org.bson.types.ObjectId;
 import org.graylog.plugins.aggregates.rule.Rule;
 import org.graylog.plugins.aggregates.rule.RuleImpl;
+import org.graylog.plugins.aggregates.rule.RuleService;
 import org.graylog.plugins.aggregates.util.AggregatesUtil;
 import org.graylog2.alarmcallbacks.AlarmCallbackConfiguration;
 import org.graylog2.alarmcallbacks.AlarmCallbackConfigurationImpl;
@@ -22,11 +23,14 @@ import org.graylog2.alarmcallbacks.AlarmCallbackHistoryService;
 import org.graylog2.alarmcallbacks.EmailAlarmCallback;
 import org.graylog2.alarmcallbacks.HTTPAlarmCallback;
 import org.graylog2.alerts.AbstractAlertCondition.CheckResult;
+import org.graylog2.alerts.AlertConditionFactory;
 import org.graylog2.alerts.AlertService;
 import org.graylog2.configuration.EmailConfiguration;
 import org.graylog2.database.NotFoundException;
+import org.graylog2.plugin.alarms.AlertCondition;
 import org.graylog2.plugin.alarms.callbacks.AlarmCallbackConfigurationException;
 import org.graylog2.plugin.alarms.callbacks.AlarmCallbackException;
+import org.graylog2.plugin.configuration.ConfigurationException;
 import org.graylog2.plugin.database.ValidationException;
 import org.graylog2.plugin.indexer.searches.timeranges.AbsoluteRange;
 import org.graylog2.plugin.indexer.searches.timeranges.TimeRange;
@@ -63,21 +67,32 @@ public class RuleAlertSenderTest {
 	
 	@Mock
 	AlertService alertService;
-	
+
+	@Mock
+	RuleService ruleService;
+
+	@Mock
+	AlertConditionFactory alertConditionFactory;
 	@InjectMocks
 	@Spy
 	RuleAlertSender ruleAlertSender;
 	
 	
 	@Test
-	public void testEmailAlarmCallback() throws ParseException, ClassNotFoundException, AlarmCallbackConfigurationException, UnsupportedEncodingException, NotFoundException, AlarmCallbackException, ValidationException{
+	public void testEmailAlarmCallback() throws ParseException, ClassNotFoundException, AlarmCallbackConfigurationException, UnsupportedEncodingException, NotFoundException, AlarmCallbackException, ValidationException, ConfigurationException {
+		Rule rule = getMockRule();
+
+		Map parameters = new HashMap<String, Object>();
+		parameters.put("rule", rule);
 		AlarmCallbackConfiguration alarmCallbackConfiguration = AlarmCallbackConfigurationImpl.create("id", "streamId", "type", "title", new HashMap<String, Object>(), new Date(),"user");
 		
 		when(alarmCallbackConfigurationService.load(Mockito.any(String.class))).thenReturn(alarmCallbackConfiguration);
 		when(streamService.load(Mockito.anyString())).thenReturn(getStream());
-		
+
+		//when(alertConditionFactory.createAlertCondition();
+
 		EmailAlarmCallback callback = getMockEmailAlarmCallback();
-		Rule rule = getMockRule();
+		//Rule rule = getMockRule();
 		Map<String, Long> map = new HashMap<String, Long>();
 		AggregatesUtil aggregatesUtil = mock(AggregatesUtil.class);
 		ruleAlertSender.setAggregatesUtil(aggregatesUtil);
@@ -97,13 +112,17 @@ public class RuleAlertSenderTest {
 	
 	
 	@Test
-	public void testHTTPAlarmCallback() throws ParseException, ClassNotFoundException, AlarmCallbackConfigurationException, UnsupportedEncodingException, NotFoundException, AlarmCallbackException, ValidationException{
+	public void testHTTPAlarmCallback() throws ParseException, ClassNotFoundException, AlarmCallbackConfigurationException, UnsupportedEncodingException, NotFoundException, AlarmCallbackException, ValidationException, ConfigurationException {
+		Map parameters = new HashMap<String, Object>();
+		Rule rule = getMockRule();
+		parameters.put("rule", rule);
+
 		AlarmCallbackConfiguration alarmCallbackConfiguration = AlarmCallbackConfigurationImpl.create("id", "streamId", "type", "title", new HashMap<String, Object>(), new Date(),"user");
 		when(alarmCallbackConfigurationService.load(Mockito.any(String.class))).thenReturn(alarmCallbackConfiguration);
 		when(streamService.load(Mockito.anyString())).thenReturn(getStream());
 		
 		HTTPAlarmCallback callback = getMockHTTPAlarmCallback();
-		Rule rule = getMockRule();
+		//Rule rule = getMockRule();
 		AggregatesUtil aggregatesUtil = mock(AggregatesUtil.class);
 		ruleAlertSender.setAggregatesUtil(aggregatesUtil);
 		Map<String, Long> map = new HashMap<String, Long>();
@@ -114,7 +133,7 @@ public class RuleAlertSenderTest {
 		
 		ruleAlertSender.send(rule, map, range);
 		
-		verify(aggregatesUtil).buildSummary(rule, configuration, map, range);
+		verify(aggregatesUtil).buildSummary((Rule)parameters.get("rule"), configuration, map, range);
 		//verify(aggregatesUtil, Mockito.never()).buildSummaryHTML(rule, configuration, map, range);
 		verify(callback).call(Mockito.any(Stream.class), Mockito.any(CheckResult.class));
 		

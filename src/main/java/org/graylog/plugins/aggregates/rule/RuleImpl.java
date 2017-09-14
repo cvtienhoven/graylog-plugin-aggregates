@@ -88,6 +88,11 @@ public abstract class RuleImpl implements Rule{
     @Nullable
     public abstract boolean isSliding();
 
+    @JsonProperty("currentAlertId")
+    @Override
+    @Nullable
+    public abstract String getCurrentAlertId();
+
 	@JsonCreator
     public static RuleImpl create(@JsonProperty("_id") String objectId,
                                        @JsonProperty("query") String query,
@@ -102,8 +107,9 @@ public abstract class RuleImpl implements Rule{
                                        @JsonProperty("notificationId") String notificationId,
                                        @JsonProperty("inReport") boolean inReport,
                                        @JsonProperty("reportSchedules") List<String> reportSchedules,
-                                       @JsonProperty("sliding") boolean sliding) {
-        return new AutoValue_RuleImpl(query, field, alertReceivers, numberOfMatches, matchMoreOrEqual, interval, name, enabled, streamId, notificationId, inReport, reportSchedules, sliding);
+                                       @JsonProperty("sliding") boolean sliding,
+                                       @JsonProperty("currentAlertId") String currentAlertId) {
+        return new AutoValue_RuleImpl(query, field, alertReceivers, numberOfMatches, matchMoreOrEqual, interval, name, enabled, streamId, notificationId, inReport, reportSchedules, sliding, currentAlertId);
     }
 	
 	public static RuleImpl create(
@@ -119,8 +125,9 @@ public abstract class RuleImpl implements Rule{
             String notificationId,
             boolean inReport,
             List<String> reportSchedules,
-            boolean sliding) {
-		return new AutoValue_RuleImpl(query, field, alertReceivers, numberOfMatches, matchMoreOrEqual, interval, name, enabled, streamId, notificationId, inReport, reportSchedules, sliding);
+            boolean sliding,
+            String currentAlertId) {
+		return new AutoValue_RuleImpl(query, field, alertReceivers, numberOfMatches, matchMoreOrEqual, interval, name, enabled, streamId, notificationId, inReport, reportSchedules, sliding, currentAlertId);
 	
 	}
 }

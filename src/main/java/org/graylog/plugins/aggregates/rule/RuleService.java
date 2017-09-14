@@ -23,4 +23,5 @@ public interface RuleService {
 	
 	Rule fromRequest(UpdateRuleRequest request);
 
+	Rule setCurrentAlertId(Rule rule, String currentAlertId);
 }
