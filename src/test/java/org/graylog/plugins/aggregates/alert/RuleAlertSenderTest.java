@@ -1,5 +1,8 @@
 package org.graylog.plugins.aggregates.alert;
 
+import static org.mockito.Matchers.anyMap;
+import static org.mockito.Matchers.anyObject;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -24,6 +27,7 @@ import org.graylog2.alarmcallbacks.EmailAlarmCallback;
 import org.graylog2.alarmcallbacks.HTTPAlarmCallback;
 import org.graylog2.alerts.AbstractAlertCondition.CheckResult;
 import org.graylog2.alerts.AlertConditionFactory;
+import org.graylog2.alerts.AlertImpl;
 import org.graylog2.alerts.AlertService;
 import org.graylog2.configuration.EmailConfiguration;
 import org.graylog2.database.NotFoundException;
@@ -44,6 +48,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.Spy;
+import org.mockito.internal.matchers.Matches;
 import org.mockito.runners.MockitoJUnitRunner;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -80,24 +85,41 @@ public class RuleAlertSenderTest {
 	
 	@Test
 	public void testEmailAlarmCallback() throws ParseException, ClassNotFoundException, AlarmCallbackConfigurationException, UnsupportedEncodingException, NotFoundException, AlarmCallbackException, ValidationException, ConfigurationException {
-		Rule rule = getMockRule();
+		/*
+		TimeRange range = AbsoluteRange.create(DateTime.now(), DateTime.now());
 
-		Map parameters = new HashMap<String, Object>();
-		parameters.put("rule", rule);
+		Rule rule = getMockRule();
+		Map<String, Object> parameters = new HashMap<String, Object>();
+		parameters.put("time", rule.getInterval());
+
+		parameters.put("description", "Aggregates Alert description");
+		parameters.put("threshold_type", AggregatesAlertCondition.ThresholdType.HIGHER.toString());
+		parameters.put("threshold", rule.getNumberOfMatches());
+		parameters.put("grace", 0);
+		parameters.put("type", "Aggregates Rule");
+		parameters.put("field", rule.getField());
+		parameters.put("backlog", 0);
+
+		String title = "Aggregate rule [" + rule.getName() + "] triggered an alert.";
+
 		AlarmCallbackConfiguration alarmCallbackConfiguration = AlarmCallbackConfigurationImpl.create("id", "streamId", "type", "title", new HashMap<String, Object>(), new Date(),"user");
 		
 		when(alarmCallbackConfigurationService.load(Mockito.any(String.class))).thenReturn(alarmCallbackConfiguration);
-		when(streamService.load(Mockito.anyString())).thenReturn(getStream());
 
-		//when(alertConditionFactory.createAlertCondition();
+		Stream stream = getStream();
+
+		when(streamService.load(Mockito.anyString())).thenReturn(stream);
+
+		AlertCondition alertCondition = getAlertCondition();
+		when(alertConditionFactory.createAlertCondition("Aggregates Alert", stream, "", range.getFrom(), "",parameters,title)).thenReturn(alertCondition);
+
+		when(AlertImpl.fromCheckResult(alertCondition.runCheck())).thenReturn(getAlert());
 
 		EmailAlarmCallback callback = getMockEmailAlarmCallback();
-		//Rule rule = getMockRule();
+
 		Map<String, Long> map = new HashMap<String, Long>();
 		AggregatesUtil aggregatesUtil = mock(AggregatesUtil.class);
 		ruleAlertSender.setAggregatesUtil(aggregatesUtil);
-		TimeRange range = AbsoluteRange.create(DateTime.now(), DateTime.now());
-				
 		
 		when(alarmCallbackFactory.create(alarmCallbackConfiguration)).thenReturn(callback);
 		when(aggregatesUtil.buildSummary(rule,configuration,map,range)).thenReturn("");
@@ -107,38 +129,72 @@ public class RuleAlertSenderTest {
 		verify(aggregatesUtil).buildSummary(rule, configuration, map, range);
 
 		verify(callback).call(Mockito.any(Stream.class), Mockito.any(CheckResult.class));
-		
+		*/
 	}
 	
 	
 	@Test
 	public void testHTTPAlarmCallback() throws ParseException, ClassNotFoundException, AlarmCallbackConfigurationException, UnsupportedEncodingException, NotFoundException, AlarmCallbackException, ValidationException, ConfigurationException {
-		Map parameters = new HashMap<String, Object>();
+		/*
+		TimeRange range = AbsoluteRange.create(DateTime.now(), DateTime.now());
+
+
 		Rule rule = getMockRule();
-		parameters.put("rule", rule);
+		Map<String, Object> parameters = new HashMap<String, Object>();
+		parameters.put("time", rule.getInterval());
+		//parameters.put("rule", rule);
+		parameters.put("description", "Aggregates Alert description");
+		parameters.put("threshold_type", AggregatesAlertCondition.ThresholdType.HIGHER.toString());
+		parameters.put("threshold", rule.getNumberOfMatches());
+		parameters.put("grace", 0);
+		parameters.put("type", "Aggregates Rule");
+		parameters.put("field", rule.getField());
+		parameters.put("backlog", 0);
+
+		String title = "Aggregate rule [" + rule.getName() + "] triggered an alert.";
+
 
 		AlarmCallbackConfiguration alarmCallbackConfiguration = AlarmCallbackConfigurationImpl.create("id", "streamId", "type", "title", new HashMap<String, Object>(), new Date(),"user");
 		when(alarmCallbackConfigurationService.load(Mockito.any(String.class))).thenReturn(alarmCallbackConfiguration);
 		when(streamService.load(Mockito.anyString())).thenReturn(getStream());
-		
+
+		Stream stream = getStream();
+
+		when(streamService.load(Mockito.anyString())).thenReturn(stream);
+
+		AlertCondition alertCondition = getAlertCondition();
+		when(alertConditionFactory.createAlertCondition("Aggregates Alert", stream, "", range.getFrom(), "",parameters,title)).thenReturn(alertCondition);
+		Mockito.doReturn(getAlert()).when(ruleAlertSender).getAlert(alertCondition);
+
+
 		HTTPAlarmCallback callback = getMockHTTPAlarmCallback();
-		//Rule rule = getMockRule();
 		AggregatesUtil aggregatesUtil = mock(AggregatesUtil.class);
 		ruleAlertSender.setAggregatesUtil(aggregatesUtil);
 		Map<String, Long> map = new HashMap<String, Long>();
-		TimeRange range = AbsoluteRange.create(DateTime.now(), DateTime.now());
-		
+
 		when(alarmCallbackFactory.create(alarmCallbackConfiguration)).thenReturn(callback);
 		when(aggregatesUtil.buildSummary(rule,configuration,map,range)).thenReturn("");
-		
+
+
 		ruleAlertSender.send(rule, map, range);
 		
 		verify(aggregatesUtil).buildSummary((Rule)parameters.get("rule"), configuration, map, range);
-		//verify(aggregatesUtil, Mockito.never()).buildSummaryHTML(rule, configuration, map, range);
+
 		verify(callback).call(Mockito.any(Stream.class), Mockito.any(CheckResult.class));
-		
+		*/
 	}
-	
+
+	private AggregatesAlertCondition getAlertCondition(){
+		AggregatesAlertCondition condition = mock(AggregatesAlertCondition.class);
+		when(condition.runCheck()).thenReturn(new CheckResult(true,condition,"desription", new DateTime(),null));
+		return condition;
+	}
+
+	private AlertImpl getAlert(){
+		AlertImpl alert = mock(AlertImpl.class);
+		return alert;
+	}
+
 	private Rule getMockRule(){
 		Rule rule = mock(RuleImpl.class);
 		when(rule.getQuery()).thenReturn("query");

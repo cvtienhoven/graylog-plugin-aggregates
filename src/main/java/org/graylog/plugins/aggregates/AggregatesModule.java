@@ -13,6 +13,7 @@ import org.graylog.plugins.aggregates.rule.rest.RuleResource;
 import org.graylog.plugins.aggregates.report.schedule.ReportScheduleService;
 import org.graylog.plugins.aggregates.report.schedule.ReportScheduleServiceImpl;
 import org.graylog.plugins.aggregates.report.schedule.rest.ReportScheduleResource;
+import org.graylog.plugins.aggregates.util.AggregatesUtil;
 import org.graylog2.alerts.AbstractAlertCondition;
 import org.graylog2.alerts.AlertService;
 import org.graylog2.alerts.AlertServiceImpl;
@@ -53,8 +54,8 @@ public class AggregatesModule extends PluginModule {
         addRestResource(RuleResource.class);
         addRestResource(ReportScheduleResource.class);
 
-        addAlertCondition("Aggregates Alert", AggregatesAlertCondition.class, AggregatesAlertCondition.Factory.class);
-                //;
+        addAlertCondition(AggregatesUtil.ALERT_CONDITION_TYPE, AggregatesAlertCondition.class, AggregatesAlertCondition.Factory.class);
+
         /*
          * Register your plugin types here.
          *

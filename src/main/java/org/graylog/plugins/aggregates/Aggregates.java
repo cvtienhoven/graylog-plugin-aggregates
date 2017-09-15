@@ -167,8 +167,6 @@ public class Aggregates extends Periodical {
 								} catch (NotFoundException e) {
 									LOG.error("failed to resolve alert for rule " + rule + ": " + e.getMessage());
 								}
-							} else {
-								LOG.info("currentAlertId is null for rule " + rule);
 							}
 						}
 

@@ -15,6 +15,7 @@ import org.joda.time.Duration;
 import org.joda.time.Period;
 
 public class AggregatesUtil {
+    public final static String ALERT_CONDITION_TYPE = "Aggregates Alert";
 
 	public static int timespanToSeconds(String timespan, Calendar cal){
 		Period period = Period.parse(timespan);

@@ -28,7 +28,7 @@ import java.util.stream.Collectors;
 
 public class AggregatesAlertCondition extends AbstractAlertCondition {
     private String description = "Dummy alert to test notifications";
-    //private Rule rule;
+
 
     enum CheckType {
         MEAN("mean value"), MIN("min value"), MAX("max value"), SUM("sum"), STDDEV("standard deviation");
@@ -55,10 +55,10 @@ public class AggregatesAlertCondition extends AbstractAlertCondition {
                                     @Assisted("userid") String creatorUserId,
                                     @Assisted Map<String, Object> parameters,
                                     @Assisted("title") @Nullable String title) {
-        super(stream, id, "Aggregates Alert", createdAt, creatorUserId, parameters, title);
+        super(stream, id, AggregatesUtil.ALERT_CONDITION_TYPE, createdAt, creatorUserId, parameters, title);
 
-        //this.rule = (Rule) parameters.get("rule");
         this.description = (String) parameters.get("description");
+
     }
 
     @Override
@@ -68,13 +68,13 @@ public class AggregatesAlertCondition extends AbstractAlertCondition {
 
     @Override
     public CheckResult runCheck() {
-        return new CheckResult(true, this, "Aggregates rule triggered an alert.", this.getCreatedAt(), null);
+        return new CheckResult(true, this, this.description, this.getCreatedAt(), null);
     }
 
     public static class Descriptor extends AlertCondition.Descriptor {
         public Descriptor() {
             super(
-                    "Aggregates Alert Condition",
+                    "Aggregate Rule Alert Condition",
                     "https://github.com/cvtienhoven/graylog-plugin-aggregates",
                     "This condition is triggered when an Aggregates Rule has been satisfied."
             );
@@ -89,7 +89,7 @@ public class AggregatesAlertCondition extends AbstractAlertCondition {
         @Override
         public ConfigurationRequest getRequestedConfiguration() {
             final ConfigurationRequest configurationRequest = ConfigurationRequest.createWithFields();
-            //configurationRequest.addFields(AbstractAlertCondition.getDefaultConfigurationFields());
+            configurationRequest.addFields(AbstractAlertCondition.getDefaultConfigurationFields());
 
             return configurationRequest;
         }
