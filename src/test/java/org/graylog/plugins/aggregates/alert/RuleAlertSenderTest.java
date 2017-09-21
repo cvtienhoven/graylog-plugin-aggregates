@@ -205,7 +205,7 @@ public class RuleAlertSenderTest {
 		when(rule.getName()).thenReturn("name");
 		when(rule.isEnabled()).thenReturn(true);		
 		when(rule.getStreamId()).thenReturn("streamId");
-		when(rule.getNotificationId()).thenReturn("notificationId");
+
 	
 		return rule;
 	}

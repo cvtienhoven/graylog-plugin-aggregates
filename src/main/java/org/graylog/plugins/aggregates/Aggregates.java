@@ -152,11 +152,11 @@ public class Aggregates extends Periodical {
 							historyItemService.create(historyItem);
 
 							try {
-								if (rule.getNotificationId() != null) {
+								//if (rule.getNotificationId() != null) {
 									alertSender.send(rule, matchedTerms, timeRange);
-								} else {
-									LOG.debug("No notification configured for rule " + rule.getName());
-								}
+								//} else {
+								//	LOG.debug("No notification configured for rule " + rule.getName());
+								//}
 							} catch (Exception e) {
 								LOG.error("failed to call Alarm Callback: " + e.getMessage());
 							}

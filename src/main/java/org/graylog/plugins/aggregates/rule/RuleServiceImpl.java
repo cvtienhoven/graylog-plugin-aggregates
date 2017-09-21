@@ -112,11 +112,11 @@ public class RuleServiceImpl implements RuleService {
 				request.getRule().getName(),
 				request.getRule().isEnabled(),
 				request.getRule().getStreamId(),
-				request.getRule().getNotificationId(),
 				request.getRule().isInReport(),
 				request.getRule().getReportSchedules(),
 				request.getRule().isSliding(),
-				null);
+				null,
+				request.getRule().isRepeatNotifications());
 	}
 
 	@Override
@@ -131,11 +131,11 @@ public class RuleServiceImpl implements RuleService {
 				request.getRule().getName(),
 				request.getRule().isEnabled(),
 				request.getRule().getStreamId(),
-				request.getRule().getNotificationId(),
 				request.getRule().isInReport(),
 				request.getRule().getReportSchedules(),
 				request.getRule().isSliding(),
-				request.getRule().getCurrentAlertId());
+				request.getRule().getCurrentAlertId(),
+				request.getRule().isRepeatNotifications());
 	}
 	
 	@Override

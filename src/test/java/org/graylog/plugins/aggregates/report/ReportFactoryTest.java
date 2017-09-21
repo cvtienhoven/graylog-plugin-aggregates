@@ -43,8 +43,9 @@ public class ReportFactoryTest {
 		List<String> reportReceivers = new ArrayList<String>();
 
 		ReportSchedule schedule = ReportScheduleImpl.create("1231231", "name", "expression", "P1D", false, 0L, reportReceivers);
-		
-		Rule rule1 = RuleImpl.create("query", "field", null,1L, true, 1, "Rule 1", true, "", "",true, new ArrayList<String>(), true, null);
+
+
+		Rule rule1 = RuleImpl.create("", "query", "field", null, 1L, true, 1, "Rule 1", true, "", true,new ArrayList<String>(), true, null, true);
 		map.put(rule1, history);
 		
 		
@@ -58,8 +59,8 @@ public class ReportFactoryTest {
 			history.add(HistoryAggregateItemImpl.create(day, 15+i));
 
 		}
-		
-		Rule rule2 = RuleImpl.create("query", "field", null,1L, true, 1, "Rule 2", true, "", "",true, new ArrayList<String>(), true, null);
+
+		Rule rule2 = RuleImpl.create("", "query", "field", null, 1L, true, 1, "Rule 2", true, "", true,new ArrayList<String>(), true, null, true);
 		map.put(rule2, history);
 		history = new ArrayList<HistoryAggregateItem>();
 		for (int i=0; i<30; i++){
@@ -70,7 +71,7 @@ public class ReportFactoryTest {
 
 		}
 		
-		Rule rule3 = RuleImpl.create("query", "field", null, 1L, true, 1, "Rule 3", true, "","", true, new ArrayList<String>(), true, null);
+		Rule rule3 = RuleImpl.create("", "query", "field", null, 1L, true, 1, "Rule 3", true, "", true,new ArrayList<String>(), true, null, true);
 		map.put(rule3, history);
 		
 		history = new ArrayList<HistoryAggregateItem>();
@@ -82,7 +83,7 @@ public class ReportFactoryTest {
 			
 		}
 		
-		Rule rule4 = RuleImpl.create("query", "field", null,1L, true, 1, "Rule 4", true, "", "",true, new ArrayList<String>(), true, null);
+		Rule rule4 = RuleImpl.create("", "query", "field", null, 1L, true, 1, "Rule 4", true, "", true,new ArrayList<String>(), true, null, true);
 		map.put(rule4, history);
 		
 		history = new ArrayList<HistoryAggregateItem>();
@@ -94,7 +95,7 @@ public class ReportFactoryTest {
 
 		}
 		
-		Rule rule5 = RuleImpl.create("query", "field", null, 1L, true, 1, "Rule 5", true, "","", true, new ArrayList<String>(), true, null);
+		Rule rule5 = RuleImpl.create("", "query", "field", null, 1L, true, 1, "Rule 5", true, "", true,new ArrayList<String>(), true, null, true);
 		map.put(rule5, history);
 		
 		Map<Rule, ReportSchedule> mapping = new HashMap<Rule, ReportSchedule>();

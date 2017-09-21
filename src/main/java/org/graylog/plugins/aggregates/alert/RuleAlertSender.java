@@ -77,59 +77,63 @@ public class RuleAlertSender {
 	}
 
 	public void send(Rule rule, Map<String, Long> matchedTerms, TimeRange timeRange) throws NotFoundException, AlarmCallbackConfigurationException, ClassNotFoundException, UnsupportedEncodingException, ValidationException, ConfigurationException {
-        if (rule.getCurrentAlertId() == null) {
+        Stream triggeredStream = streamService.load(rule.getStreamId());
+
+        Map<String, Object> parameters = new HashMap<String, Object>();
+        parameters.put("time", rule.getInterval());
+        parameters.put("description", AggregatesUtil.getAlertConditionType(rule));
+        parameters.put("threshold_type", AggregatesAlertCondition.ThresholdType.HIGHER.toString());
+        parameters.put("threshold", rule.getNumberOfMatches());
+        parameters.put("grace", 0);
+        parameters.put("type", AggregatesUtil.ALERT_CONDITION_TYPE);
+        parameters.put("field", rule.getField());
+        parameters.put("backlog", 0);
+        parameters.put("repeat_notifications", rule.isRepeatNotifications());
+
+        String title = "Aggregate rule [" + rule.getName() + "] triggered an alert.";
+
+        String description = aggregatesUtil.buildSummary(rule, configuration, matchedTerms, timeRange);
+
+	    if (rule.getCurrentAlertId() == null) {
             LOG.info("No alert active yet, invoking callback and updating rule and alert condition");
-	        AlarmCallbackConfiguration alarmCallbackConfiguration = alarmCallbackConfigurationService.load(rule.getNotificationId());
-        
-            AlarmCallback callback = alarmCallbackFactory.create(alarmCallbackConfiguration);
-
-            Stream triggeredStream = streamService.load(rule.getStreamId());
-
-            Map<String, Object> parameters = new HashMap<String, Object>();
-            parameters.put("time", rule.getInterval());
-            parameters.put("description", AggregatesUtil.getAlertConditionType(rule));
-            parameters.put("threshold_type", AggregatesAlertCondition.ThresholdType.HIGHER.toString());
-            parameters.put("threshold", rule.getNumberOfMatches());
-            parameters.put("grace", 0);
-            parameters.put("type", AggregatesUtil.ALERT_CONDITION_TYPE);
-            parameters.put("field", rule.getField());
-            parameters.put("backlog", 0);
-
-            String title = "Aggregate rule [" + rule.getName() + "] triggered an alert.";
-
-            String description = aggregatesUtil.buildSummary(rule, configuration, matchedTerms, timeRange);
-
-
 
             AggregatesAlertCondition alertCondition = (AggregatesAlertCondition) alertConditionFactory.createAlertCondition(AggregatesUtil.ALERT_CONDITION_TYPE, triggeredStream, null, timeRange.getFrom(), "admin", parameters, title);
+
             streamService.addAlertCondition(triggeredStream, alertCondition);
 
-            LOG.info("callback to be invoked: " + callback.getName());
-            AlarmCallbackResult callbackResult = AlarmCallbackSuccess.create();
-        
-            try {
-                callback.call(streamService.load(rule.getStreamId()), alertCondition.runCheck());
-    		} catch (AlarmCallbackException e) {
-    			LOG.error("Error while invoking callback " + callback.getName() + ": " + e.getMessage());
-    			callbackResult = AlarmCallbackError.create(e.getMessage());
-    		}
-
-            String currentAlertId = alertService.save(getAlert(alertCondition));
-            ruleService.setCurrentAlertId(rule, currentAlertId);
+            //String currentAlertId = alertService.save(getAlert(alertCondition));
+            //ruleService.setCurrentAlertId(rule, currentAlertId);
+            ruleService.setCurrentAlertId(rule, alertCondition.getId());
         } else {
             LOG.info("Alert already active for rule " + rule + ", not invoking callback and not updating current alert with id " + rule.getCurrentAlertId());
+            //Alert alert = alertService.load(rule.getCurrentAlertId(), rule.getStreamId());
+            if((Boolean) streamService.getAlertCondition(triggeredStream, rule.getCurrentAlertId()).getParameters().get("repeat_notifications") != rule.isRepeatNotifications()) {
+                LOG.info("AlertCondition parameter [repeat_notifications] has changed, updating it");
+                AggregatesAlertCondition alertCondition = (AggregatesAlertCondition) alertConditionFactory.createAlertCondition(AggregatesUtil.ALERT_CONDITION_TYPE, triggeredStream, rule.getCurrentAlertId(), timeRange.getFrom(), "admin", parameters, title);
+                streamService.updateAlertCondition(triggeredStream, alertCondition);
+            }
+
         }
 
     }
 
     //let's wrap that static method call for testing
-    public Alert getAlert(AlertCondition alertCondition){
+    /*public Alert getAlert(AlertCondition alertCondition){
         return AlertImpl.fromCheckResult(alertCondition.runCheck());
-    }
+    }*/
 
     public void resolveCurrentAlert(Rule rule) throws NotFoundException {
+        Stream stream = streamService.load(rule.getStreamId());
+        Optional<Alert> alert = alertService.getLastTriggeredAlert(rule.getStreamId(), rule.getCurrentAlertId());
+        if (alert.isPresent()){
+            alertService.resolveAlert(alert.get());
+        }
+
+        streamService.removeAlertCondition(stream, rule.getCurrentAlertId());
+
         ruleService.setCurrentAlertId(rule, null);
-	    Alert alert = alertService.load(rule.getCurrentAlertId(), rule.getStreamId());
+        /*
+	    //Alert alert = alertService.load(rule.getCurrentAlertId(), rule.getStreamId());
         try {
             Stream stream = streamService.load(rule.getStreamId());
             streamService.removeAlertCondition(stream, alert.getConditionId());
@@ -141,7 +145,7 @@ public class RuleAlertSender {
             LOG.info("alert resolved for rule " + rule);
         } catch (Exception e){
             LOG.error("Failed to resolve alert for rule " + rule + ": " +e.getMessage());
-        }
+        }*/
     }
 	
 	

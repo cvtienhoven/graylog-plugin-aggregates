@@ -25,8 +25,6 @@ public interface Rule {
 	
 	public String getStreamId();
 
-	public String getNotificationId();
-
 	public boolean isInReport();
 
 	public List<String> getReportSchedules();
@@ -35,4 +33,5 @@ public interface Rule {
 
 	public String getCurrentAlertId();
 
+	public boolean isRepeatNotifications();
 }

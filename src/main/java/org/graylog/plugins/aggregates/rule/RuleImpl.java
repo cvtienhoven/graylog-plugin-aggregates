@@ -18,11 +18,13 @@ import org.graylog2.streams.StreamImpl;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import com.google.auto.value.AutoValue;
 
 @AutoValue
 @JsonAutoDetect
+@JsonIgnoreProperties(ignoreUnknown = true)
 @CollectionName("aggregate_rules")
 public abstract class RuleImpl implements Rule{
 
@@ -69,11 +71,6 @@ public abstract class RuleImpl implements Rule{
     @Override
     public abstract String getStreamId();
 
-    @JsonProperty("notificationId")
-    @Override
-    @Nullable
-    public abstract String getNotificationId();
-
     @JsonProperty("inReport")
     @Override
     public abstract boolean isInReport();
@@ -93,6 +90,11 @@ public abstract class RuleImpl implements Rule{
     @Nullable
     public abstract String getCurrentAlertId();
 
+    @JsonProperty("repeatNotifications")
+    @Override
+    @Nullable
+    public abstract boolean isRepeatNotifications();
+
 	@JsonCreator
     public static RuleImpl create(@JsonProperty("_id") String objectId,
                                        @JsonProperty("query") String query,
@@ -104,12 +106,12 @@ public abstract class RuleImpl implements Rule{
                                        @JsonProperty("name") String name,
                                        @JsonProperty("enabled") boolean enabled,
                                        @JsonProperty("streamId") String streamId,
-                                       @JsonProperty("notificationId") String notificationId,
                                        @JsonProperty("inReport") boolean inReport,
                                        @JsonProperty("reportSchedules") List<String> reportSchedules,
                                        @JsonProperty("sliding") boolean sliding,
-                                       @JsonProperty("currentAlertId") String currentAlertId) {
-        return new AutoValue_RuleImpl(query, field, alertReceivers, numberOfMatches, matchMoreOrEqual, interval, name, enabled, streamId, notificationId, inReport, reportSchedules, sliding, currentAlertId);
+                                       @JsonProperty("currentAlertId") String currentAlertId,
+                                       @JsonProperty("repeatNotifications") boolean repeatNotifications) {
+        return new AutoValue_RuleImpl(query, field, alertReceivers, numberOfMatches, matchMoreOrEqual, interval, name, enabled, streamId, inReport, reportSchedules, sliding, currentAlertId, repeatNotifications);
     }
 	
 	public static RuleImpl create(
@@ -122,12 +124,12 @@ public abstract class RuleImpl implements Rule{
             String name,
             boolean enabled,
             String streamId,
-            String notificationId,
             boolean inReport,
             List<String> reportSchedules,
             boolean sliding,
-            String currentAlertId) {
-		return new AutoValue_RuleImpl(query, field, alertReceivers, numberOfMatches, matchMoreOrEqual, interval, name, enabled, streamId, notificationId, inReport, reportSchedules, sliding, currentAlertId);
+            String currentAlertId,
+            boolean repeatNotifications) {
+		return new AutoValue_RuleImpl(query, field, alertReceivers, numberOfMatches, matchMoreOrEqual, interval, name, enabled, streamId, inReport, reportSchedules, sliding, currentAlertId, repeatNotifications);
 	
 	}
 }

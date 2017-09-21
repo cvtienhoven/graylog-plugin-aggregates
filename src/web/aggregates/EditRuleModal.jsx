@@ -11,13 +11,10 @@ import { IfPermitted } from 'components/common';
 import StoreProvider from 'injection/StoreProvider';
 import CombinedProvider from 'injection/CombinedProvider';
 
-const { AlarmCallbacksActions } = CombinedProvider.get('AlarmCallbacks');
-const { AlertNotificationsActions } = CombinedProvider.get('AlertNotifications');
-
 const StreamsStore = StoreProvider.getStore('Streams');
 
-
 const EditRuleModal = React.createClass({
+  mixins: [Reflux.connect(AggregatesStore)],
   propTypes: {
     rule: React.PropTypes.object,
     create: React.PropTypes.bool,
@@ -36,6 +33,7 @@ const EditRuleModal = React.createClass({
         notificationId: '',
         inReport: true,
         reportSchedules: [],
+        repeatNotifications: true,
       },
     };
   },
@@ -72,7 +70,6 @@ const EditRuleModal = React.createClass({
         return 0;
       });
       this.setState({ streams: list });
-      this._loadNotificationsForStream();
     });
 
     const selectedReportSchedules = (this.state.rule.reportSchedules === null ? [] : this.state.rule.reportSchedules);
@@ -115,29 +112,6 @@ const EditRuleModal = React.createClass({
       this.props.createRule(rule, this._saved);
     }
   },
-  _loadNotificationsForStream(){
-    if (this.state.rule.streamId !== '') {
-      AlarmCallbacksActions.list(this.state.rule.streamId)
-        .then(callbacks => this.setState({ alerts: callbacks }));
-    }
-  },
-  _createNotificationSelectItems() {
-    const items = [];
-    items.push(
-      <option key={-1} value=" ">--No Notification--</option>
-    );
-
-    if (this.state.rule.streamId.trim() !== ''){
-      console.log('fetching notifications for streamId ' + this.state.rule.streamId);
-
-
-      for (let i = 0; i < this.state.alerts.length; i++) {
-        items.push(<option key={i} value={this.state.alerts[i].id}>{this.state.alerts[i].title}</option>);
-      }
-    }
-
-    return items;
-  },
   _createStreamSelectItems() {
     const items = [];
 
@@ -175,18 +149,13 @@ const EditRuleModal = React.createClass({
 
 
 
-    if (parameter === 'sliding') {
+    if (parameter === 'sliding' || parameter === 'repeatNotifications') {
       rule[parameter] = value;
     } else {
       rule[parameter] = value.trim();
     }
 
     this.setState({ rule: rule });
-
-    if (parameter === 'streamId'){
-      this._loadNotificationsForStream();
-      rule['alertId'] = ' ';
-    }
   },
   formatMultiselectOptions(collection) {
     return collection.map((item) => {
@@ -264,14 +233,10 @@ const EditRuleModal = React.createClass({
               help="When checked, the rule will be evaluated every minute, else it will be evaluated every <interval> minute(s). Enabling could result in more alerts."
               onChange={this._onValueChanged} />
 
-
-
-
-            <Input ref="notificationId" name="notificationId" id="notificationId" type="select" value={this.state.rule.notificationId}
-                          labelClassName="col-sm-2" wrapperClassName="col-sm-10"
-                          label="Notification" help="Select a notification." required
-                          onChange={this._onValueChanged} > {this._createNotificationSelectItems()}
-                        </Input>
+            <Input key="repeatNotifications" ref="repeatNotifications" name="repeatNotifications" id="repeatNotifications" type="checkbox" checked={this.state.rule.repeatNotifications}
+               label="Repeat notifications" labelClassName="col-sm-12" wrapperClassName="col-sm-offset-2 col-sm-10"
+               help="Check this box to send notifications every time the alert condition is evaluated and satisfied regardless of its state."
+               onChange={this._onValueChanged} />
 
             <Input id="schedules" labelClassName="col-sm-2"
                           wrapperClassName="col-sm-10" label="Report Schedule(s)">

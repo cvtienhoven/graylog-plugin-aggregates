@@ -44,7 +44,7 @@ const RulesList = React.createClass({
     SchedulesActions.list().then(newSchedules => {
       this.setState({ reportSchedules: newSchedules });
     });
-    AlertNotificationsStore.listAll();
+
   },
   deleteRule(name) {
     AggregatesActions.deleteByName(name);
@@ -59,6 +59,11 @@ const RulesList = React.createClass({
     updatedRule.inReport = !updatedRule.inReport;
     AggregatesActions.update(rule.name, updatedRule);
   },
+  toggleRepeatNotifications(rule) {
+      const updatedRule = rule;
+      updatedRule.repeatNotifications = !updatedRule.repeatNotifications;
+      AggregatesActions.update(rule.name, updatedRule);
+    },
   _deleteRuleFunction(name) {
     return () => {
       if (window.confirm(`Do you really want to delete rule ${name}?`)) {
@@ -79,6 +84,11 @@ const RulesList = React.createClass({
       this.toggleInReport(rule);
     };
   },
+  _toggleRuleRepeatNotificationsFunction(rule) {
+     return () => {
+       this.toggleRepeatNotifications(rule);
+     };
+  },
   _headerCellFormatter(header) {
     let formattedHeaderCell;
 
@@ -94,20 +104,6 @@ const RulesList = React.createClass({
     }
 
     return formattedHeaderCell;
-  },
-  _alertReceiversFormatter(rule) {
-    const emailReceivers = rule.alertReceivers.map((receiver) => {
-      return (
-        <li key={receiver}>
-          <i className="fa fa-envelope"/> {receiver}
-        </li>
-      );
-    });
-    return (
-      <ul className="alert-receivers">
-        {emailReceivers}
-      </ul>
-    );
   },
   _reportScheduleFormatter(rule) {
     let reportSchedules = '';
@@ -138,11 +134,15 @@ const RulesList = React.createClass({
       rule.matchMoreOrEqual === true ? `${rule.numberOfMatches} or more` : `less than ${rule.numberOfMatches}`
     );
 
-    const inReportEnabled = this.state.currentUser && this.isPermitted(this.state.currentUser.permissions, 'aggregate_rules:update');
+    const updatePermitted = this.state.currentUser && this.isPermitted(this.state.currentUser.permissions, 'aggregate_rules:update');
 
     const inReport = (            
-      <input id="toggle-in-report" type="checkbox" checked={rule.inReport} onClick={this._toggleRuleInReportFunction(rule)} disabled={!inReportEnabled} ></input>
+      <input id="toggle-in-report" type="checkbox" checked={rule.inReport} onClick={this._toggleRuleInReportFunction(rule)} disabled={!updatePermitted} ></input>
 
+    );
+
+    const repeatNotifications = (
+      <input id="toggle-repeat-notifications" type="checkbox" checked={rule.repeatNotifications} onClick={this._toggleRuleRepeatNotificationsFunction(rule)} disabled={!updatePermitted} ></input>
     );
 
     const deleteAction = (
@@ -192,27 +192,14 @@ const RulesList = React.createClass({
       }
     }
 
-    let notificationTitle = '--No Notification--';
-    if (this.state.allNotifications && this.state.allNotifications != [] && rule.notificationId !== '') {
-      const notifications = this.state.allNotifications;
-      for (let i = 0; i < notifications.length; i++){
-        if (notifications[i].id === rule.notificationId) {
-          notificationTitle = notifications[i].title;
-          break;
-        }
-      }
-
-    }
-
-
     return (
       <tr key={rule.name}>
         <td className="limited">{rule.name}</td>
         <td className="limited">{rule.query}</td>
         <td className="limited">The same value of field '{rule.field}' occurs {match} times in a {rule.interval} minute interval</td>
-        <td className="limited">{notificationTitle}</td>
         <td className="limited">{streamTitle}</td>
         <td>{inReport}</td>
+        <td>{repeatNotifications}</td>
         <td>{this._reportScheduleFormatter(rule)}</td>
         <td>{actions}</td>
       </tr>
@@ -220,7 +207,7 @@ const RulesList = React.createClass({
   },
   render() {
     const filterKeys = ['name', 'query', 'field', 'stream'];
-    const headers = ['Rule name', 'Query', 'Alert condition', 'Notification', 'Stream', 'In report', 'Report schedule(s)'];
+    const headers = ['Rule name', 'Query', 'Alert condition', 'Stream', 'In report', 'Repeat notifications', 'Report schedule(s)'];
 
     if (this.state.rules) {
       return (

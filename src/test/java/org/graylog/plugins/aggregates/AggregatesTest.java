@@ -112,7 +112,7 @@ public class AggregatesTest {
 	@Test
 	public void testDoRunIndexerRunningOneRuleDisabled(){		
 		Mockito.doReturn(true).when(aggregates).shouldRun();
-		List<Rule> ruleList = mockRuleList("query","field",1,true,1,"name",new ArrayList<String>(),false,"streamId", "notificationId");
+		List<Rule> ruleList = mockRuleList("query","field",1,true,1,"name",new ArrayList<String>(),false,"streamId");
 		when(ruleService.all()).thenReturn(ruleList);
 		
 		Mockito.doCallRealMethod().when(aggregates).doRun();
@@ -126,7 +126,7 @@ public class AggregatesTest {
 	@Test
 	public void testDoRunIndexerRunningOneRuleEnabledNullTimerange(){		
 		Mockito.doReturn(true).when(aggregates).shouldRun();
-		List<Rule> ruleList = mockRuleList("query","field",1,true,1,"name",new ArrayList<String>(),true,"streamId", "notificationId");
+		List<Rule> ruleList = mockRuleList("query","field",1,true,1,"name",new ArrayList<String>(),true,"streamId");
 		when(ruleService.all()).thenReturn(ruleList);
 		Mockito.doReturn(null).when(aggregates).buildRelativeTimeRange(60);
 		
@@ -146,7 +146,7 @@ public class AggregatesTest {
 		boolean matchMoreOrEqual = true;
 		
 		Mockito.doReturn(true).when(aggregates).shouldRun();
-		List<Rule> ruleList = mockRuleList("query","field",occurrences,matchMoreOrEqual,1,"name",new ArrayList<String>(),true,"streamId", "notificationId");
+		List<Rule> ruleList = mockRuleList("query","field",occurrences,matchMoreOrEqual,1,"name",new ArrayList<String>(),true,"streamId");
 		when(ruleService.all()).thenReturn(ruleList);
 		Mockito.doReturn(new AbsoluteRange() {
 			
@@ -193,7 +193,7 @@ public class AggregatesTest {
 		boolean matchMoreOrEqual = true;
 		
 		Mockito.doReturn(true).when(aggregates).shouldRun();
-		List<Rule> ruleList = mockRuleList("query","field",occurrences,matchMoreOrEqual,1,"name",new ArrayList<String>(),true,"streamId", "notificationId");
+		List<Rule> ruleList = mockRuleList("query","field",occurrences,matchMoreOrEqual,1,"name",new ArrayList<String>(),true,"streamId");
 		when(ruleService.all()).thenReturn(ruleList);
 		Mockito.doReturn(new AbsoluteRange() {
 			
@@ -255,8 +255,7 @@ public class AggregatesTest {
             String name,
             List<String> alertReceivers,
             boolean enabled,
-            String streamId,
-			String notificationId) {
+            String streamId) {
 
 		Rule rule = mock(RuleImpl.class);
 		when(rule.getQuery()).thenReturn(query);
@@ -267,7 +266,7 @@ public class AggregatesTest {
 		when(rule.getName()).thenReturn(name);
 		when(rule.isEnabled()).thenReturn(enabled);		
 		when(rule.getStreamId()).thenReturn(streamId);
-		when(rule.getNotificationId()).thenReturn(notificationId);
+		//when(rule.getNotificationId()).thenReturn(notificationId);
 		
 		List<Rule> ruleList = new ArrayList<Rule>();
 		ruleList.add(rule);
