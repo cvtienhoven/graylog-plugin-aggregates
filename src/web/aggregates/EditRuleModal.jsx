@@ -1,5 +1,6 @@
 import React from 'react';
 import Reflux from 'reflux';
+import AggregatesStore from './AggregatesStore';
 import { Button } from 'react-bootstrap';
 import Input from 'components/bootstrap/Input';
 import MultiSelect from 'components/common/MultiSelect';
