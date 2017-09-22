@@ -7,23 +7,31 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import javax.inject.Inject;
+
+import org.graylog.plugins.aggregates.alert.AggregatesAlertCondition;
 import org.graylog.plugins.aggregates.history.HistoryItem;
 import org.graylog.plugins.aggregates.history.HistoryItemImpl;
 import org.graylog.plugins.aggregates.history.HistoryItemService;
 import org.graylog.plugins.aggregates.rule.Rule;
 import org.graylog.plugins.aggregates.rule.RuleService;
 import org.graylog.plugins.aggregates.alert.RuleAlertSender;
+import org.graylog.plugins.aggregates.util.AggregatesUtil;
+import org.graylog2.alerts.AlertConditionFactory;
 import org.graylog2.database.NotFoundException;
 import org.graylog2.indexer.results.TermsResult;
 import org.graylog2.indexer.searches.Searches;
 import org.graylog2.indexer.searches.SearchesClusterConfig;
 import org.graylog2.indexer.cluster.Cluster;
 import org.graylog2.plugin.cluster.ClusterConfigService;
+import org.graylog2.plugin.configuration.ConfigurationException;
+import org.graylog2.plugin.database.ValidationException;
 import org.graylog2.plugin.indexer.searches.timeranges.AbsoluteRange;
 import org.graylog2.plugin.indexer.searches.timeranges.InvalidRangeParametersException;
 import org.graylog2.plugin.indexer.searches.timeranges.RelativeRange;
 import org.graylog2.plugin.indexer.searches.timeranges.TimeRange;
 import org.graylog2.plugin.periodical.Periodical;
+import org.graylog2.plugin.streams.Stream;
+import org.graylog2.streams.StreamService;
 import org.joda.time.DateTime;
 import org.joda.time.Period;
 import org.slf4j.Logger;
@@ -44,20 +52,24 @@ public class Aggregates extends Periodical {
 	private final RuleService ruleService;
 	private final HistoryItemService historyItemService;
 	private final RuleAlertSender alertSender;
-	
+	private final AlertConditionFactory alertConditionFactory;
+	private final StreamService streamService;
 
 	private static final Logger LOG = LoggerFactory.getLogger(Aggregates.class);
 	private List<Rule> list;
 
 	@Inject
 	public Aggregates(RuleAlertSender alertSender, Searches searches, ClusterConfigService clusterConfigService,
-					  Cluster cluster, RuleService ruleService, HistoryItemService historyItemService) {
+					  Cluster cluster, RuleService ruleService, HistoryItemService historyItemService, AlertConditionFactory alertConditionFactory,
+					  StreamService streamService) {
 		this.searches = searches;
 		this.clusterConfigService = clusterConfigService;
 		this.alertSender = alertSender;
 		this.cluster = cluster;
 		this.ruleService = ruleService;
 		this.historyItemService = historyItemService;
+		this.alertConditionFactory = alertConditionFactory;
+		this.streamService = streamService;
 	}
 
 	@VisibleForTesting
@@ -114,14 +126,85 @@ public class Aggregates extends Periodical {
 						query = query + " AND streams:" + streamId;
 					}
 
+					Map<String, Object> parameters = new HashMap<String, Object>();
+					parameters.put("time", rule.getInterval());
+					parameters.put("description", AggregatesUtil.getAlertConditionType(rule));
 
+					if (matchMoreOrEqual){
+						parameters.put("threshold_type", AggregatesAlertCondition.ThresholdType.MORE_OR_EQUAL.toString());
+					} else {
+						parameters.put("threshold_type", AggregatesAlertCondition.ThresholdType.LESS.toString());
+					}
+
+					parameters.put("threshold", rule.getNumberOfMatches());
+					parameters.put("grace", 0);
+					parameters.put("type", AggregatesUtil.ALERT_CONDITION_TYPE);
+					parameters.put("field", rule.getField());
+					parameters.put("number_of_matches", rule.getNumberOfMatches());
+					parameters.put("match_more_or_equal", rule.isMatchMoreOrEqual());
+					parameters.put("backlog", 10);
+					parameters.put("repeat_notifications", rule.isRepeatNotifications());
+					parameters.put("interval", rule.getInterval());
+					parameters.put("query", query);
+					parameters.put("rule_name", rule.getName());
+
+					String title = "Aggregate rule [" + rule.getName() + "] triggered an alert.";
+
+					Stream triggeredStream = null;
+					try {
+						triggeredStream = streamService.load(rule.getStreamId());
+					} catch (NotFoundException e) {
+						LOG.error("Stream with ID [{}] not found, skipping rule with name [{}]", rule.getStreamId(), rule.getName());
+						continue;
+					}
 
 
 					final TimeRange timeRange = buildRelativeTimeRange(60 * interval_minutes);
-					if (null != timeRange) {
-						TermsResult result = searches.terms(field, limit, query, /*filter,*/ timeRange);
+					AggregatesAlertCondition alertCondition;
 
+					if (rule.getCurrentAlertId() == null) {
+						try {
+							alertCondition = (AggregatesAlertCondition) alertConditionFactory.createAlertCondition(AggregatesUtil.ALERT_CONDITION_TYPE, triggeredStream, null, timeRange.getFrom(), "admin", parameters, title);
+							streamService.addAlertCondition(triggeredStream, alertCondition);
+						} catch (ConfigurationException|ValidationException e) {
+							LOG.error("Failed to save Alert Condition for rule [{}] ", rule.getName());
+							continue;
+						}
+						ruleService.setCurrentAlertId(rule, alertCondition.getId());
+					} else {
 
+						try {
+							alertCondition = (AggregatesAlertCondition) streamService.getAlertCondition(triggeredStream, rule.getCurrentAlertId());
+							if (!alertCondition.parametersEqual(parameters)){
+								LOG.info("Parameters of Alert Condition changed for rule [{}], updating Alert Condition", rule.getName());
+								alertCondition = (AggregatesAlertCondition) alertConditionFactory.createAlertCondition(AggregatesUtil.ALERT_CONDITION_TYPE, triggeredStream, rule.getCurrentAlertId(), timeRange.getFrom(), "admin", parameters, title);
+								streamService.updateAlertCondition(triggeredStream, alertCondition);
+							}
+							/*
+							if (!alertCondition.equals(streamService.getAlertCondition(triggeredStream, rule.getCurrentAlertId()))) {
+								alertCondition = (AggregatesAlertCondition) alertConditionFactory.createAlertCondition(AggregatesUtil.ALERT_CONDITION_TYPE, triggeredStream, rule.getCurrentAlertId(), timeRange.getFrom(), "admin", parameters, title);
+								streamService.updateAlertCondition(triggeredStream, alertCondition);
+							}*/
+						} catch (NotFoundException e) {
+							LOG.warn("Alert Condition removed for rule [{}], re-instantiating", rule.getName());
+							try {
+								alertCondition = (AggregatesAlertCondition) alertConditionFactory.createAlertCondition(AggregatesUtil.ALERT_CONDITION_TYPE, triggeredStream, rule.getCurrentAlertId(), timeRange.getFrom(), "admin", parameters, title);
+								streamService.addAlertCondition(triggeredStream, alertCondition);
+							} catch (ValidationException|ConfigurationException e1) {
+								LOG.error("Alert Condition could not be re-instantiated for rule [{}]: {}", e1.getMessage());
+							}
+
+						} catch (ConfigurationException e) {
+							LOG.error("Alert Condition could not be re-instantiated for rule [{}]: {}", e.getMessage());
+						} catch (ValidationException e) {
+							LOG.error("Alert Condition could not be re-instantiated for rule [{}]: {}", e.getMessage());
+						}
+					}
+
+					//if (null != timeRange) {
+					// 	TermsResult result = searches.terms(field, limit, query, /*filter,*/ timeRange);
+
+/*
 						LOG.debug("built query: " + result.getBuiltQuery());
 
 						LOG.debug("query took " + result.tookMs() + "ms");
@@ -170,7 +253,7 @@ public class Aggregates extends Periodical {
 							}
 						}
 
-					}
+					}*/
 
 				}
 

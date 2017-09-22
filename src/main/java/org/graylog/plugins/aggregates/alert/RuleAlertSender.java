@@ -82,7 +82,7 @@ public class RuleAlertSender {
         Map<String, Object> parameters = new HashMap<String, Object>();
         parameters.put("time", rule.getInterval());
         parameters.put("description", AggregatesUtil.getAlertConditionType(rule));
-        parameters.put("threshold_type", AggregatesAlertCondition.ThresholdType.HIGHER.toString());
+        //parameters.put("threshold_type", AggregatesAlertCondition.ThresholdType.HIGHER.toString());
         parameters.put("threshold", rule.getNumberOfMatches());
         parameters.put("grace", 0);
         parameters.put("type", AggregatesUtil.ALERT_CONDITION_TYPE);
