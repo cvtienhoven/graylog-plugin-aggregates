@@ -29,7 +29,7 @@ This scenario is actually very useful in a security context, but with the built-
 
 **Generated Alert Condition**
 
-![](https://github.com/cvtienhoven/graylog-plugin-aggregates/blob/master/images/conditions.png)
+![](https://github.com/cvtienhoven/graylog-plugin-aggregates/blob/master/images/condition.png)
 
 
 **Alert Overview**
@@ -106,8 +106,8 @@ Each rule can be configured to be executed on a particular stream. For the latte
 
 Since version 2.0.0, the plugin integrates tightly with the `Notifications` and `Alert Conditions` within Graylog. You can define a notification on a stream as you would normally do. The plugin creates an Alert Condition when creating an Aggregate Rule and it keeps the condition in sync with the rule after updates. In previous versions, you could only send emails, but now you can also use the HTTP Alarm Callback for instance. If you still want to use emails, you'll have to use the Email Alarm Callback. Unfortunately the HTML markup in emails had to be discarded since the Email Alarm Callback sends emails in plain text.
 
-**_Note 1_**: If you delete the Alert Condition, the plugin re-creates it, except when you disable the rule.
-**_Note 2_**: Enabling the message backlog can inflict a performance penalty, as the backlog has to be assembled from the found terms, using separate searches. Use with care.
+**_Note 1_**: If you delete the Alert Condition, the plugin re-creates it, except when you disable the rule.<br/>
+**_Note 2_**: Enabling the message backlog can inflict a performance penalty, as the backlog has to be assembled from the found terms, using separate searches. Use with care.<br/>
 **_Note 3_**: Alert Conditions are created under the user `admin`.
 
 
