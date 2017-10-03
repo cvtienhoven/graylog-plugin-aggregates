@@ -5,8 +5,10 @@ import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Map;
 
+import org.graylog.plugins.aggregates.alert.AggregatesAlertCondition;
 import org.graylog.plugins.aggregates.rule.Rule;
 import org.graylog2.configuration.EmailConfiguration;
 import org.graylog2.plugin.indexer.searches.timeranges.TimeRange;
@@ -23,7 +25,7 @@ public class AggregatesUtil {
 		return duration.toStandardSeconds().getSeconds();
 	}
 
-	public static String getAlertConditionType(Rule rule){
+	public static String getAlertConditionDescription(Rule rule){
 		String matchDescriptor = rule.getNumberOfMatches() + " or more";
 		if (!rule.isMatchMoreOrEqual()){
 			matchDescriptor = "less than " + rule.getNumberOfMatches();
@@ -58,5 +60,42 @@ public class AggregatesUtil {
         }
         return sb.toString();
 
+    }
+
+    public static Map<String, Object> parametersFromRule(Rule rule){
+        String query = rule.getQuery();
+        String streamId = rule.getStreamId();
+
+        if (streamId != null && streamId != ""){
+            query = query + " AND streams:" + streamId;
+        }
+
+        Map<String, Object> parameters = new HashMap<String, Object>();
+        parameters.put("time", rule.getInterval());
+        parameters.put("description", AggregatesUtil.getAlertConditionDescription(rule));
+
+        if (rule.isMatchMoreOrEqual()){
+            parameters.put("threshold_type", AggregatesAlertCondition.ThresholdType.MORE_OR_EQUAL.toString());
+        } else {
+            parameters.put("threshold_type", AggregatesAlertCondition.ThresholdType.LESS.toString());
+        }
+
+        parameters.put("threshold", rule.getNumberOfMatches());
+        parameters.put("grace", 0);
+        parameters.put("type", AggregatesUtil.ALERT_CONDITION_TYPE);
+        parameters.put("field", rule.getField());
+        parameters.put("number_of_matches", rule.getNumberOfMatches());
+        parameters.put("match_more_or_equal", rule.isMatchMoreOrEqual());
+        parameters.put("backlog", rule.getBacklog());
+        parameters.put("repeat_notifications", rule.shouldRepeatNotifications());
+        parameters.put("interval", rule.getInterval());
+        parameters.put("query", query);
+        parameters.put("rule_name", rule.getName());
+
+        return parameters;
+    }
+
+    public static String alertConditionTitleFromRule(Rule rule){
+        return "Aggregate rule [" + rule.getName() + "] triggered an alert.";
     }
 }

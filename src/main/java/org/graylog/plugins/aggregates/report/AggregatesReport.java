@@ -77,8 +77,6 @@ public class AggregatesReport extends Periodical {
 	@Override
 	public void doRun() {
 		Calendar cal = Calendar.getInstance();
-		
-		String description = "";
 
 		List<ReportSchedule> reportSchedules = reportScheduleService.all();
 
@@ -135,7 +133,7 @@ public class AggregatesReport extends Periodical {
 				ReportFactory.createReport(receipientSeries.getValue(), ruleScheduleMapping, cal, outputStream, hostname);
 				byte[] bytes = outputStream.toByteArray();
 
-				reportSender.sendEmail(receipientSeries.getKey(), bytes, description);
+				reportSender.sendEmail(receipientSeries.getKey(), bytes);
 			}
 
 		} catch (ParseException e) {

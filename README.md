@@ -27,6 +27,16 @@ This scenario is actually very useful in a security context, but with the built-
 ![](https://github.com/cvtienhoven/graylog-plugin-aggregates/blob/master/images/edit_rule.png)
 
 
+**Generated Alert Condition**
+
+![](https://github.com/cvtienhoven/graylog-plugin-aggregates/blob/master/images/conditions.png)
+
+
+**Alert Overview**
+
+![](https://github.com/cvtienhoven/graylog-plugin-aggregates/blob/master/images/alert.png)
+
+
 **Rule overview**
 
 ![](https://github.com/cvtienhoven/graylog-plugin-aggregates/blob/master/images/list.png)
@@ -94,9 +104,11 @@ Each rule can be configured to be executed on a particular stream. For the latte
 
 **Sending alerts**
 
-Since version 2.0.0, the plugin integrates tightly with the `Notifications` within Graylog. You can define a notification on a stream as you would normally do, and from within the plugin, you can refer to that notification as well, as long as you use the same stream for the aggregate rule. In previous versions, you could only send emails, but now you can also use the HTTP Alarm Callback for instance. If you still want to use emails, you'll have to use the Email Alarm Callback. Unfortunately the HTML markup in emails had to be discarded since the Email Alarm Callback sends emails in plain text.
+Since version 2.0.0, the plugin integrates tightly with the `Notifications` and `Alert Conditions` within Graylog. You can define a notification on a stream as you would normally do. The plugin creates an Alert Condition when creating an Aggregate Rule and it keeps the condition in sync with the rule after updates. In previous versions, you could only send emails, but now you can also use the HTTP Alarm Callback for instance. If you still want to use emails, you'll have to use the Email Alarm Callback. Unfortunately the HTML markup in emails had to be discarded since the Email Alarm Callback sends emails in plain text.
 
-**_Note_**: Notifications are only available on streams, so you're required to define a rule using an existing stream. The option "--No stream (global search)--" has been removed from the Stream pulldown menu.
+**_Note 1_**: If you delete the Alert Condition, the plugin re-creates it, except when you disable the rule.
+**_Note 2_**: Enabling the message backlog can inflict a performance penalty, as the backlog has to be assembled from the found terms, using separate searches. Use with care.
+**_Note 3_**: Alert Conditions are created under the user `admin`.
 
 
 **Reporting**
@@ -106,6 +118,25 @@ In the rule overview, there's an option (checkbox) to include rule history in a 
 When creating or editing a rule, the schedule(s) for generating report(s) can be supplied. For configuring a schedule, you should supply a name, a valid Cron expression using the [Drools](http://javadox.com/org.drools/drools-core/6.2.0.Final/org/drools/core/time/impl/CronExpression.html) syntax and the timespan, e.g. the amount of history you wish to incorporate in the report. Since version 2.0.0 of the plugin, receivers of reports are defined on the report schedule, not on the aggregates rule anymore.
 
 **_Note_**: The maximum timespan determines the overall retention. So, if you have a report schedule that takes a year of history, the retention of hits will be a year. This might influence your MongoDB storage needs.
+
+
+# Changelog
+
+2.1.0
+-----
+
+- Fully integrated alerting with the native Graylog notifications method, including message backlog (#24, #25)
+- Removed the "sliding" parameter, because the generated AlertCondition is always evaluated every minute
+- Fixed bug that renaming a rule wasn't reflected in history
+- Implemented functionality so no results would trigger an alert if theres a "less than" condition (#11)
+
+2.0.0
+-----
+
+- Moved report subscriber option to the Report Schedules screen
+- Introduced alerting via the native Graylog Alarm Callbacks (Notifications)
+
+
 
 
 Getting started
@@ -131,3 +162,24 @@ $ mvn release:perform
 ```
 
 This sets the version numbers, creates a tag and pushes to GitHub. Travis CI will build the release artifacts and upload to GitHub automatically.
+
+Installation
+------------
+
+[Download the plugin](https://github.com/cvtienhoven/graylog-plugin-aggregates/releases)
+and place the `.jar` file in your Graylog plugin directory. The plugin directory
+is the `plugins/` folder relative from your `graylog-server` directory by default
+and can be configured in your `graylog.conf` file.
+
+Restart `graylog-server` and you are done.
+
+Development
+-----------
+
+You can improve your development experience for the web interface part of your plugin
+dramatically by making use of hot reloading. To do this, do the following:
+
+* `git clone https://github.com/Graylog2/graylog2-server.git`
+* `cd graylog2-server/graylog2-web-interface`
+* `ln -s $YOURPLUGIN plugin/`
+* `npm install && npm start`

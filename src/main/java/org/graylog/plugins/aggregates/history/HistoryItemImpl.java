@@ -34,7 +34,7 @@ public abstract class HistoryItemImpl implements HistoryItem{
     
     @JsonProperty("numberOfHits")
     @Override
-    @Min(1)
+    @Min(0)
     public abstract long getNumberOfHits();
     
     

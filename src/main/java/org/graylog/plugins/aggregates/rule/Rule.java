@@ -11,8 +11,6 @@ public interface Rule {
 
 	public String getField();
 
-    public List<String> getAlertReceivers();
-
 	public long getNumberOfMatches();
 
 	public boolean isMatchMoreOrEqual();
@@ -29,9 +27,9 @@ public interface Rule {
 
 	public List<String> getReportSchedules();
 
-	public boolean isSliding();
+	public String getAlertConditionId();
 
-	public String getCurrentAlertId();
+	public boolean shouldRepeatNotifications();
 
-	public boolean isRepeatNotifications();
+	public long getBacklog();
 }

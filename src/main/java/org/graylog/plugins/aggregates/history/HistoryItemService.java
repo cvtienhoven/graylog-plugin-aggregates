@@ -16,4 +16,5 @@ public interface HistoryItemService {
 
 	List<HistoryAggregateItem> getForRuleName(String ruleName, String timespan);
 
+    void updateHistoryRuleName(String oldName, String newName);
 }

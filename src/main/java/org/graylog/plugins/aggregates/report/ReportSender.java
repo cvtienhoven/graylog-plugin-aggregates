@@ -41,7 +41,7 @@ protected final EmailConfiguration configuration;
      * @throws EmailException 
      * @throws MessagingException 
      */
-    public void sendEmail(String receipient, byte[] pdf, String description) throws TransportConfigurationException, EmailException, MessagingException {
+    public void sendEmail(String receipient, byte[] pdf) throws TransportConfigurationException, EmailException, MessagingException {
     	if(!configuration.isEnabled()) {
             throw new TransportConfigurationException("Email transport is not enabled in server configuration file!");
         }
@@ -76,14 +76,14 @@ protected final EmailConfiguration configuration;
         }
         
         
-        email.setSubject("Graylog " + description + " Aggregates Report");
+        email.setSubject("Graylog Aggregates Report");
 
         Calendar c = Calendar.getInstance();
 		
 		DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
 		
         email.attach(new ByteArrayDataSource(pdf, "application/pdf"),
-        	      description.toLowerCase() + "_aggregates_report_" + df.format(c.getTime()) +".pdf", "Graylog " + description + "Aggregates Report",
+        	      "aggregates_report_" + df.format(c.getTime()) +".pdf", "Graylog Aggregates Report",
         	       EmailAttachment.ATTACHMENT);
                 
         

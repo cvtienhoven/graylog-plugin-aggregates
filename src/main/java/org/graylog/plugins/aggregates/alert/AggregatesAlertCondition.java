@@ -116,21 +116,19 @@ public class AggregatesAlertCondition extends AbstractAlertCondition {
         List<MessageSummary> summaries = Lists.newArrayListWithCapacity(searchLimit);
 
         String filter = "streams:" + stream.getId();
-        //String query = field + ":\"" + value + "\"";
 
         final TimeRange timeRange = buildRelativeTimeRange(60 * this.interval);
 
         Map<String, Long> matchedTerms = new HashMap<String, Long>();
+        TermsResult result = null;
 
         long ruleCount = 0;
         if (null != timeRange) {
-            TermsResult result = searches.terms(field, limit, query, filter, timeRange);
+            result = searches.terms(field, limit, query, filter, timeRange);
 
             LOG.debug("built query: " + result.getBuiltQuery());
 
             LOG.debug("query took " + result.tookMs() + "ms");
-
-
 
             for (Map.Entry<String, Long> term : result.getTerms().entrySet()) {
 
@@ -176,12 +174,13 @@ public class AggregatesAlertCondition extends AbstractAlertCondition {
 
             }
         }
-        if (!matchedTerms.isEmpty()){
+
+        if (result != null && (!matchedTerms.isEmpty() || (result.getTerms().size() == 0 && !matchMoreOrEqual))){
             HistoryItem historyItem = HistoryItemImpl.create(this.ruleName, new Date(), ruleCount);
 
             historyItemService.create(historyItem);
 
-            LOG.info("Alert check <{}> found [{}] terms.", id, matchedTerms.size());
+            LOG.debug("Alert check <{}> found [{}] terms.", id, matchedTerms.size());
             return new CheckResult(true, this, this.description, this.getCreatedAt(), summaries);
         } else {
             return new NegativeCheckResult();
@@ -265,16 +264,16 @@ public class AggregatesAlertCondition extends AbstractAlertCondition {
     }
 
     public boolean parametersEqual(Map<String, Object> parameters){
-        if (!this.description.equals((String) parameters.get("description"))){
+        if (this.description == null || !this.description.equals((String) parameters.get("description"))){
             return false;
         }
-        if (!this.query.equals((String) parameters.get("query"))){
+        if (this.query == null || !this.query.equals((String) parameters.get("query"))){
             return false;
         }
-        if (!this.ruleName.equals((String) parameters.get("rule_name"))){
+        if (this.ruleName == null || !this.ruleName.equals((String) parameters.get("rule_name"))){
             return false;
         }
-        if (!this.field.equals((String) parameters.get("field"))){
+        if (this.field == null || !this.field.equals((String) parameters.get("field"))){
             return false;
         }
         if (!this.numberOfMatches.equals((Long)parameters.get("number_of_matches"))){

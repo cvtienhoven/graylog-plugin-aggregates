@@ -1,7 +1,6 @@
 package org.graylog.plugins.aggregates;
 
 
-import java.util.Date;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -9,16 +8,12 @@ import java.util.Map;
 import javax.inject.Inject;
 
 import org.graylog.plugins.aggregates.alert.AggregatesAlertCondition;
-import org.graylog.plugins.aggregates.history.HistoryItem;
-import org.graylog.plugins.aggregates.history.HistoryItemImpl;
 import org.graylog.plugins.aggregates.history.HistoryItemService;
 import org.graylog.plugins.aggregates.rule.Rule;
 import org.graylog.plugins.aggregates.rule.RuleService;
-import org.graylog.plugins.aggregates.alert.RuleAlertSender;
 import org.graylog.plugins.aggregates.util.AggregatesUtil;
 import org.graylog2.alerts.AlertConditionFactory;
 import org.graylog2.database.NotFoundException;
-import org.graylog2.indexer.results.TermsResult;
 import org.graylog2.indexer.searches.Searches;
 import org.graylog2.indexer.searches.SearchesClusterConfig;
 import org.graylog2.indexer.cluster.Cluster;
@@ -51,7 +46,6 @@ public class Aggregates extends Periodical {
 	private final Cluster cluster;
 	private final RuleService ruleService;
 	private final HistoryItemService historyItemService;
-	private final RuleAlertSender alertSender;
 	private final AlertConditionFactory alertConditionFactory;
 	private final StreamService streamService;
 
@@ -59,12 +53,11 @@ public class Aggregates extends Periodical {
 	private List<Rule> list;
 
 	@Inject
-	public Aggregates(RuleAlertSender alertSender, Searches searches, ClusterConfigService clusterConfigService,
+	public Aggregates(Searches searches, ClusterConfigService clusterConfigService,
 					  Cluster cluster, RuleService ruleService, HistoryItemService historyItemService, AlertConditionFactory alertConditionFactory,
 					  StreamService streamService) {
 		this.searches = searches;
 		this.clusterConfigService = clusterConfigService;
-		this.alertSender = alertSender;
 		this.cluster = cluster;
 		this.ruleService = ruleService;
 		this.historyItemService = historyItemService;
@@ -98,57 +91,6 @@ public class Aggregates extends Periodical {
 					continue;
 				}
 
-				int interval_minutes = rule.getInterval();
-
-
-				if (interval_minutes > maxInterval) {
-					maxInterval = rule.getInterval();
-				}
-
-				//always evaluate when isSliding()
-				if (rule.isSliding() || sequence % interval_minutes == 0) {
-
-					String field = rule.getField();
-
-					List<String> unique_field_list = new ArrayList<String>();
-					unique_field_list.add(field);
-
-					long numberOfMatches = rule.getNumberOfMatches();
-					boolean matchMoreOrEqual = rule.isMatchMoreOrEqual();
-
-					//TODO: make limit configurable
-					int limit = 100;
-
-					String query = rule.getQuery();
-					String streamId = rule.getStreamId();
-
-					if (streamId != null && streamId != ""){
-						query = query + " AND streams:" + streamId;
-					}
-
-					Map<String, Object> parameters = new HashMap<String, Object>();
-					parameters.put("time", rule.getInterval());
-					parameters.put("description", AggregatesUtil.getAlertConditionType(rule));
-
-					if (matchMoreOrEqual){
-						parameters.put("threshold_type", AggregatesAlertCondition.ThresholdType.MORE_OR_EQUAL.toString());
-					} else {
-						parameters.put("threshold_type", AggregatesAlertCondition.ThresholdType.LESS.toString());
-					}
-
-					parameters.put("threshold", rule.getNumberOfMatches());
-					parameters.put("grace", 0);
-					parameters.put("type", AggregatesUtil.ALERT_CONDITION_TYPE);
-					parameters.put("field", rule.getField());
-					parameters.put("number_of_matches", rule.getNumberOfMatches());
-					parameters.put("match_more_or_equal", rule.isMatchMoreOrEqual());
-					parameters.put("backlog", 10);
-					parameters.put("repeat_notifications", rule.isRepeatNotifications());
-					parameters.put("interval", rule.getInterval());
-					parameters.put("query", query);
-					parameters.put("rule_name", rule.getName());
-
-					String title = "Aggregate rule [" + rule.getName() + "] triggered an alert.";
 
 					Stream triggeredStream = null;
 					try {
@@ -159,103 +101,13 @@ public class Aggregates extends Periodical {
 					}
 
 
-					final TimeRange timeRange = buildRelativeTimeRange(60 * interval_minutes);
-					AggregatesAlertCondition alertCondition;
+					try {
+						streamService.getAlertCondition(triggeredStream, rule.getAlertConditionId());
+					} catch (NotFoundException e) {
+						LOG.warn("Alert Condition removed for rule [{}], re-instantiating", rule.getName());
 
-					if (rule.getCurrentAlertId() == null) {
-						try {
-							alertCondition = (AggregatesAlertCondition) alertConditionFactory.createAlertCondition(AggregatesUtil.ALERT_CONDITION_TYPE, triggeredStream, null, timeRange.getFrom(), "admin", parameters, title);
-							streamService.addAlertCondition(triggeredStream, alertCondition);
-						} catch (ConfigurationException|ValidationException e) {
-							LOG.error("Failed to save Alert Condition for rule [{}] ", rule.getName());
-							continue;
-						}
-						ruleService.setCurrentAlertId(rule, alertCondition.getId());
-					} else {
-
-						try {
-							alertCondition = (AggregatesAlertCondition) streamService.getAlertCondition(triggeredStream, rule.getCurrentAlertId());
-							if (!alertCondition.parametersEqual(parameters)){
-								LOG.info("Parameters of Alert Condition changed for rule [{}], updating Alert Condition", rule.getName());
-								alertCondition = (AggregatesAlertCondition) alertConditionFactory.createAlertCondition(AggregatesUtil.ALERT_CONDITION_TYPE, triggeredStream, rule.getCurrentAlertId(), timeRange.getFrom(), "admin", parameters, title);
-								streamService.updateAlertCondition(triggeredStream, alertCondition);
-							}
-							/*
-							if (!alertCondition.equals(streamService.getAlertCondition(triggeredStream, rule.getCurrentAlertId()))) {
-								alertCondition = (AggregatesAlertCondition) alertConditionFactory.createAlertCondition(AggregatesUtil.ALERT_CONDITION_TYPE, triggeredStream, rule.getCurrentAlertId(), timeRange.getFrom(), "admin", parameters, title);
-								streamService.updateAlertCondition(triggeredStream, alertCondition);
-							}*/
-						} catch (NotFoundException e) {
-							LOG.warn("Alert Condition removed for rule [{}], re-instantiating", rule.getName());
-							try {
-								alertCondition = (AggregatesAlertCondition) alertConditionFactory.createAlertCondition(AggregatesUtil.ALERT_CONDITION_TYPE, triggeredStream, rule.getCurrentAlertId(), timeRange.getFrom(), "admin", parameters, title);
-								streamService.addAlertCondition(triggeredStream, alertCondition);
-							} catch (ValidationException|ConfigurationException e1) {
-								LOG.error("Alert Condition could not be re-instantiated for rule [{}]: {}", e1.getMessage());
-							}
-
-						} catch (ConfigurationException e) {
-							LOG.error("Alert Condition could not be re-instantiated for rule [{}]: {}", e.getMessage());
-						} catch (ValidationException e) {
-							LOG.error("Alert Condition could not be re-instantiated for rule [{}]: {}", e.getMessage());
-						}
+						ruleService.update(rule.getName(), ruleService.createAlertConditionForRule(rule));
 					}
-
-					//if (null != timeRange) {
-					// 	TermsResult result = searches.terms(field, limit, query, /*filter,*/ timeRange);
-
-/*
-						LOG.debug("built query: " + result.getBuiltQuery());
-
-						LOG.debug("query took " + result.tookMs() + "ms");
-
-						Map<String, Long> matchedTerms = new HashMap<String, Long>();
-						long ruleCount = 0;
-
-						for (Map.Entry<String, Long> term : result.getTerms().entrySet()){
-
-							String matchedFieldValue = term.getKey();
-							Long count = term.getValue();
-
-							if ((matchMoreOrEqual && count >= numberOfMatches)
-									|| (!matchMoreOrEqual && count < numberOfMatches)) {
-
-								LOG.info(count + " found for " + field + "=" + matchedFieldValue);
-
-								matchedTerms.put(matchedFieldValue, count);
-
-								ruleCount += count;
-							}
-
-						}
-
-						if (!matchedTerms.isEmpty()){
-							HistoryItem historyItem = HistoryItemImpl.create(rule.getName(), new Date(), ruleCount);
-
-							historyItemService.create(historyItem);
-
-							try {
-								//if (rule.getNotificationId() != null) {
-									alertSender.send(rule, matchedTerms, timeRange);
-								//} else {
-								//	LOG.debug("No notification configured for rule " + rule.getName());
-								//}
-							} catch (Exception e) {
-								LOG.error("failed to call Alarm Callback: " + e.getMessage());
-							}
-						} else {
-							if (rule.getCurrentAlertId() != null){
-								try {
-									alertSender.resolveCurrentAlert(rule);
-								} catch (NotFoundException e) {
-									LOG.error("failed to resolve alert for rule " + rule + ": " + e.getMessage());
-								}
-							}
-						}
-
-					}*/
-
-				}
 
 			}
 		}

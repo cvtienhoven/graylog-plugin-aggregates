@@ -39,11 +39,6 @@ public abstract class RuleImpl implements Rule{
     @NotNull
     public abstract String getField();
 
-    @JsonProperty("alertReceivers")
-    @Override
-    @Nullable
-    public abstract List<String> getAlertReceivers();
-
     @JsonProperty("numberOfMatches")
     @Override
     @Min(1)
@@ -79,27 +74,27 @@ public abstract class RuleImpl implements Rule{
     @Override
     @Nullable
     public abstract List<String> getReportSchedules();
-    
-    @JsonProperty("sliding")
-    @Override
-    @Nullable
-    public abstract boolean isSliding();
 
-    @JsonProperty("currentAlertId")
+    @JsonProperty("alertConditionId")
     @Override
     @Nullable
-    public abstract String getCurrentAlertId();
+    public abstract String getAlertConditionId();
 
     @JsonProperty("repeatNotifications")
     @Override
     @Nullable
-    public abstract boolean isRepeatNotifications();
+    public abstract boolean shouldRepeatNotifications();
+
+    @JsonProperty("backlog")
+    @Override
+    @Nullable
+    @Min(0)
+    public abstract long getBacklog();
 
 	@JsonCreator
     public static RuleImpl create(@JsonProperty("_id") String objectId,
                                        @JsonProperty("query") String query,
                                        @JsonProperty("field") String field,
-                                       @JsonProperty("alertReceivers") List<String> alertReceivers,
                                        @JsonProperty("numberOfMatches") long numberOfMatches,
                                        @JsonProperty("matchMoreOrEqual") boolean matchMoreOrEqual,
                                        @JsonProperty("interval") int interval,
@@ -108,16 +103,15 @@ public abstract class RuleImpl implements Rule{
                                        @JsonProperty("streamId") String streamId,
                                        @JsonProperty("inReport") boolean inReport,
                                        @JsonProperty("reportSchedules") List<String> reportSchedules,
-                                       @JsonProperty("sliding") boolean sliding,
-                                       @JsonProperty("currentAlertId") String currentAlertId,
-                                       @JsonProperty("repeatNotifications") boolean repeatNotifications) {
-        return new AutoValue_RuleImpl(query, field, alertReceivers, numberOfMatches, matchMoreOrEqual, interval, name, enabled, streamId, inReport, reportSchedules, sliding, currentAlertId, repeatNotifications);
+                                       @JsonProperty("alertConditionId") String alertConditionId,
+                                       @JsonProperty("repeatNotifications") boolean repeatNotifications,
+                                       @JsonProperty("backlog") long backlog) {
+        return new AutoValue_RuleImpl(query, field, numberOfMatches, matchMoreOrEqual, interval, name, enabled, streamId, inReport, reportSchedules, alertConditionId, repeatNotifications, backlog);
     }
 	
 	public static RuleImpl create(
             String query,
             String field,
-            List<String> alertReceivers,
             long numberOfMatches,
             boolean matchMoreOrEqual,
             int interval,
@@ -126,10 +120,10 @@ public abstract class RuleImpl implements Rule{
             String streamId,
             boolean inReport,
             List<String> reportSchedules,
-            boolean sliding,
-            String currentAlertId,
-            boolean repeatNotifications) {
-		return new AutoValue_RuleImpl(query, field, alertReceivers, numberOfMatches, matchMoreOrEqual, interval, name, enabled, streamId, inReport, reportSchedules, sliding, currentAlertId, repeatNotifications);
+            String alertConditionId,
+            boolean repeatNotifications,
+            long backlog) {
+		return new AutoValue_RuleImpl(query, field, numberOfMatches, matchMoreOrEqual, interval, name, enabled, streamId, inReport, reportSchedules, alertConditionId, repeatNotifications, backlog);
 	
 	}
 }

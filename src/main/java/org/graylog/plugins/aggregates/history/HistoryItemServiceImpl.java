@@ -12,10 +12,7 @@ import org.graylog2.database.MongoConnection;
 import org.joda.time.DateTime;
 import org.joda.time.Duration;
 import org.joda.time.Period;
-import org.mongojack.Aggregation;
-import org.mongojack.AggregationResult;
-import org.mongojack.DBCursor;
-import org.mongojack.JacksonDBCollection;
+import org.mongojack.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import javax.inject.Inject;
@@ -126,8 +123,14 @@ public class HistoryItemServiceImpl implements HistoryItemService {
 		
 		return (List<HistoryAggregateItem>) aggregationResult.results();
 				
-	}	
-	
+	}
+
+	@Override
+	public void updateHistoryRuleName(String oldName, String newName) {
+		WriteResult result = coll.updateMulti(DBQuery.is("ruleName", oldName), DBUpdate.set("ruleName", newName));
+		LOG.info("Updated [{}] history items after rule rename from [{}] to [{}]", result.getN(), oldName, newName);
+	}
+
 	private List<HistoryItem> toAbstractListType(DBCursor<HistoryItemImpl> historyItems) {
 		return toAbstractListType(historyItems.toArray());
 	}

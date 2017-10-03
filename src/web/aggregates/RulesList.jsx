@@ -197,6 +197,7 @@ const RulesList = React.createClass({
         <td className="limited">{rule.name}</td>
         <td className="limited">{rule.query}</td>
         <td className="limited">The same value of field '{rule.field}' occurs {match} times in a {rule.interval} minute interval</td>
+        <td className="limited">{rule.backlog}</td>
         <td className="limited">{streamTitle}</td>
         <td>{inReport}</td>
         <td>{repeatNotifications}</td>
@@ -207,7 +208,7 @@ const RulesList = React.createClass({
   },
   render() {
     const filterKeys = ['name', 'query', 'field', 'stream'];
-    const headers = ['Rule name', 'Query', 'Alert condition', 'Stream', 'In report', 'Repeat notifications', 'Report schedule(s)'];
+    const headers = ['Rule name', 'Query', 'Alert condition', 'Message backlog', 'Stream', 'In report', 'Repeat notifications', 'Report schedule(s)'];
 
     if (this.state.rules) {
       return (

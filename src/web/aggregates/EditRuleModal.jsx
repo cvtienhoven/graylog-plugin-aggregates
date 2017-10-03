@@ -32,10 +32,10 @@ const EditRuleModal = React.createClass({
         numberOfMatches: 1,
         interval: 1,
         streamId: '',
-        notificationId: '',
         inReport: true,
         reportSchedules: [],
         repeatNotifications: true,
+        backlog: 0,
       },
     };
   },
@@ -149,9 +149,13 @@ const EditRuleModal = React.createClass({
       ValidationsUtils.setFieldValidity(numberOfMatchesField, numberOfMatchesValue, 'Number of matches should be at least 1');
     }
 
+    if (parameter === 'backlog') {
+          const backlogField = this.refs.backlog.getInputDOMNode();
+          const backlogValue = value < 0;
+          ValidationsUtils.setFieldValidity(backlogField, backlogValue, 'Backlog should be at least 0');
+    }
 
-
-    if (parameter === 'sliding' || parameter === 'repeatNotifications') {
+    if (parameter === 'repeatNotifications') {
       rule[parameter] = value;
     } else {
       rule[parameter] = value.trim();
@@ -230,10 +234,10 @@ const EditRuleModal = React.createClass({
               label="Interval (minutes)" help="...minute interval." required
               onChange={this._onValueChanged} />
 
-            <Input key="sliding" ref="sliding" name="sliding" id="sliding" type="checkbox" checked={this.state.rule.sliding}
-              label="Evaluate every minute" labelClassName="col-sm-12" wrapperClassName="col-sm-offset-2 col-sm-10"
-              help="When checked, the rule will be evaluated every minute, else it will be evaluated every <interval> minute(s). Enabling could result in more alerts."
-              onChange={this._onValueChanged} />
+            <Input ref="backlog" name="backlog" id="backlog" type="number" maxLength={5} defaultValue={this.state.rule.backlog !== null ? this.state.rule.backlog : 0}
+                          labelClassName="col-sm-2" wrapperClassName="col-sm-10"
+                          label="Backlog" help="Number of messages to include in the alert. Use with care, this has a performance penalty." required
+                          onChange={this._onValueChanged} />
 
             <Input key="repeatNotifications" ref="repeatNotifications" name="repeatNotifications" id="repeatNotifications" type="checkbox" checked={this.state.rule.repeatNotifications}
                label="Repeat notifications" labelClassName="col-sm-12" wrapperClassName="col-sm-offset-2 col-sm-10"
