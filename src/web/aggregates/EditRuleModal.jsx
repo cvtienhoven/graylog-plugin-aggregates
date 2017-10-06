@@ -72,6 +72,12 @@ const EditRuleModal = React.createClass({
         return 0;
       });
       this.setState({ streams: list });
+
+      if (this.state.rule.streamId === '' && this.state.streams.length > 0) {
+        const rule = this.state.rule;
+        rule.streamId = this.state.streams[0].id;
+        this.setState({rule: rule});
+      }
     });
 
     const selectedReportSchedules = (this.state.rule.reportSchedules === null ? [] : this.state.rule.reportSchedules);
@@ -122,6 +128,9 @@ const EditRuleModal = React.createClass({
     }
 
     return items;
+  },
+  _getSelectedStreamId(){
+
   },
   _onValueChanged(event) {
     const rule = this.state.rule;

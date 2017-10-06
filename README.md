@@ -56,26 +56,6 @@ This scenario is actually very useful in a security context, but with the built-
 
 ![](https://github.com/cvtienhoven/graylog-plugin-aggregates/blob/master/images/report.png)
 
-Installation
-------------
-
-[Download the plugin](https://github.com/cvtienhoven/graylog-plugin-aggregates/releases)
-and place the `.jar` file in your Graylog plugin directory. The plugin directory
-is the `plugins/` folder relative from your `graylog-server` directory by default
-and can be configured in your `graylog.conf` file.
-
-Restart `graylog-server` and you are done.
-
-Development
------------
-
-You can improve your development experience for the web interface part of your plugin
-dramatically by making use of hot reloading. To do this, do the following:
-
-* `git clone https://github.com/Graylog2/graylog2-server.git`
-* `cd graylog2-server/graylog2-web-interface`
-* `ln -s $YOURPLUGIN plugin/`
-* `npm install && npm start`
 
 Usage
 -----
@@ -121,6 +101,13 @@ When creating or editing a rule, the schedule(s) for generating report(s) can be
 
 
 # Changelog
+
+2.1.1
+-----
+
+- Bugfix: Creation of new rules failed with error 500
+- Bugfix: With only one available stream, corrupt rules got created
+- Bugfix: In the API browser, duplicate entries existed for Plugin/Aggregates (#21)
 
 2.1.0
 -----

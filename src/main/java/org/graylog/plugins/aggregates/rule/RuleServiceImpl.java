@@ -63,11 +63,12 @@ public class RuleServiceImpl implements RuleService {
 	@Override
 	public Rule create(Rule rule) {
 		if (rule instanceof RuleImpl) {
-			final RuleImpl ruleImpl = (RuleImpl) createAlertConditionForRule(rule);
+			final RuleImpl ruleImpl = (RuleImpl) rule;
+
 			final Set<ConstraintViolation<RuleImpl>> violations = validator.validate(ruleImpl);
 			if (violations.isEmpty()) {
-
-				return coll.insert(ruleImpl).getSavedObject();
+				coll.insert(ruleImpl).getSavedObject();
+				return createAlertConditionForRule(rule);
 			} else {
 				throw new IllegalArgumentException("Specified object failed validation: " + violations);
 			}
@@ -139,7 +140,9 @@ public class RuleServiceImpl implements RuleService {
 
 			final Set<ConstraintViolation<RuleImpl>> violations = validator.validate(ruleImpl);
 			if (violations.isEmpty()) {
-                return coll.findAndModify(DBQuery.is("name", ruleImpl.getName()), new BasicDBObject(), new BasicDBObject(), false, DBUpdate.set("alertConditionId", alertConditionId), true, false);
+                Rule newRule = coll.findAndModify(DBQuery.is("name", ruleImpl.getName()), new BasicDBObject(), new BasicDBObject(), false, DBUpdate.set("alertConditionId", alertConditionId), true, false);
+                LOG.debug("Rule after insertion: [{}]", newRule );
+                return newRule;
 			} else {
 				throw new IllegalArgumentException("Specified object failed validation: " + violations);
 			}
@@ -225,7 +228,7 @@ public class RuleServiceImpl implements RuleService {
         }
 
         try {
-            alertCondition = (AggregatesAlertCondition) alertConditionFactory.createAlertCondition(AggregatesUtil.ALERT_CONDITION_TYPE, triggeredStream, alertConditionId, new DateTime(), "admin", parameters, title);
+            alertCondition = (AggregatesAlertCondition) alertConditionFactory.createAlertCondition(AggregatesUtil.ALERT_CONDITION_TYPE, triggeredStream, alertConditionId, DateTime.now(), "admin", parameters, title);
             if (alertConditionId != null) {
                 streamService.updateAlertCondition(triggeredStream, alertCondition);
             } else {

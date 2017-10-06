@@ -34,7 +34,7 @@ import javax.ws.rs.core.Response;
 import java.io.UnsupportedEncodingException;
 import java.util.List;
 
-@Api(value = "Aggregates", description = "Management of Aggregation rules.")
+@Api(value = "Aggregates/Schedules", description = "Management of Aggregation rules.")
 @Path("/schedules")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
