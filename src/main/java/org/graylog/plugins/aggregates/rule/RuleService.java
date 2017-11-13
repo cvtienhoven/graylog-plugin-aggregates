@@ -23,7 +23,7 @@ public interface RuleService {
 	
 	Rule fromRequest(UpdateRuleRequest request);
 
-	Rule setAlertConditionId(Rule rule, String currentAlertId);
+	//Rule setAlertConditionId(Rule rule, String currentAlertId);
 
-    Rule createAlertConditionForRule(Rule rule);
+    String createOrUpdateAlertCondition(Rule rule);
 }

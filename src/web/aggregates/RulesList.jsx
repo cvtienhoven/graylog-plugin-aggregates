@@ -178,8 +178,7 @@ const RulesList = React.createClass({
         {deleteAction}
         &nbsp;
         {editAction}
-        &nbsp;
-        {toggleAction}
+
       </div>
     );
 

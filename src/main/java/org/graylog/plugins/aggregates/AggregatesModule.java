@@ -46,7 +46,7 @@ public class AggregatesModule extends PluginModule {
     	bind(ReportScheduleService.class).to(ReportScheduleServiceImpl.class);
     	bind(HistoryItemService.class).to(HistoryItemServiceImpl.class);    	    	    	
     	
-        addPeriodical(Aggregates.class);
+        //saddPeriodical(Aggregates.class);
         addPeriodical(AggregatesReport.class);
         addPeriodical(AggregatesMaintenance.class);
         addPermissions(RuleRestPermissions.class);

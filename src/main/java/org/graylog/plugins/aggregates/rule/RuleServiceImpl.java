@@ -5,7 +5,6 @@ import com.mongodb.BasicDBObject;
 import com.mongodb.DBCollection;
 
 import org.graylog.plugins.aggregates.alert.AggregatesAlertCondition;
-import org.graylog.plugins.aggregates.history.HistoryItem;
 import org.graylog.plugins.aggregates.history.HistoryItemService;
 import org.graylog.plugins.aggregates.rule.rest.models.requests.AddRuleRequest;
 import org.graylog.plugins.aggregates.rule.rest.models.requests.UpdateRuleRequest;
@@ -22,7 +21,6 @@ import org.graylog2.streams.StreamService;
 import org.joda.time.DateTime;
 import org.mongojack.DBCursor;
 import org.mongojack.DBQuery;
-import org.mongojack.DBUpdate;
 import org.mongojack.JacksonDBCollection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -67,8 +65,9 @@ public class RuleServiceImpl implements RuleService {
 
 			final Set<ConstraintViolation<RuleImpl>> violations = validator.validate(ruleImpl);
 			if (violations.isEmpty()) {
-				coll.insert(ruleImpl).getSavedObject();
-				return createAlertConditionForRule(rule);
+				return coll.insert(ruleImpl).getSavedObject();
+
+				//return createOrUpdateAlertCondition(ruleNew);
 			} else {
 				throw new IllegalArgumentException("Specified object failed validation: " + violations);
 			}
@@ -78,11 +77,11 @@ public class RuleServiceImpl implements RuleService {
 	}
 	
 	@Override
-	public Rule update(String name, Rule rule) {		
+	public Rule update(String name, Rule rule) {
 		
 		if (rule instanceof RuleImpl) {
 			final RuleImpl ruleImpl = (RuleImpl) rule;
-			LOG.debug("updated rule: " + ruleImpl);
+			LOG.debug("Rule to be updated [{}]", ruleImpl);
 
 			if (rule.getAlertConditionId() != null) {
 				Stream triggeredStream = null;
@@ -104,14 +103,15 @@ public class RuleServiceImpl implements RuleService {
 
 						if (!alertCondition.parametersEqual(parameters)) {
                             LOG.info("Parameters of Alert Condition changed for rule [{}], updating Alert Condition", name);
-                            createAlertConditionForRule(rule);
+                            createOrUpdateAlertCondition(rule);
 						}
 					} catch (NotFoundException e) {
 						LOG.warn("Alert Condition removed for rule [{}], re-instantiating", rule.getName());
-                        createAlertConditionForRule(rule);
+                        createOrUpdateAlertCondition(rule);
 					}
 				}
 			}
+
 			final Set<ConstraintViolation<RuleImpl>> violations = validator.validate(ruleImpl);
 			if (violations.isEmpty()) {
 
@@ -133,24 +133,6 @@ public class RuleServiceImpl implements RuleService {
 					"Specified object is not of correct implementation type (" + rule.getClass() + ")!");
 	}
 
-	public Rule setAlertConditionId(Rule rule, String alertConditionId){
-		if (rule instanceof RuleImpl) {
-			final RuleImpl ruleImpl = (RuleImpl) rule;
-			LOG.debug("set alertConditionId [{}] for rule [{}] ", alertConditionId, ruleImpl);
-
-			final Set<ConstraintViolation<RuleImpl>> violations = validator.validate(ruleImpl);
-			if (violations.isEmpty()) {
-                Rule newRule = coll.findAndModify(DBQuery.is("name", ruleImpl.getName()), new BasicDBObject(), new BasicDBObject(), false, DBUpdate.set("alertConditionId", alertConditionId), true, false);
-                LOG.debug("Rule after insertion: [{}]", newRule );
-                return newRule;
-			} else {
-				throw new IllegalArgumentException("Specified object failed validation: " + violations);
-			}
-		} else
-			throw new IllegalArgumentException(
-					"Specified object is not of correct implementation type (" + rule.getClass() + ")!");
-	}
-
 
 	@Override
 	public List<Rule> all() {		
@@ -159,6 +141,8 @@ public class RuleServiceImpl implements RuleService {
 
 	@Override
 	public Rule fromRequest(AddRuleRequest request) {
+		String alertConditionId = createOrUpdateAlertCondition(request.getRule());
+		LOG.info("Creating new rule [{}] with alertConditionId [{}]", request.getRule(), alertConditionId);
 		Rule rule =  RuleImpl.create(
 				request.getRule().getQuery(), 
 				request.getRule().getField(),
@@ -170,7 +154,7 @@ public class RuleServiceImpl implements RuleService {
 				request.getRule().getStreamId(),
 				request.getRule().isInReport(),
 				request.getRule().getReportSchedules(),
-				null,
+				alertConditionId,
 				request.getRule().shouldRepeatNotifications(),
 				request.getRule().getBacklog());
 
@@ -196,11 +180,10 @@ public class RuleServiceImpl implements RuleService {
 				request.getRule().shouldRepeatNotifications(),
 				request.getRule().getBacklog());
 
-
            return rule;
 	}
 
-	public Rule createAlertConditionForRule(Rule rule){
+	public String createOrUpdateAlertCondition(Rule rule){
         String query = rule.getQuery();
         String streamId = rule.getStreamId();
 
@@ -229,18 +212,25 @@ public class RuleServiceImpl implements RuleService {
 
         try {
             alertCondition = (AggregatesAlertCondition) alertConditionFactory.createAlertCondition(AggregatesUtil.ALERT_CONDITION_TYPE, triggeredStream, alertConditionId, DateTime.now(), "admin", parameters, title);
+
             if (alertConditionId != null) {
-                streamService.updateAlertCondition(triggeredStream, alertCondition);
+            	streamService.removeAlertCondition(triggeredStream, alertConditionId);
+                streamService.addAlertCondition(triggeredStream, alertCondition);
+                LOG.debug("Updated Alert Condition [{}]", alertCondition.getId());
             } else {
                 streamService.addAlertCondition(triggeredStream, alertCondition);
+				LOG.debug("Created Alert Condition [{}]", alertCondition.getId());
             }
-            rule = (RuleImpl) setAlertConditionId(rule, alertCondition.getId());
+            return alertCondition.getId();
         } catch (ConfigurationException|ValidationException e) {
             LOG.error("Failed to save Alert Condition for rule [{}] ", rule.getName());
         }
+		return null;
 
-        return rule;
     }
+
+
+
 
 	@Override
 	public int destroy(String ruleName) {

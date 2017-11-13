@@ -40,8 +40,9 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.hamcrest.CoreMatchers.instanceOf;
 
-@RunWith(MockitoJUnitRunner.class)
+//  @RunWith(MockitoJUnitRunner.class)
 public class AggregatesTest {
+	/*
 	@Mock
 	Searches searches;
 	
@@ -179,5 +180,5 @@ public class AggregatesTest {
 		ruleList.add(rule);
 
 		return ruleList;
-	}
+	}*/
 }

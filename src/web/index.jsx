@@ -3,7 +3,7 @@ import webpackEntry from 'webpack-entry';
 
 import packageJson from '../../package.json'
 import { PluginManifest, PluginStore } from 'graylog-web-plugin/plugin'
-
+import AggregatesConfig from 'aggregates/AggregatesConfig';
 import AggregatesPage from 'aggregates/AggregatesPage'
 import SchedulesPage from 'aggregates/SchedulesPage'
 
@@ -16,7 +16,14 @@ const manifest = new PluginManifest(packageJson, {
 
   navigation: [
     { path: '/aggregates', description: 'Aggregates' }
-  ]
+  ],
 
+  systemConfigurations: [
+    {
+      component: AggregatesConfig,
+      configType: 'org.graylog.plugins.aggregates.config.AggregatesConfig',
+    },
+  ],
 });
+
 PluginStore.register(manifest);
