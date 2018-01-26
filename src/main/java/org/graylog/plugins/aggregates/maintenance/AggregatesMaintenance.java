@@ -131,7 +131,7 @@ public class AggregatesMaintenance extends Periodical {
                         Rule foundRule = null;
                         for (Rule rule : rules) {
                             LOG.debug("Rule alertConditionId: [{}], alertConditionId: [{}]", rule.getAlertConditionId(), alertCondition.getId());
-                            if (rule.getAlertConditionId().equals(alertCondition.getId())) {
+                            if (alertCondition.getId().equals(rule.getAlertConditionId())) {
                                 foundRule = rule;
                                 break;
                             }
