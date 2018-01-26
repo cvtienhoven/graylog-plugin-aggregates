@@ -2,8 +2,7 @@
 
 [![Build Status](https://travis-ci.org/cvtienhoven/graylog-plugin-aggregates.svg?branch=master)](https://travis-ci.org/cvtienhoven/graylog-plugin-aggregates)
 
-**Required Graylog version:** 2.3.0 and later - **NOT BACKWARDS COMPATIBLE WITH OLDER GRAYLOG VERSIONS**.
-For the latest version compatible with Graylog 2.2.x, use version **[1.0.1](https://github.com/cvtienhoven/graylog-plugin-aggregates/releases/tag/1.0.1)** of the plugin.
+**Required Graylog version:** 2.4.0 and later (from 2.2.2 and upwards) - **NOT BACKWARDS COMPATIBLE WITH OLDER GRAYLOG VERSIONS**.
 
 
 **_Note_**: When upgrading from 1.x.x to version 2.0.0 of the plugin, it's required to modify existing rules (regarding streams and alerting) and existing report schedules (regarding receivers). See the screenshots below.
@@ -127,6 +126,11 @@ When creating or editing a rule, the schedule(s) for generating report(s) can be
 -----
 
 - Bugfix: fixed NullPointerException in AggregatesMaintenance when rule has no alertConditionId. Also log a warning when this is the case.
+
+2.2.2
+-----
+
+- Build against Graylog version 2.4.x
 
 
 
