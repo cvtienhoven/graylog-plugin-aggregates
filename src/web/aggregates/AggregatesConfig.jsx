@@ -112,8 +112,7 @@ const AggregatesConfig = React.createClass({
             <Input id="purge-history-checkbox"
                    type="checkbox"
                    ref="purgeHistory"
-                   label="Purge historic hits beyond the either retention period or the longest report interval (automatically determined).
-                          Recommended to leave enabled to prevent MongoDB filling up."
+                   label="Purge historic hits beyond the either retention period or the longest report interval (automatically determined). Recommended to leave enabled to prevent MongoDB filling up."
                    name="purgeHistory"
                    checked={this.state.config.purgeHistory}
                    onChange={this._onCheckboxClick('purgeHistory', 'purgeHistory')}/>
