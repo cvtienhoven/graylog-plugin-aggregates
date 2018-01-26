@@ -123,6 +123,10 @@ When creating or editing a rule, the schedule(s) for generating report(s) can be
 - Moved report subscriber option to the Report Schedules screen
 - Introduced alerting via the native Graylog Alarm Callbacks (Notifications)
 
+2.2.1
+-----
+
+- Bugfix: fixed NullPointerException in AggregatesMaintenance when rule has no alertConditionId. Also log a warning when this is the case.
 
 
 

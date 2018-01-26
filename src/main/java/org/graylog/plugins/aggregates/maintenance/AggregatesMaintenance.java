@@ -114,6 +114,10 @@ public class AggregatesMaintenance extends Periodical {
             if (rule.getAlertConditionId() != null && !streamIds.contains(rule.getStreamId())) {
                 streamIds.add(rule.getStreamId());
             }
+
+            if (rule.getAlertConditionId() == null){
+                LOG.warn("Rule [{}] has no associated AlertCondition, perhaps it was created with an old version of the plugin. Please re-create it to be able to generate alerts.", rule.getName());
+            }
         }
 
         LOG.info("Removing Aggregate Alert Conditions that don't have associated rule.");
@@ -166,7 +170,7 @@ public class AggregatesMaintenance extends Periodical {
                 if (streamService.getAlertCondition(triggeredStream, alertConditionId).getType().equals(AggregatesUtil.ALERT_CONDITION_TYPE)) {
                     Rule foundRule = null;
                     for (Rule rule : rules) {
-                        if (rule.getAlertConditionId().equals(alertConditionId)) {
+                        if (alertConditionId.equals(rule.getAlertConditionId())) {
                             foundRule = rule;
                             break;
                         }
