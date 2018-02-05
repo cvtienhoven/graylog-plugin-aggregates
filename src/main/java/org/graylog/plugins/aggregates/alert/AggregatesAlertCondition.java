@@ -181,7 +181,7 @@ public class AggregatesAlertCondition extends AbstractAlertCondition {
             historyItemService.create(historyItem);
 
             LOG.debug("Alert check <{}> found [{}] terms.", id, matchedTerms.size());
-            return new CheckResult(true, this, this.description, this.getCreatedAt(), summaries);
+            return new CheckResult(true, this, this.description, Tools.nowUTC(), summaries);
         } else {
             return new NegativeCheckResult();
         }
