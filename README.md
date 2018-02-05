@@ -132,7 +132,11 @@ When creating or editing a rule, the schedule(s) for generating report(s) can be
 
 - Build against Graylog version 2.4.x
 
+2.2.3
+-----
 
+- Bugfix: Removed decoding of URI that was not needed (#32)
+- Bugfix: Corrected timestamp in returned CheckResult for alert generation (#33)
 
 Getting started
 ---------------
