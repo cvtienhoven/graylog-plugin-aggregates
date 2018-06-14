@@ -167,6 +167,7 @@ public class AggregatesAlertCondition extends AbstractAlertCondition {
                     } else {
 
                         summaries = Collections.emptyList();
+                        LOG.debug("No messages found");
                     }
 
 
@@ -183,6 +184,7 @@ public class AggregatesAlertCondition extends AbstractAlertCondition {
             LOG.debug("Alert check <{}> found [{}] terms.", id, matchedTerms.size());
             return new CheckResult(true, this, this.description, Tools.nowUTC(), summaries);
         } else {
+            LOG.debug("Alert check <{}> found no terms, alert should be resolved.");
             return new NegativeCheckResult();
         }
 
