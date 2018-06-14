@@ -3,6 +3,7 @@ package org.graylog.plugins.aggregates.maintenance;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
@@ -128,6 +129,15 @@ public class AggregatesMaintenance extends Periodical {
 
                 List<AlertCondition> alertConditions = streamService.getAlertConditions(triggeredStream);
                 for (AlertCondition alertCondition : alertConditions) {
+                    LOG.debug("Checking for alert like AlertScanner does");
+                    LOG.debug("AlertCondition: [{}]", alertCondition.getTitle());
+                    Optional<Alert> alert = alertService.getLastTriggeredAlert(triggeredStream.getId(), alertCondition.getId());
+                    if (alert.isPresent()){
+                        LOG.debug("Alert found: [{}].", alert);
+                    } else {
+                        LOG.debug("Alert not found.");
+                    }
+
                     LOG.debug("Checking alert condition [{}] with type [{}]", alertCondition.getId(), alertCondition.getType());
                     if (alertCondition.getType().equals(AggregatesUtil.ALERT_CONDITION_TYPE)) {
                         LOG.debug("Type matches [{}], verifying if there's a rule with this alert condition", AggregatesUtil.ALERT_CONDITION_TYPE);

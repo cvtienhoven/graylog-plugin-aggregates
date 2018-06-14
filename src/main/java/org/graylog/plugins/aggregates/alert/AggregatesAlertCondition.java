@@ -13,6 +13,7 @@ import org.graylog.plugins.aggregates.history.HistoryItemService;
 import org.graylog.plugins.aggregates.util.AggregatesUtil;
 import org.graylog2.alerts.AbstractAlertCondition;
 
+import org.graylog2.alerts.Alert;
 import org.graylog2.alerts.types.MessageCountAlertCondition;
 import org.graylog2.indexer.results.ResultMessage;
 import org.graylog2.indexer.results.SearchResult;
@@ -104,6 +105,10 @@ public class AggregatesAlertCondition extends AbstractAlertCondition {
 
     @Override
     public CheckResult runCheck() {
+
+
+
+
         Integer backlogSize = getBacklog();
         boolean backlogEnabled = false;
         int searchLimit = 100;
