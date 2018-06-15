@@ -132,7 +132,6 @@ public class AggregatesMaintenance extends Periodical {
 
                     LOG.debug("AlertCondition: [{}]", alertCondition.getTitle());
 
-                    LOG.info("Resolving duplicate alerts");
                     resolveDuplicateAlerts(triggeredStream, alertCondition);
 
                     LOG.debug("Checking alert condition [{}] with type [{}]", alertCondition.getId(), alertCondition.getType());
@@ -208,6 +207,7 @@ public class AggregatesMaintenance extends Periodical {
      * @param alertCondition the alert condition
      */
     private void resolveDuplicateAlerts(Stream stream, AlertCondition alertCondition){
+        LOG.debug("Resolving duplicate alerts");
         Optional<Alert> lastTriggeredAlert = alertService.getLastTriggeredAlert(stream.getId(), alertCondition.getId());
         List<Alert> unresolvedAlerts = alertService.listForStreamIds(ImmutableList.of(stream.getId()), Alert.AlertState.UNRESOLVED, 0, 1);
 
@@ -228,7 +228,7 @@ public class AggregatesMaintenance extends Periodical {
                 alertService.resolveAlert(unresolvedAlerts.get(0));
             }
         } else {
-            LOG.info("No unresolved duplicate alert found.");
+            LOG.debug("No unresolved duplicate alert found.");
         }
     }
 
