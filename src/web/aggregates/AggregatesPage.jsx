@@ -5,6 +5,7 @@ import AggregatesActions from './AggregatesActions';
 import RulesList from './RulesList';
 import EditRuleModal from './EditRuleModal';
 import { IfPermitted, PageHeader } from 'components/common';
+import Routes from 'routing/Routes';
 
 const AggregatesPage = React.createClass({
   mixins: [],
