@@ -5,7 +5,7 @@ import SchedulesActions from './SchedulesActions';
 import SchedulesList from './SchedulesList';
 import EditScheduleModal from './EditScheduleModal';
 import { IfPermitted, PageHeader } from 'components/common';
-import Routes from 'routing/Routes';
+import Routes from 'routing/AppRouter';
 
 const SchedulesPage = React.createClass({
   mixins: [],
