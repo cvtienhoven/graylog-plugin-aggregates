@@ -104,7 +104,8 @@ When creating or editing a rule, the schedule(s) for generating report(s) can be
 2.2.4
 -----
 
-- Bugfix: Removed decoding of URI that was not needed (#32)
+- Bugfix: Use Router.pluginRoute() to link to page in plugin (#34)
+- Bugfix: Resolve unresolved alerts whose duplicate (same timestamp) has already been resolved. Duplication needs further investigation.
 
 2.2.3
 -----

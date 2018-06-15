@@ -5,7 +5,7 @@ import SchedulesActions from './SchedulesActions';
 import SchedulesList from './SchedulesList';
 import EditScheduleModal from './EditScheduleModal';
 import { IfPermitted, PageHeader } from 'components/common';
-import Routes from 'routing/AppRouter';
+import Routes from 'routing/Routes';
 
 const SchedulesPage = React.createClass({
   mixins: [],
@@ -30,7 +30,7 @@ const SchedulesPage = React.createClass({
             </IfPermitted>
           </span>
           <span>
-            <LinkContainer to={Routes.pluginRoutes('AGGREGATES')}>
+            <LinkContainer to={Routes.pluginRoute('AGGREGATES')}>
               <Button bsStyle="info" type="submit">Back to rules</Button>
             </LinkContainer>
           </span>
