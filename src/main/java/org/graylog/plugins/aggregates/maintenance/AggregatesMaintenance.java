@@ -129,35 +129,11 @@ public class AggregatesMaintenance extends Periodical {
 
                 List<AlertCondition> alertConditions = streamService.getAlertConditions(triggeredStream);
                 for (AlertCondition alertCondition : alertConditions) {
-                    LOG.debug("Checking for alert like AlertScanner does");
+
                     LOG.debug("AlertCondition: [{}]", alertCondition.getTitle());
 
-                    Optional<Alert> lastTriggeredAlert = alertService.getLastTriggeredAlert(triggeredStream.getId(), alertCondition.getId());
-                    List<Alert> unresolvedAlerts = alertService.listForStreamIds(ImmutableList.of(triggeredStream.getId()), Alert.AlertState.UNRESOLVED, 0, 1);
-
-                    if (lastTriggeredAlert.isPresent()){
-                        LOG.debug("Last Triggered Alert found: [{}].", lastTriggeredAlert);
-
-                    } else {
-                        LOG.debug("Last Triggered Alert Alert not found.");
-                    }
-
-                    if (unresolvedAlerts.size() != 0){
-                        LOG.debug("Unresolved alert found: [{}].", unresolvedAlerts.get(0));
-
-                        if (lastTriggeredAlert.isPresent() && lastTriggeredAlert.get().getResolvedAt() != null && lastTriggeredAlert.get().getTriggeredAt().equals(unresolvedAlerts.get(0).getTriggeredAt())){
-                            LOG.debug("Last triggered alert is resolved at [{}], triggered at timestamp: [{}]", lastTriggeredAlert.get().getResolvedAt(), lastTriggeredAlert.get().getTriggeredAt());
-                            LOG.debug("Unresolved alert is triggered at timestamp: [{}]", lastTriggeredAlert.get().getTriggeredAt());
-
-                            LOG.debug("Forcing resolve of alert [{}]", unresolvedAlerts.get(0));
-                            alertService.resolveAlert(unresolvedAlerts.get(0));
-                        }
-                    } else {
-                        LOG.debug("Last Triggered Alert Alert not found.");
-                    }
-
-
-
+                    LOG.info("Resolving duplicate alerts");
+                    resolveDuplicateAlerts(triggeredStream, alertCondition);
 
                     LOG.debug("Checking alert condition [{}] with type [{}]", alertCondition.getId(), alertCondition.getType());
                     if (alertCondition.getType().equals(AggregatesUtil.ALERT_CONDITION_TYPE)) {
@@ -224,7 +200,37 @@ public class AggregatesMaintenance extends Periodical {
 
     }
 
+    /**
+     * Resolve alert that has an equivalent (same timestamp, stream, alert condition) that was resolved.
+     * Is needed because the unresolved alert sometimes never shows up in alertService.getLastTriggeredAlert().
+     * @TODO: Investigate why duplicate alerts occur.
+     * @param stream the stream
+     * @param alertCondition the alert condition
+     */
+    private void resolveDuplicateAlerts(Stream stream, AlertCondition alertCondition){
+        Optional<Alert> lastTriggeredAlert = alertService.getLastTriggeredAlert(stream.getId(), alertCondition.getId());
+        List<Alert> unresolvedAlerts = alertService.listForStreamIds(ImmutableList.of(stream.getId()), Alert.AlertState.UNRESOLVED, 0, 1);
 
+        if (lastTriggeredAlert.isPresent()){
+            LOG.debug("Last Triggered Alert found: [{}].", lastTriggeredAlert);
+        } else {
+            LOG.debug("Last Triggered Alert Alert not found.");
+        }
+
+        if (unresolvedAlerts.size() != 0){
+            LOG.debug("Unresolved alert found: [{}].", unresolvedAlerts.get(0));
+
+            if (lastTriggeredAlert.isPresent() && lastTriggeredAlert.get().getResolvedAt() != null && lastTriggeredAlert.get().getTriggeredAt().equals(unresolvedAlerts.get(0).getTriggeredAt())){
+                LOG.debug("Last triggered alert is resolved at [{}], triggered at timestamp: [{}]", lastTriggeredAlert.get().getResolvedAt(), lastTriggeredAlert.get().getTriggeredAt());
+                LOG.debug("Unresolved alert is triggered at timestamp: [{}]", lastTriggeredAlert.get().getTriggeredAt());
+
+                LOG.info("Forcing resolve of alert [{}]", unresolvedAlerts.get(0));
+                alertService.resolveAlert(unresolvedAlerts.get(0));
+            }
+        } else {
+            LOG.info("No unresolved duplicate alert found.");
+        }
+    }
 
 
     @Override

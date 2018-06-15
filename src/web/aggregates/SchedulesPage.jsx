@@ -29,7 +29,7 @@ const SchedulesPage = React.createClass({
             </IfPermitted>
           </span>
           <span>
-            <LinkContainer to="/aggregates">
+            <LinkContainer to={Routes.pluginRoutes('AGGREGATES')}>
               <Button bsStyle="info" type="submit">Back to rules</Button>
             </LinkContainer>
           </span>

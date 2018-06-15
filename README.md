@@ -101,6 +101,27 @@ When creating or editing a rule, the schedule(s) for generating report(s) can be
 
 # Changelog
 
+2.2.4
+-----
+
+- Bugfix: Removed decoding of URI that was not needed (#32)
+
+2.2.3
+-----
+
+- Bugfix: Removed decoding of URI that was not needed (#32)
+- Bugfix: Corrected timestamp in returned CheckResult for alert generation (#33)
+
+2.2.2
+-----
+
+- Build against Graylog version 2.4.x
+
+2.2.1
+-----
+
+- Bugfix: fixed NullPointerException in AggregatesMaintenance when rule has no alertConditionId. Also log a warning when this is the case.
+
 2.1.1
 -----
 
@@ -122,21 +143,10 @@ When creating or editing a rule, the schedule(s) for generating report(s) can be
 - Moved report subscriber option to the Report Schedules screen
 - Introduced alerting via the native Graylog Alarm Callbacks (Notifications)
 
-2.2.1
------
 
-- Bugfix: fixed NullPointerException in AggregatesMaintenance when rule has no alertConditionId. Also log a warning when this is the case.
 
-2.2.2
------
 
-- Build against Graylog version 2.4.x
 
-2.2.3
------
-
-- Bugfix: Removed decoding of URI that was not needed (#32)
-- Bugfix: Corrected timestamp in returned CheckResult for alert generation (#33)
 
 Getting started
 ---------------
