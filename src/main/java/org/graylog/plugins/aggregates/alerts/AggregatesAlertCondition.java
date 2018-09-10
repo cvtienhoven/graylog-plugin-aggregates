@@ -1,5 +1,5 @@
 
-package org.graylog.plugins.aggregates.alert;
+package org.graylog.plugins.aggregates.alerts;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Lists;
@@ -13,7 +13,6 @@ import org.graylog.plugins.aggregates.history.HistoryItemService;
 import org.graylog.plugins.aggregates.util.AggregatesUtil;
 import org.graylog2.alerts.AbstractAlertCondition;
 
-import org.graylog2.alerts.Alert;
 import org.graylog2.alerts.types.MessageCountAlertCondition;
 import org.graylog2.indexer.results.ResultMessage;
 import org.graylog2.indexer.results.SearchResult;
@@ -98,6 +97,9 @@ public class AggregatesAlertCondition extends AbstractAlertCondition {
         this.historyItemService= historyItemService;
     }
 
+    public String getQuery() { return this.query; }
+    public String getField() { return this.field; }
+
     @Override
     public String getDescription() {
         return this.description;
@@ -105,9 +107,6 @@ public class AggregatesAlertCondition extends AbstractAlertCondition {
 
     @Override
     public CheckResult runCheck() {
-
-
-
 
         Integer backlogSize = getBacklog();
         boolean backlogEnabled = false;
@@ -187,17 +186,25 @@ public class AggregatesAlertCondition extends AbstractAlertCondition {
             historyItemService.create(historyItem);
 
             LOG.debug("Alert check <{}> found [{}] terms.", id, matchedTerms.size());
-            return new CheckResult(true, this, this.description, Tools.nowUTC(), summaries);
+            return new AggregatesCheckResult(true, this, this.description, Tools.nowUTC(), summaries, matchedTerms);
         } else {
             LOG.debug("Alert check <{}> found no terms, alert should be resolved.");
             return new NegativeCheckResult();
         }
-
-        //return new CheckResult(true, this, this.description, this.getCreatedAt(), null);
     }
 
 
+    public class AggregatesCheckResult extends AbstractAlertCondition.CheckResult {
+        private Map<String, Long> matchedTerms;
+        AggregatesCheckResult(boolean isTriggered, AlertCondition triggeredCondition, String resultDescription, DateTime triggeredAt, List<MessageSummary> summaries, Map<String, Long> matchedTerms) {
+            super(isTriggered, triggeredCondition, resultDescription, triggeredAt, summaries);
+            this.matchedTerms = matchedTerms;
+        }
 
+        public Map<String, Long> getMatchedTerms(){
+            return matchedTerms;
+        }
+    }
 
 
 

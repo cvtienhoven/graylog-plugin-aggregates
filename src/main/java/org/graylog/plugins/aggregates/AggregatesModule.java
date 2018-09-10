@@ -1,6 +1,9 @@
 package org.graylog.plugins.aggregates;
 
-import org.graylog.plugins.aggregates.alert.AggregatesAlertCondition;
+import org.graylog.plugins.aggregates.alerts.AggregatesAlertSender;
+import org.graylog.plugins.aggregates.alarmcallbacks.AggregatesEmailAlarmCallback;
+import org.graylog.plugins.aggregates.alerts.AggregatesAlertCondition;
+import org.graylog.plugins.aggregates.alerts.FormattedEmailAlertSender;
 import org.graylog.plugins.aggregates.history.HistoryItemService;
 import org.graylog.plugins.aggregates.history.HistoryItemServiceImpl;
 import org.graylog.plugins.aggregates.maintenance.AggregatesMaintenance;
@@ -14,13 +17,10 @@ import org.graylog.plugins.aggregates.report.schedule.ReportScheduleService;
 import org.graylog.plugins.aggregates.report.schedule.ReportScheduleServiceImpl;
 import org.graylog.plugins.aggregates.report.schedule.rest.ReportScheduleResource;
 import org.graylog.plugins.aggregates.util.AggregatesUtil;
-import org.graylog2.alerts.AbstractAlertCondition;
 import org.graylog2.alerts.AlertService;
 import org.graylog2.alerts.AlertServiceImpl;
-import org.graylog2.alerts.types.FieldContentValueAlertCondition;
 import org.graylog2.plugin.PluginConfigBean;
 import org.graylog2.plugin.PluginModule;
-import org.graylog2.plugin.alarms.AlertCondition;
 
 import java.util.Collections;
 import java.util.Set;
@@ -44,9 +44,10 @@ public class AggregatesModule extends PluginModule {
         bind(AlertService.class).to(AlertServiceImpl.class);
     	bind(RuleService.class).to(RuleServiceImpl.class);
     	bind(ReportScheduleService.class).to(ReportScheduleServiceImpl.class);
-    	bind(HistoryItemService.class).to(HistoryItemServiceImpl.class);    	    	    	
-    	
-        //saddPeriodical(Aggregates.class);
+    	bind(HistoryItemService.class).to(HistoryItemServiceImpl.class);
+        bind(AggregatesAlertSender.class).to(FormattedEmailAlertSender.class);
+
+        //addPeriodical(Aggregates.class);
         addPeriodical(AggregatesReport.class);
         addPeriodical(AggregatesMaintenance.class);
         addPermissions(RuleRestPermissions.class);
@@ -55,6 +56,8 @@ public class AggregatesModule extends PluginModule {
         addRestResource(ReportScheduleResource.class);
 
         addAlertCondition(AggregatesUtil.ALERT_CONDITION_TYPE, AggregatesAlertCondition.class, AggregatesAlertCondition.Factory.class);
+        addAlarmCallback(AggregatesEmailAlarmCallback.class);
+
 
         /*
          * Register your plugin types here.

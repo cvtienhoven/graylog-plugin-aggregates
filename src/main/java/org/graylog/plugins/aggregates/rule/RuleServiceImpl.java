@@ -4,7 +4,7 @@ import com.google.common.collect.Lists;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBCollection;
 
-import org.graylog.plugins.aggregates.alert.AggregatesAlertCondition;
+import org.graylog.plugins.aggregates.alerts.AggregatesAlertCondition;
 import org.graylog.plugins.aggregates.history.HistoryItemService;
 import org.graylog.plugins.aggregates.rule.rest.models.requests.AddRuleRequest;
 import org.graylog.plugins.aggregates.rule.rest.models.requests.UpdateRuleRequest;
@@ -186,10 +186,6 @@ public class RuleServiceImpl implements RuleService {
 	public String createOrUpdateAlertCondition(Rule rule){
         String query = rule.getQuery();
         String streamId = rule.getStreamId();
-
-        if (streamId != null && streamId != ""){
-            query = query + " AND streams:" + streamId;
-        }
 
         Map<String, Object> parameters = AggregatesUtil.parametersFromRule(rule);
 

@@ -101,6 +101,13 @@ When creating or editing a rule, the schedule(s) for generating report(s) can be
 
 # Changelog
 
+2.3.0
+-----
+
+- Feature: Added the Aggregates Email Alarm Callback that emails a table with found field values, the # of occurences and a link to the search (#35, #41).
+- Bugfix: Removed the extra " AND streams: <id>" from the query, as the stream is already filtered in the Alert Condition.
+- Bugfix: Logged the removal of history items on debug level instead of info (#26).
+
 2.2.4
 -----
 

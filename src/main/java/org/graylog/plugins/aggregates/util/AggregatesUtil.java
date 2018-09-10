@@ -2,13 +2,11 @@ package org.graylog.plugins.aggregates.util;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
-import java.text.SimpleDateFormat;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.graylog.plugins.aggregates.alert.AggregatesAlertCondition;
+import org.graylog.plugins.aggregates.alerts.AggregatesAlertCondition;
 import org.graylog.plugins.aggregates.rule.Rule;
 import org.graylog2.configuration.EmailConfiguration;
 import org.graylog2.plugin.indexer.searches.timeranges.TimeRange;
@@ -65,10 +63,6 @@ public class AggregatesUtil {
     public static Map<String, Object> parametersFromRule(Rule rule){
         String query = rule.getQuery();
         String streamId = rule.getStreamId();
-
-        if (streamId != null && streamId != ""){
-            query = query + " AND streams:" + streamId;
-        }
 
         Map<String, Object> parameters = new HashMap<String, Object>();
         parameters.put("time", rule.getInterval());

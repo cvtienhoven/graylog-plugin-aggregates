@@ -1,39 +1,6 @@
 package org.graylog.plugins.aggregates;
 
 
-import java.util.*;
-import javax.inject.Inject;
-
-import com.google.common.collect.ImmutableList;
-import org.graylog.plugins.aggregates.alert.AggregatesAlertCondition;
-import org.graylog.plugins.aggregates.history.HistoryItemService;
-import org.graylog.plugins.aggregates.rule.Rule;
-import org.graylog.plugins.aggregates.rule.RuleService;
-import org.graylog.plugins.aggregates.util.AggregatesUtil;
-import org.graylog2.alerts.Alert;
-import org.graylog2.alerts.AlertConditionFactory;
-import org.graylog2.alerts.AlertService;
-import org.graylog2.database.NotFoundException;
-import org.graylog2.indexer.searches.Searches;
-import org.graylog2.indexer.searches.SearchesClusterConfig;
-import org.graylog2.indexer.cluster.Cluster;
-import org.graylog2.plugin.alarms.AlertCondition;
-import org.graylog2.plugin.cluster.ClusterConfigService;
-import org.graylog2.plugin.configuration.ConfigurationException;
-import org.graylog2.plugin.database.ValidationException;
-import org.graylog2.plugin.indexer.searches.timeranges.AbsoluteRange;
-import org.graylog2.plugin.indexer.searches.timeranges.InvalidRangeParametersException;
-import org.graylog2.plugin.indexer.searches.timeranges.RelativeRange;
-import org.graylog2.plugin.indexer.searches.timeranges.TimeRange;
-import org.graylog2.plugin.periodical.Periodical;
-import org.graylog2.plugin.streams.Stream;
-import org.graylog2.streams.StreamService;
-import org.joda.time.DateTime;
-import org.joda.time.Period;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import com.google.common.annotations.VisibleForTesting;
-
 /**
  * This is the plugin. Your class should implement one of the existing plugin
  * interfaces. (i.e. AlarmCallback, MessageInput, MessageOutput)

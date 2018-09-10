@@ -103,7 +103,7 @@ public class AggregatesMaintenance extends Periodical {
         //remove all items before the current date - retention time
         long initialCount = historyItemService.count();
         historyItemService.removeBefore(cal.getTime());
-        LOG.info("Removed " + (initialCount - historyItemService.count()) + " history items");
+        LOG.debug("Removed " + (initialCount - historyItemService.count()) + " history items");
 
     }
 
