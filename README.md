@@ -56,9 +56,11 @@ This scenario is actually very useful in a security context, but with the built-
 ![](https://github.com/cvtienhoven/graylog-plugin-aggregates/blob/master/images/report.png)
 
 **Define the Aggregates Email Callback**
+
 ![](https://github.com/cvtienhoven/graylog-plugin-aggregates/blob/master/images/email_callback.png)
 
 **Email example**
+
 ![](https://github.com/cvtienhoven/graylog-plugin-aggregates/blob/master/images/email.png)
 
 
