@@ -61,7 +61,7 @@ This scenario is actually very useful in a security context, but with the built-
 
 **Email example**
 
-<img src="https://github.com/cvtienhoven/graylog-plugin-aggregates/blob/master/images/email.png" width="400" />
+<img src="https://github.com/cvtienhoven/graylog-plugin-aggregates/blob/master/images/email.png" width="600" />
 
 
 Usage
