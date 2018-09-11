@@ -47,6 +47,8 @@ import static java.util.Objects.requireNonNull;
 
 public class FormattedEmailAlertSender implements AggregatesAlertSender {
     private static final Logger LOG = LoggerFactory.getLogger(org.graylog2.alerts.FormattedEmailAlertSender.class);
+    private static final String FONT_SIZE = "14px";
+    private static final String FONT_FAMILY = "Arial";
 
     public static final String bodyTemplate = "##########\n" +
             "Alert Description: ${check_result.resultDescription}\n" +
@@ -105,7 +107,7 @@ public class FormattedEmailAlertSender implements AggregatesAlertSender {
 
         Map<String, Object> model = getModel(stream, checkResult, backlog);
 
-        return templateEngine.transform(template, model);
+        return templateEngine.transform(template, model).replaceAll("(\r\n|\n)", "<br />");
     }
 
     @VisibleForTesting
@@ -118,7 +120,7 @@ public class FormattedEmailAlertSender implements AggregatesAlertSender {
         }
         Map<String, Object> model = getModel(stream, checkResult, backlog);
 
-        return this.templateEngine.transform(template, model);
+        return "<html><body style=\"font-family:" + FONT_FAMILY + "; font-size: " + FONT_SIZE + "\">" + this.templateEngine.transform(template, model) + "</body></html>";
     }
 
     private Map<String, Object> getModel(Stream stream, AlertCondition.CheckResult checkResult, List<Message> backlog) {
@@ -138,8 +140,8 @@ public class FormattedEmailAlertSender implements AggregatesAlertSender {
 
     private String getMatchedTermsHTMLTable(AlertCondition.CheckResult result, String baseUri){
         String field = ((AggregatesAlertCondition)result.getTriggeredCondition()).getField();
-        String table = "<table width=\"100%\" border=\"1\" align=\"left\">";
-        table += "<tr><th>Found value</th><th>Occurrences</th></tr>\n";
+        String table = "<table width=\"100%\" border=\"1\" style=\"font-family:Arial; border-collapse: collapse; text-align: left;font-size: " + FONT_SIZE + ";\">";
+        table += "<tr><th align=\"left\">Value of field \"" + field + "\"</th><th align=\"left\">Occurrences</th></tr>\n";
         for (Map.Entry<String, Long> entry : ((AggregatesAlertCondition.AggregatesCheckResult)result).getMatchedTerms().entrySet())
         {
             try {
@@ -149,8 +151,6 @@ public class FormattedEmailAlertSender implements AggregatesAlertSender {
             }
         }
         table += "</table>";
-
-        LOG.info("table: " + table);
 
         return table;
     }
@@ -226,9 +226,12 @@ public class FormattedEmailAlertSender implements AggregatesAlertSender {
         } else {
             email.setFrom(configuration.getFromEmail());
         }
+
         email.setSubject(buildSubject(stream, checkResult, backlog));
         email.setMsg(buildBody(stream, checkResult, backlog));
         email.addTo(emailAddress);
+
+        LOG.debug("Sending email to [{}]", emailAddress);
 
         email.send();
     }

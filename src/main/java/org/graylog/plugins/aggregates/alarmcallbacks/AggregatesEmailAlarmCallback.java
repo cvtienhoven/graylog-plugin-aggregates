@@ -142,6 +142,7 @@ public class AggregatesEmailAlarmCallback implements AlarmCallback {
     }
 
     private EmailRecipients getEmailRecipients() {
+
         return emailRecipientsFactory.create(
                 configuration.getList(CK_USER_RECEIVERS, Collections.emptyList()),
                 configuration.getList(CK_EMAIL_RECEIVERS, Collections.emptyList())
@@ -197,19 +198,12 @@ public class AggregatesEmailAlarmCallback implements AlarmCallback {
                 ConfigurationField.Optional.OPTIONAL,
                 TextField.Attribute.TEXTAREA));
 
-        configurationRequest.addField(new ListField(CK_USER_RECEIVERS,
-                "User Receivers",
-                Collections.emptyList(),
-                userNames,
-                "Graylog usernames that should receive this alert",
-                ConfigurationField.Optional.OPTIONAL));
-
         configurationRequest.addField(new ListField(CK_EMAIL_RECEIVERS,
                 "E-Mail Receivers",
                 Collections.emptyList(),
                 Collections.emptyMap(),
                 "E-Mail addresses that should receive this alert",
-                ConfigurationField.Optional.OPTIONAL,
+                ConfigurationField.Optional.NOT_OPTIONAL,
                 ListField.Attribute.ALLOW_CREATE));
 
         return configurationRequest;

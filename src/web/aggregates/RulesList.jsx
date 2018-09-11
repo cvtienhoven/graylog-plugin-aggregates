@@ -182,7 +182,7 @@ const RulesList = React.createClass({
       </div>
     );
 
-    let streamTitle = '--No Stream (global search)--';
+    let streamTitle = 'N/A (No permissions?)';
     if (rule.streamId !== '') {
       for (let i = 0; i < this.state.streams.length; i++) {
         if (this.state.streams[i].id === rule.streamId) {

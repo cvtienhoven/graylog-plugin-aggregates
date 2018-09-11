@@ -80,6 +80,13 @@ public class RuleServiceImpl implements RuleService {
 	public Rule update(String name, Rule rule) {
 		
 		if (rule instanceof RuleImpl) {
+			RuleImpl originalRule = coll.findOne(DBQuery.is("name", name));
+
+			if (!originalRule.getStreamId().equals(rule.getStreamId())){
+				removeAlertCondition(originalRule);
+				createOrUpdateAlertCondition(rule);
+			}
+
 			final RuleImpl ruleImpl = (RuleImpl) rule;
 			LOG.debug("Rule to be updated [{}]", ruleImpl);
 
@@ -184,6 +191,7 @@ public class RuleServiceImpl implements RuleService {
 	}
 
 	public String createOrUpdateAlertCondition(Rule rule){
+
         String query = rule.getQuery();
         String streamId = rule.getStreamId();
 
@@ -225,20 +233,21 @@ public class RuleServiceImpl implements RuleService {
 
     }
 
-
+	private void removeAlertCondition(Rule rule){
+		Stream triggeredStream = null;
+		try {
+			triggeredStream = streamService.load(rule.getStreamId());
+			streamService.removeAlertCondition(triggeredStream,rule.getAlertConditionId());
+		} catch (NotFoundException e) {
+			LOG.error("Stream with ID [{}] not found", rule.getStreamId());
+		}
+	}
 
 
 	@Override
 	public int destroy(String ruleName) {
 	    Rule rule = coll.findOne(DBQuery.is("name", ruleName));
-        Stream triggeredStream = null;
-        try {
-            triggeredStream = streamService.load(rule.getStreamId());
-            streamService.removeAlertCondition(triggeredStream,rule.getAlertConditionId());
-        } catch (NotFoundException e) {
-            LOG.error("Stream with ID [{}] not found", rule.getStreamId());
-        }
-
+	    removeAlertCondition(rule);
 		return coll.remove(DBQuery.is("name", ruleName)).getN();
 	}
 

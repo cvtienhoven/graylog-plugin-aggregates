@@ -55,6 +55,12 @@ This scenario is actually very useful in a security context, but with the built-
 
 ![](https://github.com/cvtienhoven/graylog-plugin-aggregates/blob/master/images/report.png)
 
+**Define the Aggregates Email Callback**
+![](https://github.com/cvtienhoven/graylog-plugin-aggregates/blob/master/images/email_callback.png)
+
+**Email example**
+![](https://github.com/cvtienhoven/graylog-plugin-aggregates/blob/master/images/email.png)
+
 
 Usage
 -----
@@ -83,11 +89,15 @@ Each rule can be configured to be executed on a particular stream. For the latte
 
 **Sending alerts**
 
-Since version 2.0.0, the plugin integrates tightly with the `Notifications` and `Alert Conditions` within Graylog. You can define a notification on a stream as you would normally do. The plugin creates an Alert Condition when creating an Aggregate Rule and it keeps the condition in sync with the rule after updates. In previous versions, you could only send emails, but now you can also use the HTTP Alarm Callback for instance. If you still want to use emails, you'll have to use the Email Alarm Callback. Unfortunately the HTML markup in emails had to be discarded since the Email Alarm Callback sends emails in plain text.
+Since version 2.0.0, the plugin integrates tightly with the `Notifications` and `Alert Conditions` within Graylog. You can define a notification on a stream as you would normally do. The plugin creates an Alert Condition when creating an Aggregate Rule and it keeps the condition in sync with the rule after updates. In previous versions, you could only send emails, but now you can also use the HTTP Alarm Callback for instance.
+
+New in version 2.3.0 is the `Aggregates Email Alarm Callback`. This callback works in the same way as the normal Email Alarm Callback, but a table (inserted at the `${matchedTermsTable}` placeholder) is added to the template, as shown in the screenshot. The table contains the found values and their number of occurrences, with links to the respective search query. This callback sends an HTML email, so you can customize the layout by using HTML tags and CSS in the email template.
 
 **_Note 1_**: If you delete the Alert Condition, the plugin re-creates it, except when you disable the rule.<br/>
 **_Note 2_**: Enabling the message backlog can inflict a performance penalty, as the backlog has to be assembled from the found terms, using separate searches. Use with care.<br/>
-**_Note 3_**: Alert Conditions are created under the user `admin`.
+**_Note 3_**: Alert Conditions are created under the user `admin`.<br/>
+**_Note_4_**: For the Aggregates Email Alarm Callback, only email receivers can be defined, user receivers are not supported.
+
 
 
 **Reporting**
@@ -107,6 +117,9 @@ When creating or editing a rule, the schedule(s) for generating report(s) can be
 - Feature: Added the Aggregates Email Alarm Callback that emails a table with found field values, the # of occurences and a link to the search (#35, #41).
 - Bugfix: Removed the extra " AND streams: <id>" from the query, as the stream is already filtered in the Alert Condition.
 - Bugfix: Logged the removal of history items on debug level instead of info (#26).
+- Bugfix: If the stream is altered for a rule, remove the AlertCondition on the original stream first.
+- Bugfix: Altered description for stream title in rule list if user can't see that stream.
+- Bugfix: The Aggregates item in the navition bar is only visible when users have aggregate_rules:read permissions (#40)
 
 2.2.4
 -----
