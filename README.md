@@ -98,7 +98,7 @@ New in version 2.3.0 is the `Aggregates Email Alarm Callback`. This callback wor
 **_Note 1_**: If you delete the Alert Condition, the plugin re-creates it, except when you disable the rule.<br/>
 **_Note 2_**: Enabling the message backlog can inflict a performance penalty, as the backlog has to be assembled from the found terms, using separate searches. Use with care.<br/>
 **_Note 3_**: Alert Conditions are created under the user `admin`.<br/>
-**_Note_4_**: For the Aggregates Email Alarm Callback, only email receivers can be defined, user receivers are not supported.
+**_Note 4_**: For the Aggregates Email Alarm Callback, only email receivers can be defined, user receivers are not supported.
 
 
 
