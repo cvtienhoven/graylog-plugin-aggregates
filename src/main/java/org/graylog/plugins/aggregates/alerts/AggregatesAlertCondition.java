@@ -1,12 +1,15 @@
 
 package org.graylog.plugins.aggregates.alerts;
 
+import com.fasterxml.jackson.annotation.JsonValue;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Lists;
 
 import com.google.inject.assistedinject.Assisted;
 import com.google.inject.assistedinject.AssistedInject;
 
+import org.apache.lucene.queryparser.classic.QueryParser;
+import org.apache.lucene.queryparser.flexible.standard.parser.EscapeQuerySyntaxImpl;
 import org.graylog.plugins.aggregates.history.HistoryItem;
 import org.graylog.plugins.aggregates.history.HistoryItemImpl;
 import org.graylog.plugins.aggregates.history.HistoryItemService;
@@ -149,7 +152,8 @@ public class AggregatesAlertCondition extends AbstractAlertCondition {
 
                     if (backlogEnabled) {
                         SearchResult searchResult = searches.search(
-                                query + " AND " + field + ": " + matchedFieldValue,
+
+                                query + " AND " + field + ": " + QueryParser.escape(matchedFieldValue),
                                 filter,
                                 timeRange,
                                 searchLimit,
@@ -211,10 +215,12 @@ public class AggregatesAlertCondition extends AbstractAlertCondition {
 
     public static class Descriptor extends AlertCondition.Descriptor {
         public Descriptor() {
+
             super(
                     "Aggregate Rule Alert Condition",
                     "https://github.com/cvtienhoven/graylog-plugin-aggregates",
                     "This condition is triggered when an Aggregates Rule has been satisfied."
+
             );
         }
     }
@@ -243,10 +249,10 @@ public class AggregatesAlertCondition extends AbstractAlertCondition {
                                         @Assisted("title") @Nullable String title);
 
         @Override
-        MessageCountAlertCondition.Config config();
+        AggregatesAlertCondition.Config config();
 
         @Override
-        MessageCountAlertCondition.Descriptor descriptor();
+        AggregatesAlertCondition.Descriptor descriptor();
     }
 
     @VisibleForTesting

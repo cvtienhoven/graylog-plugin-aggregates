@@ -113,6 +113,15 @@ When creating or editing a rule, the schedule(s) for generating report(s) can be
 
 # Changelog
 
+2.3.1
+-----
+
+- Feature: Added the REST endpoints to the Audit Event Processor (#43).
+- Bugfix: Build pipeline against 2.5.x version (#46).
+- Bugfix: Escape query terms when compiling the message backlog (#44).
+- Bugfix: Use correct descriptor for Alert Condition (#42).
+
+
 2.3.0
 -----
 

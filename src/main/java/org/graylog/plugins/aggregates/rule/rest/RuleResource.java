@@ -15,6 +15,9 @@ import org.graylog.plugins.aggregates.rule.RuleService;
 import org.graylog.plugins.aggregates.rule.rest.models.requests.AddRuleRequest;
 import org.graylog.plugins.aggregates.rule.rest.models.requests.UpdateRuleRequest;
 import org.graylog.plugins.aggregates.rule.rest.models.responses.RulesList;
+import org.graylog.plugins.aggregates.util.AggregatesUtil;
+import org.graylog.plugins.aggregates.util.AuditEventTypes;
+import org.graylog2.audit.jersey.AuditEvent;
 import org.graylog2.plugin.rest.PluginRestResource;
 import org.graylog2.shared.rest.resources.RestResource;
 import org.slf4j.Logger;
@@ -68,6 +71,7 @@ public class RuleResource extends RestResource implements PluginRestResource {
     @ApiOperation(value = "Create a rule")
     @RequiresAuthentication
     @RequiresPermissions(RuleRestPermissions.AGGREGATE_RULES_CREATE)
+    @AuditEvent(type = AuditEventTypes.AGGREGATES_RULE_CREATE)
     @ApiResponses(value = {
             @ApiResponse(code = 400, message = "The supplied request is not valid.")
     })
@@ -86,6 +90,7 @@ public class RuleResource extends RestResource implements PluginRestResource {
     @Timed
     @RequiresAuthentication
     @RequiresPermissions(RuleRestPermissions.AGGREGATE_RULES_UPDATE)
+    @AuditEvent(type = AuditEventTypes.AGGREGATES_RULE_UPDATE)
     @ApiOperation(value = "Update a rule")
     @ApiResponses(value = {
             @ApiResponse(code = 400, message = "The supplied request is not valid.")
@@ -105,6 +110,7 @@ public class RuleResource extends RestResource implements PluginRestResource {
     @Path("/{name}")
     @RequiresAuthentication
     @RequiresPermissions(RuleRestPermissions.AGGREGATE_RULES_DELETE)
+    @AuditEvent(type = AuditEventTypes.AGGREGATES_RULE_DELETE)
     @ApiOperation(value = "Delete a rule")
     @ApiResponses(value = {
             @ApiResponse(code = 404, message = "Rule not found."),

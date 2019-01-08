@@ -15,6 +15,9 @@ import org.graylog.plugins.aggregates.report.schedule.ReportScheduleService;
 import org.graylog.plugins.aggregates.report.schedule.rest.models.requests.AddReportScheduleRequest;
 import org.graylog.plugins.aggregates.report.schedule.rest.models.requests.UpdateReportScheduleRequest;
 import org.graylog.plugins.aggregates.report.schedule.rest.models.responses.ReportSchedulesList;
+import org.graylog.plugins.aggregates.util.AggregatesUtil;
+import org.graylog.plugins.aggregates.util.AuditEventTypes;
+import org.graylog2.audit.jersey.AuditEvent;
 import org.graylog2.plugin.rest.PluginRestResource;
 import org.graylog2.shared.rest.resources.RestResource;
 import javax.inject.Inject;
@@ -61,6 +64,7 @@ public class ReportScheduleResource extends RestResource implements PluginRestRe
     @ApiOperation(value = "Create a report schedule")
     @RequiresAuthentication
     @RequiresPermissions(ReportScheduleRestPermissions.AGGREGATE_REPORT_SCHEDULES_CREATE)
+    @AuditEvent(type = AuditEventTypes.AGGREGATES_REPORT_SCHEDULE_CREATE)
     @ApiResponses(value = {
             @ApiResponse(code = 400, message = "The supplied request is not valid.")
     })
@@ -79,6 +83,7 @@ public class ReportScheduleResource extends RestResource implements PluginRestRe
     @Timed
     @RequiresAuthentication
     @RequiresPermissions(ReportScheduleRestPermissions.AGGREGATE_REPORT_SCHEDULES_UPDATE)
+    @AuditEvent(type = AuditEventTypes.AGGREGATES_REPORT_SCHEDULE_UPDATE)
     @ApiOperation(value = "Update a report schedule")
     @ApiResponses(value = {
             @ApiResponse(code = 400, message = "The supplied request is not valid.")
@@ -98,6 +103,7 @@ public class ReportScheduleResource extends RestResource implements PluginRestRe
     @Path("/{id}")
     @RequiresAuthentication
     @RequiresPermissions(ReportScheduleRestPermissions.AGGREGATE_REPORT_SCHEDULES_DELETE)
+    @AuditEvent(type = AuditEventTypes.AGGREGATES_REPORT_SCHEDULE_DELETE)
     @ApiOperation(value = "Delete a report schedule")
     @ApiResponses(value = {
             @ApiResponse(code = 404, message = "Schedule not found."),
