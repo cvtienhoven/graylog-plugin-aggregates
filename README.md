@@ -2,7 +2,7 @@
 
 [![Build Status](https://travis-ci.org/cvtienhoven/graylog-plugin-aggregates.svg?branch=master)](https://travis-ci.org/cvtienhoven/graylog-plugin-aggregates)
 
-**Required Graylog version:** 2.4.0 and later (from 2.2.2 and upwards) - **NOT BACKWARDS COMPATIBLE WITH OLDER GRAYLOG VERSIONS**.
+**Required Graylog version:** 2.5.0 and later - **NOT BACKWARDS COMPATIBLE WITH OLDER GRAYLOG VERSIONS**.
 
 
 **_Note_**: When upgrading from 1.x.x to version 2.0.0 of the plugin, it's required to modify existing rules (regarding streams and alerting) and existing report schedules (regarding receivers). See the screenshots below.
@@ -113,11 +113,11 @@ When creating or editing a rule, the schedule(s) for generating report(s) can be
 
 # Changelog
 
-2.3.1
+2.4.0
 -----
 
+- Bugfix: Build against 2.5.x version (#46). **This breaks compatibility with 2.4.x versions of Graylog.**
 - Feature: Added the REST endpoints to the Audit Event Processor (#43).
-- Bugfix: Build pipeline against 2.5.x version (#46).
 - Bugfix: Escape query terms when compiling the message backlog (#44).
 - Bugfix: Use correct descriptor for Alert Condition (#42).
 
